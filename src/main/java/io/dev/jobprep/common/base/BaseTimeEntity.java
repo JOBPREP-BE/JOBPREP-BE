@@ -1,4 +1,4 @@
-package io.dev.jobpreb.common.base;
+package io.dev.jobprep.common.base;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

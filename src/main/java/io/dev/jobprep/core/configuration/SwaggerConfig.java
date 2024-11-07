@@ -1,4 +1,4 @@
-package io.dev.jobpreb.core.configuration;
+package io.dev.jobprep.core.configuration;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

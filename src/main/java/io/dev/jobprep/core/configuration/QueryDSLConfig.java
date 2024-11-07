@@ -1,4 +1,4 @@
-package io.dev.jobpreb.core.configuration;
+package io.dev.jobprep.core.configuration;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

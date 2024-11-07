@@ -1,4 +1,4 @@
-package io.dev.jobpreb.core.configuration;
+package io.dev.jobprep.core.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
