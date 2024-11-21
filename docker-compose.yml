@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  jobprep_mysql:
+    image: mysql:8.2.0
+    container_name: jobprep_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - db_log:/var/log/mysql
+      - db_cnf:/etc/mysql/conf.d
+      - ${DB_CNF}:/etc/mysql/conf.d/my.cnf
+    networks:
+      - app-network
+
+  app:
+    container_name: jobprep-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://jobprep_mysql:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${APP_PORT}:8080"
+    depends_on:
+      - jobprep_mysql
+    networks:
+      - app-network
+
+volumes:
+  db_data: {}
+  db_log: {}
+  db_cnf: {}
+
+networks:
+  app-network:
+    driver: bridge
