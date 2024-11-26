@@ -11,7 +11,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import io.dev.jobprep.exception.dto.ErrorResponse;
-import io.dev.jobprep.exception.excception_class.CustomException;
+import io.dev.jobprep.exception.exception_class.CustomException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

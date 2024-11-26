@@ -1,4 +1,4 @@
-package io.dev.jobprep.exception.excception_class;
+package io.dev.jobprep.exception.exception_class;
 
 import io.dev.jobprep.exception.code.ErrorCode;
 import lombok.Getter;
