@@ -1,0 +1,1 @@
+ALTER TABLE study ADD COLUMN user_id BIGINT NOT NULL COMMENT '스터디 생성자 ID'
