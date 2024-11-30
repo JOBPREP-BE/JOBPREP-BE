@@ -22,8 +22,8 @@ public class UserController {
     }
 
     @GetMapping("/mypage")
-    public ResponseEntity<MyPageAPIResponse> getMyPage(@RequestParam(required = false) Long userId,
-                                                    @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<MyPageAPIResponse> getMyPage(@RequestParam(required = false) Long userId/*,
+                                                    @AuthenticationPrincipal UserDetails userDetails*/) {
         MyPageResponse myPageResponse = userService.getUserMyPageInfo(userId);
         return ResponseEntity.ok(MyPageAPIResponse.from(myPageResponse));
     }
