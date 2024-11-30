@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "users")
 public class User extends BaseTimeEntity {
@@ -31,7 +32,7 @@ public class User extends BaseTimeEntity {
     @Column(name="penalty_updated_at")
     private LocalDateTime penaltyUpdatedAt;
 
-    @Builder
+
     public User(Long id,
                 String username,
                 String email,
