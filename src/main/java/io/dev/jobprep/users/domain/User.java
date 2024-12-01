@@ -67,5 +67,10 @@ public class User extends BaseTimeEntity {
         this.deletedAt = LocalDateTime.now(); // 현재 시간을 설정
         return now;
     }
+
+    public void unSetDeletedAt() {
+        this.deletedAt = null;
+    }
+
 }
 
