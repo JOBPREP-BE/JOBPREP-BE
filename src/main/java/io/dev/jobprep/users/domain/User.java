@@ -24,7 +24,7 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     @Column(name = "user_role", nullable = false)
@@ -42,6 +42,10 @@ public class User extends BaseTimeEntity {
     @Column(name="deleted_at")
     private LocalDateTime deletedAt;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
     public User(Long id,
                 String username,
                 String email,
