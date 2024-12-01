@@ -1,19 +1,20 @@
 package io.dev.jobprep.users.application;
+import io.dev.jobprep.exception.exception_class.UserException;
 import io.dev.jobprep.users.application.dto.req.SignUpRequest;
 import io.dev.jobprep.users.application.dto.res.DeleteUserAccountResponse;
 import io.dev.jobprep.users.application.dto.res.MyPageResponse;
 import io.dev.jobprep.users.application.dto.res.SignUpResponse;
 import io.dev.jobprep.users.domain.User;
 import io.dev.jobprep.users.infrastructure.UserRepository;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import io.dev.jobprep.users.utility.UserValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+
+import static io.dev.jobprep.exception.code.ErrorCode400.USER_ACCOUNT_ALREADY_EXISTS;
+import static io.dev.jobprep.exception.code.ErrorCode404.USER_ID_NOT_FOUND_ERROR;
 
 @Service
 public class UserService {
@@ -27,8 +28,18 @@ public class UserService {
     public SignUpResponse SignUpUser(SignUpRequest signUpRequest) {
         // 이메일 중복 확인
         //TODO 탈퇴 유저 재가입시 로직 필요
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        Optional<User> userData = userRepository.findUserByEmail(signUpRequest.getEmail());
+
+        if (userData.isPresent()){
+            User existingUser = userData.get();
+
+            try {//탈퇴했던 회원인지 체크
+                UserValidator.validateUserActive(existingUser);
+            }catch(UserException e){//탈퇴취소 로직
+                existingUser.unSetDeletedAt();
+            }
+        }else{
+            throw new UserException(USER_ACCOUNT_ALREADY_EXISTS);
         }
 
         // 중복되지 않을 경우 새 사용자 저장
@@ -41,9 +52,12 @@ public class UserService {
         return SignUpResponse.from(userRepository.save(newUser));
     }
     //TODO 나중에 JWT 관련 로직으로 처리하기
+    //유저 찾는 로직
     public MyPageResponse getUserMyPageInfo(Long userId){
         User userData = userRepository.findUserById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UserException(USER_ID_NOT_FOUND_ERROR));
+
+        UserValidator.validateUserActive(userData);
 
         return MyPageResponse.builder().userEmail(userData.getEmail())
                 .Username(userData.getUsername())
@@ -52,11 +66,14 @@ public class UserService {
 
     }
 
+    //유저 삭제 로직
     public DeleteUserAccountResponse deleteUserAcount(Long userId){
         User userData = userRepository.findUserById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UserException(USER_ID_NOT_FOUND_ERROR));
+        //이미 탈퇴처리 된 유저 처리
+        UserValidator.validateUserActive(userData);
+
         LocalDateTime timeNow = userData.setDeletedAt();
-        userRepository.save(userData);
 
         return DeleteUserAccountResponse.builder()
                 .time(timeNow)
