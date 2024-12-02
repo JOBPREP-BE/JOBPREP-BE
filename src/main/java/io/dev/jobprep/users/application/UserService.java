@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.USER_ACCOUNT_ALREADY_EXISTS;
-import static io.dev.jobprep.exception.code.ErrorCode404.USER_ID_NOT_FOUND_ERROR;
+import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
 @Service
 public class UserService {
@@ -55,7 +55,7 @@ public class UserService {
     //유저 찾는 로직
     public MyPageResponse getUserMyPageInfo(Long userId){
         User userData = userRepository.findUserById(userId)
-                .orElseThrow(() -> new UserException(USER_ID_NOT_FOUND_ERROR));
+                .orElseThrow(() -> new UserException(USER_NOT_FOUND));
 
         UserValidator.validateUserActive(userData);
 
@@ -69,7 +69,7 @@ public class UserService {
     //유저 삭제 로직
     public DeleteUserAccountResponse deleteUserAcount(Long userId){
         User userData = userRepository.findUserById(userId)
-                .orElseThrow(() -> new UserException(USER_ID_NOT_FOUND_ERROR));
+                .orElseThrow(() -> new UserException(USER_NOT_FOUND));
         //이미 탈퇴처리 된 유저 처리
         UserValidator.validateUserActive(userData);
 
