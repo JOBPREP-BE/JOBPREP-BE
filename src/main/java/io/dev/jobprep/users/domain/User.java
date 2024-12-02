@@ -1,10 +1,13 @@
 package io.dev.jobprep.users.domain;
 
 import io.dev.jobprep.common.base.BaseTimeEntity;
+import io.dev.jobprep.exception.exception_class.UserException;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+
+import static io.dev.jobprep.exception.code.ErrorCode401.USER_ACCOUNT_DISABLED;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -49,6 +52,12 @@ public class User extends BaseTimeEntity {
 
     public void restoreAccount(){
         super.restore();
+    }
+
+    public void validateUserActive() {
+        if (super.getDeletedAt() != null) {
+            throw new UserException(USER_ACCOUNT_DISABLED);
+        }
     }
 
 }

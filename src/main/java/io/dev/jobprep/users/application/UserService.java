@@ -6,7 +6,6 @@ import io.dev.jobprep.users.application.dto.res.MyPageResponse;
 import io.dev.jobprep.users.application.dto.res.SignUpResponse;
 import io.dev.jobprep.users.domain.User;
 import io.dev.jobprep.users.infrastructure.UserRepository;
-import io.dev.jobprep.users.utility.UserValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +33,7 @@ public class UserService {
             User existingUser = userData.get();
 
             try {//탈퇴했던 회원인지 체크
-                UserValidator.validateUserActive(existingUser);
+                existingUser.validateUserActive();
             }catch(UserException e){//탈퇴취소 로직
                 existingUser.restoreAccount();
             }
@@ -56,7 +55,7 @@ public class UserService {
         User userData = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
 
-        UserValidator.validateUserActive(userData);
+        userData.validateUserActive();
 
         return MyPageResponse.builder().userEmail(userData.getEmail())
                 .Username(userData.getUsername())
@@ -70,7 +69,7 @@ public class UserService {
         User userData = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
         //이미 탈퇴처리 된 유저 처리
-        UserValidator.validateUserActive(userData);
+        userData.validateUserActive();
         LocalDateTime timeNow = userData.setDeletedAt();
 
         return DeleteUserAccountResponse.from(timeNow);
