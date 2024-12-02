@@ -6,7 +6,6 @@ import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
 
 import io.dev.jobprep.domain.study.application.dto.res.StudyInfoDto;
 import io.dev.jobprep.domain.study.domain.entity.Study;
-import io.dev.jobprep.domain.study.domain.entity.StudySchedule;
 import io.dev.jobprep.domain.study.exception.StudyException;
 import io.dev.jobprep.domain.study.infrastructure.StudyJpaRepository;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyCreateRequest;
@@ -68,11 +67,6 @@ public class StudyService {
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
 
         // TODO: User 엔티티 추가 시, 양뱡향 연관관계 매핑 후 수정
-        Optional<Study> study = studyRepository.findGatheredStudyByUserId(userId);
-        if (study.isPresent()) {
-            List<StudySchedule> schedules = studyScheduleService.getAll(study.get().getId());
-        }
-
         return studyRepository.findGatheredStudyByUserId(userId);
     }
 
