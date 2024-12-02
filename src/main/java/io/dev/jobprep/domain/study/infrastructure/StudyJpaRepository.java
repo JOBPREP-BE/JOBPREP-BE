@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface StudyJpaRepository extends JpaRepository<Study, Long> {
+public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRepositoryCustom {
 
     @Query("select std from Study std where std.id = :id")
     Optional<Study> findById(Long id);
@@ -23,13 +23,21 @@ public interface StudyJpaRepository extends JpaRepository<Study, Long> {
     Optional<Study> findStudyByCreatorId(Long creatorId);
 
     @Query("""
-        select std from Study std join Users u on std.id = u.studyId
-        where u.id = :userId and std.status in ('IN_PROGRESS', 'RECRUITMENT_CLOSED')
-        and std.deletedAt = null
+        select std from Study std join UserStudy us on std.id = us.study.id
+        where us.user.id = :userId and not std.status in ('FINISHED') and std.deletedAt = null
     """)
     Optional<Study> findGatheredStudyByUserId(Long userId);
 
-    @Query("select distinct u.id from Users u where u.studyId = :studyId")
-    Integer getAmountOfGatheredUser(Long studyId);
+    @Query(value = """
+        select * from study as s left join user_study us on s.id = us.study_id
+        where s.study_status = 'RECRUITING' group by s.id having count(us.user_id) < :headCount
+    """, nativeQuery = true)
+    List<Study> findUnderstaffedStudy(int headCount);
+
+    @Query(value = """
+        select * from study as s inner join study_schedule ss on s.id = ss.study_id
+        where ss.week_number = :weekNum and ss.start_date = CURDATE() - INTERVAL 1 DAY;
+    """, nativeQuery = true)
+    List<Study> findFinishedStudy(int weekNum);
 
 }
