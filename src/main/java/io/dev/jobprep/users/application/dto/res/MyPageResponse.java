@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class MyPageResponse {
+public final class MyPageResponse {
     private String userEmail;
     private String Username;
     private UserRole userRole;

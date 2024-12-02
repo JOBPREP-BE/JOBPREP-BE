@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class SignUpResponse {
+public final class SignUpResponse {
     private String email;
     private String username;
     private LocalDateTime time;

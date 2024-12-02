@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Getter
-public class DeleteUserAccountAPIResponse {
+public final class DeleteUserAccountAPIResponse {
     private String Message;
     private LocalDateTime time;
     public static DeleteUserAccountAPIResponse from(DeleteUserAccountResponse response){

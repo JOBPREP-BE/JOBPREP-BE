@@ -1,7 +1,6 @@
 package io.dev.jobprep.users.presentation.dto.res;
 
 import io.dev.jobprep.users.application.dto.res.SignUpResponse;
-import io.dev.jobprep.users.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class SignUpAPIResponse {
+public final class SignUpAPIResponse {
 
     private String message;
     private String email;

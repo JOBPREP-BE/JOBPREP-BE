@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class SignUpRequest {
+public final class SignUpRequest {
     private String email;
     private String username;
     public static SignUpRequest from(SignUpAPIRequest signUpAPIRequest){
