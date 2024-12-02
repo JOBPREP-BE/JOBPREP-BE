@@ -9,7 +9,6 @@ import io.dev.jobprep.users.infrastructure.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.USER_ACCOUNT_ALREADY_EXISTS;
@@ -65,14 +64,11 @@ public class UserService {
     }
 
     //유저 삭제 로직
+    @Transactional
     public DeleteUserAccountResponse deleteUserAcount(Long userId){
         User userData = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
-        //이미 탈퇴처리 된 유저 처리
-        userData.validateUserActive();
-        LocalDateTime timeNow = userData.setDeletedAt();
-
-        return DeleteUserAccountResponse.from(timeNow);
+        return DeleteUserAccountResponse.from(userData.setDelete());
     }
 
 }

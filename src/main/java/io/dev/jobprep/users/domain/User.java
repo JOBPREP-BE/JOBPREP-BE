@@ -45,9 +45,10 @@ public class User extends BaseTimeEntity {
         this.penaltyUpdatedAt = penaltyUpdatedAt;
     }
 
-    public LocalDateTime setDeletedAt() {
-        this.deletedAt = LocalDateTime.now();
-        return this.deletedAt;
+    public LocalDateTime setDelete() {
+        this.validateUserActive();
+        return super.setDelete();
+
     }
 
     public void restoreAccount(){
