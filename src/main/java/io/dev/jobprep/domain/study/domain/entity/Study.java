@@ -1,11 +1,14 @@
 package io.dev.jobprep.domain.study.domain.entity;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_DELETED_STUDY;
+import static io.dev.jobprep.exception.code.ErrorCode400.STUDY_GATHERED_USER_EXCEED;
 
 import io.dev.jobprep.common.base.BaseTimeEntity;
 import io.dev.jobprep.domain.study.domain.entity.enums.Position;
 import io.dev.jobprep.domain.study.domain.entity.enums.StudyStatus;
 import io.dev.jobprep.domain.study.exception.StudyException;
+import io.dev.jobprep.domain.user.domain.entity.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -14,8 +17,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,6 +49,9 @@ public class Study extends BaseTimeEntity  {
     // TODO: 추후에 스터디 creator_info 추가
     @Column(name = "user_id")
     private Long userId;
+
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserStudy> userStudies = new ArrayList<>();
 
     private Position position;
 
@@ -99,6 +108,12 @@ public class Study extends BaseTimeEntity  {
         this.kakao_link = kakao_link;
     }
 
+    public void join(User user) {
+        validateAvailableJoin();
+        UserStudy userStudy = UserStudy.of(user, this);
+        userStudies.add(userStudy);
+    }
+
     public void close() {
         status.validateAvailableRecruitment();
         this.status = StudyStatus.RECRUITMENT_CLOSED;
@@ -113,24 +128,13 @@ public class Study extends BaseTimeEntity  {
         // TODO: 어드민 검증 로직 위치 변경?
         validateAdmin(userId);
 
-        // TODO: URL 유효성 검사 로직 추가
+        // TODO: URL 유효성 검사 로직 굳이 추가해야 하나?
 
         switch (field) {
-
-            case "google":
-                this.google_link = link;
-                break;
-
-            case "discord":
-                this.discord_link = link;
-                break;
-
-            case "kakao":
-                this.kakao_link = link;
-                break;
-
-            default:
-                throw new IllegalArgumentException("존재하지 않는 필드입니다.");
+            case "google" -> this.google_link = link;
+            case "discord" -> this.discord_link = link;
+            case "kakao" -> this.kakao_link = link;
+            default -> throw new IllegalArgumentException("존재하지 않는 필드입니다.");
         }
     }
 
@@ -138,17 +142,34 @@ public class Study extends BaseTimeEntity  {
 
     public void delete(Long userId) {
         validateAvailableDelete(userId);
-        delete();
+        super.delete();
     }
 
+    // TODO: 매일 자정마다 자동 삭제를 진행하는 스케줄러 구현
     public void deleteForInternal() {
-        // TODO: 해당 스터디가 마감일까지 모집 인원을 채우지 못했는지 검증
-        // TODO: 해당 스터디가 3주차 진행을 완료했는지 검증
         validateAlreadyDeleted();
+        finish();
+        super.delete();
     }
 
     public void validateAvailableJoin() {
         status.validateAvailableRecruitment();
+        validateHeadCount();
+    }
+
+    public void validateHeadCount() {
+        if (isFullHeadCount()) {
+            close();
+            throw new StudyException(STUDY_GATHERED_USER_EXCEED);
+        }
+    }
+
+    public boolean isFullHeadCount() {
+        return getUserAmountOfGathered() >= MAX_HEAD_COUNT;
+    }
+
+    public int getUserAmountOfGathered() {
+        return userStudies.size();
     }
 
     public void validateAvailableDelete(Long userId) {
