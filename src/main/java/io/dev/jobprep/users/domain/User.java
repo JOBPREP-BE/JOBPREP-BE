@@ -2,17 +2,16 @@ package io.dev.jobprep.users.domain;
 
 import io.dev.jobprep.common.base.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchConnectionDetails;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Builder
 @Entity
 @Table(name = "users")
@@ -35,41 +34,24 @@ public class User extends BaseTimeEntity {
     @Column(name="penalty_updated_at")
     private LocalDateTime penaltyUpdatedAt;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name="deleted_at")
-    private LocalDateTime deletedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-    public User(Long id,
+    public User(
                 String username,
                 String email,
                 UserRole userRole,
-                LocalDateTime penaltyUpdatedAt,
-                LocalDateTime createdAt,
-                LocalDateTime deletedAt) {
-        this.id = id;
+                LocalDateTime penaltyUpdatedAt) {
         this.username = username;
         this.email = email;
         this.userRole = userRole;
         this.penaltyUpdatedAt = penaltyUpdatedAt;
-        this.createdAt = createdAt;
-        this.deletedAt = deletedAt;
     }
 
     public LocalDateTime setDeletedAt() {
-        LocalDateTime now = LocalDateTime.now();
-        this.deletedAt = LocalDateTime.now(); // 현재 시간을 설정
-        return now;
+        super.delete();
+        return super.getDeletedAt();
     }
 
-    public void unSetDeletedAt() {
-        this.deletedAt = null;
+    public void unSetdeleteAt(){
+        super.unDelete();
     }
 
 }
