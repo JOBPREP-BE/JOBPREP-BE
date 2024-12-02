@@ -20,9 +20,8 @@ public class BaseTimeEntity {
     @Column(name = "deleted_at")
     protected LocalDateTime deletedAt;
 
-    protected LocalDateTime setDelete() {
+    protected void setDelete() {
         this.deletedAt = LocalDateTime.now();
-        return deletedAt;
     }
 
 }

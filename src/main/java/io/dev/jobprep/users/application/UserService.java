@@ -68,7 +68,7 @@ public class UserService {
     public DeleteUserAccountResponse deleteUserAcount(Long userId){
         User userData = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
-        return DeleteUserAccountResponse.from(userData.setDelete());
+        return DeleteUserAccountResponse.from("회원탈퇴가 성공적으로 처리되었습니다.");
     }
 
 }
