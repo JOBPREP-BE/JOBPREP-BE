@@ -36,7 +36,7 @@ public class UserController {
         return ResponseEntity.ok(MyPageAPIResponse.from(myPageResponse));
     }
 
-    @DeleteMapping("/delete-account")
+    @DeleteMapping("/")
     public ResponseEntity<DeleteUserAccountAPIResponse> deleteMyAccount(@RequestParam(required = false) Long userId/*,
                                                     @AuthenticationPrincipal UserDetails userDetails*/){
         DeleteUserAccountResponse response = userService.deleteUserAcount(userId);
