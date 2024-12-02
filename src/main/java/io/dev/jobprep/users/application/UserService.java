@@ -36,7 +36,7 @@ public class UserService {
             try {//탈퇴했던 회원인지 체크
                 UserValidator.validateUserActive(existingUser);
             }catch(UserException e){//탈퇴취소 로직
-                existingUser.unSetdeleteAt();
+                existingUser.restoreAccount();
             }
             throw new UserException(USER_ACCOUNT_ALREADY_EXISTS);
         }

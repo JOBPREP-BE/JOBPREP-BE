@@ -24,7 +24,7 @@ public class BaseTimeEntity {
         this.deletedAt = LocalDateTime.now();
     }
 
-    protected void unDelete() {
+    protected void restore() {
         this.deletedAt = null;
     }
 }

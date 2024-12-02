@@ -3,10 +3,7 @@ package io.dev.jobprep.users.domain;
 import io.dev.jobprep.common.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchConnectionDetails;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Getter
@@ -50,8 +47,8 @@ public class User extends BaseTimeEntity {
         return super.getDeletedAt();
     }
 
-    public void unSetdeleteAt(){
-        super.unDelete();
+    public void restoreAccount(){
+        super.restore();
     }
 
 }
