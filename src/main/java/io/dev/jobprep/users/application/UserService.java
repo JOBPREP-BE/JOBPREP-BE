@@ -71,13 +71,9 @@ public class UserService {
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
         //이미 탈퇴처리 된 유저 처리
         UserValidator.validateUserActive(userData);
-
         LocalDateTime timeNow = userData.setDeletedAt();
 
-        return DeleteUserAccountResponse.builder()
-                .time(timeNow)
-                .Message("회원탈퇴가 성공적으로 처리되었습니다.")
-                .build();
+        return DeleteUserAccountResponse.from(timeNow);
     }
 
 }
