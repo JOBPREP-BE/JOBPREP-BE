@@ -61,7 +61,8 @@ public interface StudySwagger {
                     @ExampleObject(name = "E01-STUDY-004", value = SwaggerStudyErrorExamples.ALREADY_FINISHED_STUDY),
                     @ExampleObject(name = "E01-STUDY-005", value = SwaggerStudyErrorExamples.ALREADY_DELETED_STUDY),
                     @ExampleObject(name = "E01-STUDY-006", value = SwaggerStudyErrorExamples.STUDY_GATHERED_USER_EXCEED),
-                    @ExampleObject(name = "E01-STUDY-007", value = SwaggerStudyErrorExamples.ALREADY_GATHERED_STUDY)
+                    @ExampleObject(name = "E01-STUDY-007", value = SwaggerStudyErrorExamples.ALREADY_GATHERED_STUDY),
+                    @ExampleObject(name = "E01-STUDY-008", value = SwaggerStudyErrorExamples.ALREADY_PASSED_DUE_DATE)
                 }
             )),
         @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
