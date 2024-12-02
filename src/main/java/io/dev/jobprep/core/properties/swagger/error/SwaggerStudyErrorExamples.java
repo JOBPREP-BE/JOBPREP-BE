@@ -2,8 +2,6 @@ package io.dev.jobprep.core.properties.swagger.error;
 
 public class SwaggerStudyErrorExamples {
 
-    // "{\"timestamp\":\"2024-02-17T10:07:31.404Z\",\"statusCode\":400,\"code\":\"E030101\",\"message\":\"프로젝트 만남 시간이 유효하지 않습니다.\"}";
-
     public static final String INVALID_STUDY_STATUS_TO_RECRUIT = "{\"timestamp\":\"2024-12-02T10:07:31.404Z\",\"statusCode\":400,\"code\":\"E01-STUDY-001\",\"message\":\"스터디가 현재 모집중이 아닙니다.\"}";
     public static final String STUDY_WEEK_NUMBER_EXCEED = "{\"timestamp\":\"2024-12-02T10:07:31.404Z\",\"statusCode\":400,\"code\":\"E01-STUDY-002\",\"message\":\"스터디는 3주 이상 진행할 수 없습니다.\"}";
     public static final String ALREADY_CREATED_STUDY = "{\"timestamp\":\"2024-12-02T10:07:31.404Z\",\"statusCode\":400,\"code\":\"E01-STUDY-003\",\"message\":\"스터디는 한 번에 하나만 생성할 수 있습니다.\"}";
