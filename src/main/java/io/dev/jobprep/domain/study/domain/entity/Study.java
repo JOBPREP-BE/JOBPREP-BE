@@ -37,6 +37,7 @@ public class Study extends BaseTimeEntity  {
     @Column(name = "id")
     private Long id;
 
+    // TODO: Unique 컬럼, 중복 검사 필요
     private String name;
 
     // TODO: 추후에 스터디 creator_info 추가
