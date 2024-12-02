@@ -46,12 +46,12 @@ public class User extends BaseTimeEntity {
     }
 
     public LocalDateTime setDeletedAt() {
-        super.delete();
-        return super.getDeletedAt();
+        this.deletedAt = LocalDateTime.now();
+        return this.deletedAt;
     }
 
     public void restoreAccount(){
-        super.restore();
+        this.deletedAt =null;
     }
 
     public void validateUserActive() {
