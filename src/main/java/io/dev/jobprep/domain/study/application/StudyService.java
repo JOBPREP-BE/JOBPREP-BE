@@ -1,16 +1,22 @@
 package io.dev.jobprep.domain.study.application;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_CREATED_STUDY;
+import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_GATHERED_STUDY;
+import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_PASSED_DUE_DATE;
 import static io.dev.jobprep.exception.code.ErrorCode400.STUDY_GATHERED_USER_EXCEED;
 import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
 
 import io.dev.jobprep.domain.study.application.dto.res.StudyInfoDto;
+import io.dev.jobprep.domain.study.application.dto.res.StudyWithStartDateDto;
 import io.dev.jobprep.domain.study.domain.entity.Study;
 import io.dev.jobprep.domain.study.exception.StudyException;
 import io.dev.jobprep.domain.study.infrastructure.StudyJpaRepository;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyCreateRequest;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyScheduleCreateRequest;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyUpdateAdminRequest;
+import io.dev.jobprep.domain.user.domain.entity.User;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +32,7 @@ public class StudyService {
 
     private final static int MAX_HEAD_COUNT = 3;
     private final static int INIT_WEEK_NUM = 1;
+    private final static int MAX_WEEK_NUM = 3;
 
     private final StudyJpaRepository studyRepository;
     private final StudyScheduleService studyScheduleService;
@@ -34,12 +41,13 @@ public class StudyService {
     public Long create(Long id, StudyCreateRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
+        User creator = getUser(id);
 
         validateAlreadyCreated(id);
-
-        // TODO: 현재 참여 중인 스터디가 있는지 유효성 검사
+        validateAlreadyGathered(id);
 
         Study study = req.toEntity(id);
+        study.join(creator);
         studyRepository.save(study);
 
         StudyScheduleCreateRequest scheduleReq = req.from(study.getId());
@@ -48,16 +56,28 @@ public class StudyService {
         return study.getId();
     }
 
+    @Transactional
     public Long join(Long id, Long studyId) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
+        User user = getUser(id);
 
-        Study study = validateAvailableJoin(studyId);
+        validateAlreadyGathered(id);
 
+        StudyWithStartDateDto studyWithDate = studyRepository.getStudyWithStartDate(studyId)
+            .orElseThrow(() -> new StudyException(STUDY_NOT_FOUND));
+        Study study = studyWithDate.getStudy();
 
-        // TODO: 해당 스터디가 모집 인원을 모두 채웠는지 유효성 검사
-        // TODO: 해당 스터디가 모집 인원을 모두 채웠으면 '모집 마감' 변경
-        validateMaxHeadCount(study);
+        if (isPassedDueDate(studyWithDate.getStartDate())) {
+            // 모집 기간이 지났으면 모집 종료
+            study.close();
+            throw new StudyException(ALREADY_PASSED_DUE_DATE);
+        }
+
+        study.join(user);
+
+        // 모집 인원이 다 찼으면 모집 종료
+        validateShouldClose(study);
 
         return studyId;
     }
@@ -80,7 +100,7 @@ public class StudyService {
             (study) -> StudyInfoDto.of(
                     study,
                     studyScheduleService.getStudySchedule(study.getId(), INIT_WEEK_NUM),
-                    studyRepository.getAmountOfGatheredUser(study.getId()))
+                    study.getUserAmountOfGathered())
         ).toList();
     }
 
@@ -91,6 +111,19 @@ public class StudyService {
 
         Study study = getStudy(studyId);
         study.delete(userId);
+    }
+
+    // TODO: 트랜잭션 쪼개기
+    @Transactional
+    public void deleteForInternal() {
+
+        // TODO: 마감일이 지났는데, 모집인원이 다 차지 않은 스터디 조회
+        List<Study> underStaffedStudy = studyRepository.findUnderstaffedStudy(MAX_HEAD_COUNT);
+        underStaffedStudy.forEach(Study::deleteForInternal);
+
+        // TODO: 3주차 진행이 완료된 스터디 조회
+        List<Study> finishedStudy = studyRepository.findFinishedStudy(MAX_WEEK_NUM);
+        finishedStudy.forEach(Study::deleteForInternal);
     }
 
     public List<Study> getAll(Long userId) {
@@ -113,20 +146,29 @@ public class StudyService {
             .orElseThrow(() -> new StudyException(ALREADY_CREATED_STUDY));
     }
 
-    private Study validateAvailableJoin(Long studyId) {
-        Study study = getStudy(studyId);
-        // 해당 스터디가 '모집중'인지 유효성 검사
-        study.validateAvailableJoin();
-        return study;
+    private void validateAlreadyGathered(Long userId) {
+        if (studyRepository.findGatheredStudyByUserId(userId).isPresent()) {
+            throw new StudyException(ALREADY_GATHERED_STUDY);
+        }
     }
 
-    private void validateMaxHeadCount(Study study) {
-        int amount = studyRepository.getAmountOfGatheredUser(study.getId());
-        if (amount >= MAX_HEAD_COUNT) {
+    private void validateShouldClose(Study study) {
+        int amount = study.getUserAmountOfGathered();
+        if (amount > MAX_HEAD_COUNT) {
             throw new StudyException(STUDY_GATHERED_USER_EXCEED);
-        } else if (amount == MAX_HEAD_COUNT - 1){
+        } else if (amount == MAX_HEAD_COUNT){
             study.close();
         }
+    }
+
+    private boolean isPassedDueDate(LocalDateTime startDate) {
+        LocalDate today = LocalDate.now();
+        return today.isAfter(startDate.toLocalDate());
+    }
+
+    private User getUser(Long id) {
+        // TODO: 유저 조회 로직 추가
+        return null;
     }
 
     private Study getStudy(Long id) {

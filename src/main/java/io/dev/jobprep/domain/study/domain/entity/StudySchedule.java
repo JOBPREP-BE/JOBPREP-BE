@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,6 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudySchedule {
 
+    private final int MIN_WEEK_NUMBER = 1;
     private final int MAX_WEEK_NUMBER = 3;
 
     @Id
@@ -70,6 +72,15 @@ public class StudySchedule {
         if (week_number > MAX_WEEK_NUMBER) {
             throw new StudyException(STUDY_WEEK_NUMBER_EXCEED);
         }
+    }
+
+    public boolean isPassDueDate() {
+        LocalDate today = LocalDate.now();
+        if (week_number == MIN_WEEK_NUMBER) {
+            LocalDate dueDate = start_date.toLocalDate();
+            return today.isEqual(dueDate);
+        }
+        return false;
     }
 
     private void validateDate(LocalDateTime startDate, int weekNumber) {
