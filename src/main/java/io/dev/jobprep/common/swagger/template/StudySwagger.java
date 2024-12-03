@@ -78,8 +78,7 @@ public interface StudySwagger {
 
     @Operation(summary = "스터디 삭제", description = "관리자가 스터디를 삭제할 때 사용하는 API")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "스터디 삭제 성공",
-            content = @Content(schema = @Schema(implementation = StudyIdResponse.class))),
+        @ApiResponse(responseCode = "204", description = "스터디 삭제 성공"),
         @ApiResponse(responseCode = "400", description = "요청한 데이터가 유효하지 않음",
             content = @Content(
                 mediaType = "application/json",
