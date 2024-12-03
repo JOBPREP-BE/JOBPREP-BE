@@ -1,4 +1,4 @@
-package io.dev.jobprep.domain.job_interview.domain;
+package io.dev.jobprep.domain.job_interview.domain.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AllArgsConstructor;

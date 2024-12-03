@@ -1,6 +1,6 @@
 package io.dev.jobprep.domain.job_interview.presentation.dto.req;
 
-import io.dev.jobprep.domain.job_interview.domain.JobInterviewCategory;
+import io.dev.jobprep.domain.job_interview.domain.enums.JobInterviewCategory;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
