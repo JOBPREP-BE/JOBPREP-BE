@@ -3,6 +3,7 @@ package io.dev.jobprep.domain.job_interview.presentation;
 import io.dev.jobprep.domain.job_interview.application.JobInterviewService;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
+import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,8 @@ public class JobInterviewController {
     private final JobInterviewService jobInterviewService;
 
     @PostMapping
-    public ResponseEntity<Long> save () {
-        Long id = jobInterviewService.saveJobInterview();
+    public ResponseEntity<JobInterviewIdResponse> save () {
+        JobInterviewIdResponse id = jobInterviewService.saveJobInterview();
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 
@@ -33,10 +34,10 @@ public class JobInterviewController {
     }
 
     @DeleteMapping("/{interviewId}")
-    public ResponseEntity<Long> delete (
+    public ResponseEntity<JobInterviewIdResponse> delete (
             @PathVariable("interviewId") Long interviewId
     ) {
-        Long id = jobInterviewService.delete(interviewId);
+        JobInterviewIdResponse id = jobInterviewService.delete(interviewId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(id);
     }
 
