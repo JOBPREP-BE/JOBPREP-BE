@@ -13,7 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -27,8 +27,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudySchedule {
 
-    private final int MIN_WEEK_NUMBER = 1;
-    private final int MAX_WEEK_NUMBER = 3;
+    private static final int MIN_WEEK_NUMBER = 1;
+    private static final int MAX_WEEK_NUMBER = 3;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +39,7 @@ public class StudySchedule {
     @JoinColumn(name = "study_id", updatable = false)
     private Study study;
 
-    @Future
+    @FutureOrPresent
     @Column(name = "start_date")
     private LocalDateTime start_date;
 
@@ -74,9 +74,9 @@ public class StudySchedule {
         }
     }
 
-    public boolean isPassDueDate() {
-        LocalDate today = LocalDate.now();
+    private boolean isPassDueDate() {
         if (week_number == MIN_WEEK_NUMBER) {
+            LocalDate today = LocalDate.now();
             LocalDate dueDate = start_date.toLocalDate();
             return today.isEqual(dueDate);
         }
@@ -84,6 +84,7 @@ public class StudySchedule {
     }
 
     private void validateDate(LocalDateTime startDate, int weekNumber) {
-
+        // TODO: 이전 주차보다 큰 값인지, 다음 주차보다 작은 값인지 검증
+        // 비즈니스 로직 vs 어노테이션 고민
     }
 }
