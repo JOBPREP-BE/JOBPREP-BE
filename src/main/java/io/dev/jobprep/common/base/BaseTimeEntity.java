@@ -15,13 +15,17 @@ public class BaseTimeEntity {
 
     @CreatedDate
     @Column(name = "created_at")
-    protected LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "deleted_at")
-    protected LocalDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
-    protected void setDelete() {
+    protected void delete() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    protected void restore(){
+        this.deletedAt = null;
     }
 
 }
