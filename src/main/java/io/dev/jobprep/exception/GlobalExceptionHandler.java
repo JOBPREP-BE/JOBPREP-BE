@@ -1,5 +1,6 @@
 package io.dev.jobprep.exception;
 
+import static io.dev.jobprep.exception.code.ErrorCode400.ILLEGAL_INPUT_ARG;
 import static io.dev.jobprep.exception.code.ErrorCode400.INVALID_INPUT_VALUE;
 import static io.dev.jobprep.exception.code.ErrorCode400.PATH_PARAMETER_BAD_REQUEST;
 import static io.dev.jobprep.exception.code.ErrorCode401.AUTH_MISSING_CREDENTIALS;
@@ -99,6 +100,14 @@ public class GlobalExceptionHandler {
     ) {
         log.info("Access Denied Exception: {}, Path: {}", e.getMessage(), request.getPathInfo());
         return ErrorResponse.from(AUTH_ACCESS_DENIED);
+    }
+
+    @ExceptionHandler(value = {IllegalArgumentException.class})
+    protected ResponseEntity<ErrorResponse> handleIllegalArgumentException(
+        IllegalArgumentException e, HttpServletRequest request
+    ) {
+        log.info("Illegal Argument Exception: {}, Path: {}", e.getMessage(), request.getPathInfo());
+        return ErrorResponse.from(ILLEGAL_INPUT_ARG);
     }
 
     @ExceptionHandler(value = Exception.class)
