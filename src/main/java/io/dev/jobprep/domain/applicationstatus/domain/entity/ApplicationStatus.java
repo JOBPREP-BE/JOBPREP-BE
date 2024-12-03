@@ -2,12 +2,16 @@ package io.dev.jobprep.domain.applicationstatus.domain.entity;
 
 import io.dev.jobprep.domain.applicationstatus.domain.entity.enums.ApplicationProcess;
 import io.dev.jobprep.domain.applicationstatus.domain.entity.enums.ApplicationProgress;
+import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.util.LocalDateTimeConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -26,7 +30,9 @@ public class ApplicationStatus {
     @Column(name = "id")
     private Long id;
 
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", updatable = false)
+    private User creator;
 
     @Column(name = "company")
     private String company;
@@ -55,7 +61,7 @@ public class ApplicationStatus {
     @Builder
     private ApplicationStatus(
         Long id,
-        Long userId,
+        User creator,
         String company,
         String position,
         ApplicationProgress progress,
@@ -66,7 +72,7 @@ public class ApplicationStatus {
         String coverLetter
     ) {
         this.id = id;
-        this.userId = userId;
+        this.creator = creator;
         this.company = company;
         this.position = position;
         this.progress = progress;

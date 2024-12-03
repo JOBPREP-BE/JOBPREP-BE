@@ -8,6 +8,7 @@ import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationS
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusIdResponse;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusInfoResponse;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusUpdateResponse;
+import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -16,7 +17,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -40,6 +40,12 @@ public interface ApplicationStatusSwagger {
     @Operation(summary = "지원 현황 삭제", description = "사용자가 지원현황을 삭제할 때 사용하는 API")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "지원 현황 삭제 성공"),
+        @ApiResponse(responseCode = "403", description = "데이터를 삭제할 권한이 없음",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(name = "E02-APPLICATIONSTATUS-001", value = SwaggerApplicationStatusErrorExamples.APPLICATION_STATUS_FORBIDDEN_OPERATION)
+            )),
         @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
             content = @Content(
                 mediaType = "application/json",
@@ -56,6 +62,12 @@ public interface ApplicationStatusSwagger {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "지원 현황 조회 성공",
             content = @Content(schema = @Schema(implementation = ApplicationStatusInfoResponse.class))),
+        @ApiResponse(responseCode = "403", description = "데이터를 삭제할 권한이 없음",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(name = "E02-APPLICATIONSTATUS-001", value = SwaggerApplicationStatusErrorExamples.APPLICATION_STATUS_FORBIDDEN_OPERATION)
+            )),
         @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
             content = @Content(
                 mediaType = "application/json",
@@ -86,6 +98,12 @@ public interface ApplicationStatusSwagger {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "지원 현황 수정 성공",
             content = @Content(schema = @Schema(implementation = ApplicationStatusUpdateResponse.class))),
+        @ApiResponse(responseCode = "403", description = "데이터를 삭제할 권한이 없음",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(name = "E02-APPLICATIONSTATUS-001", value = SwaggerApplicationStatusErrorExamples.APPLICATION_STATUS_FORBIDDEN_OPERATION)
+            )),
         @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
             content = @Content(
                 mediaType = "application/json",

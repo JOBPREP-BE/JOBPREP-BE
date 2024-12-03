@@ -1,5 +1,6 @@
 package io.dev.jobprep.domain.applicationstatus.application;
 
+import static io.dev.jobprep.exception.code.ErrorCode403.APPLICATION_STATUS_FORBIDDEN_OPERATION;
 import static io.dev.jobprep.exception.code.ErrorCode404.APPLICATION_STATUS_NOT_FOUND;
 import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
@@ -44,6 +45,7 @@ public class ApplicationStatusService {
         // TODO: 유저 토큰 검증
         getUser(userId);
 
+        validateCreator(userId, id);
         delete(id);
         return id;
     }
@@ -53,6 +55,7 @@ public class ApplicationStatusService {
         // TODO: 유저 토큰 검증
         getUser(userId);
 
+        validateCreator(userId, id);
         return getApplicationStatus(id);
     }
 
@@ -61,7 +64,7 @@ public class ApplicationStatusService {
         // TODO: 유저 토큰 검증
         getUser(userId);
 
-        return applicationStatusRepository.findAll();
+        return applicationStatusRepository.findMyAppStatusAll(userId);
     }
 
     public void modify(Long userId, Long id, String field, ApplicationStatusUpdateRequest req) {
@@ -71,6 +74,13 @@ public class ApplicationStatusService {
 
         ApplicationStatus status = getApplicationStatus(id);
         status.modify(field, req.getNewVal());
+    }
+
+    private void validateCreator(Long userId, Long id) {
+        ApplicationStatus status = getApplicationStatus(id);
+        if (!status.getCreator().getId().equals(userId)) {
+            throw new ApplicationStatusException(APPLICATION_STATUS_FORBIDDEN_OPERATION);
+        }
     }
 
     private void save(ApplicationStatus applicationStatus) {
@@ -83,7 +93,6 @@ public class ApplicationStatusService {
     }
 
     private void delete(Long id) {
-        getApplicationStatus(id);
         applicationStatusRepository.deleteById(id);
     }
 
