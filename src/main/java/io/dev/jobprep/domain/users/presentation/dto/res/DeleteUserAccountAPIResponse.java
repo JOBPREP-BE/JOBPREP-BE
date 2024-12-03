@@ -10,8 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 public final class DeleteUserAccountAPIResponse {
     private String Message;
-    private LocalDateTime time;
     public static DeleteUserAccountAPIResponse from(DeleteUserAccountResponse response){
-        return new DeleteUserAccountAPIResponse(response.getMessage(), response.getTime());
+        return new DeleteUserAccountAPIResponse(response.getMessage());
     }
 }
