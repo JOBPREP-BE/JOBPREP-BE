@@ -19,7 +19,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -44,15 +43,16 @@ public class Study extends BaseTimeEntity  {
     private Long id;
 
     // TODO: Unique 컬럼, 중복 검사 필요
+    @Column(name = "study_name")
     private String name;
 
-    // TODO: 추후에 스터디 creator_info 추가
     @Column(name = "user_id")
     private Long userId;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserStudy> userStudies = new ArrayList<>();
 
+    @Column(name = "position")
     private Position position;
 
     @Enumerated(EnumType.STRING)
@@ -65,24 +65,12 @@ public class Study extends BaseTimeEntity  {
     @Column(name = "duration_weeks", updatable = false)
     private int duration_weeks;
 
-    @Pattern(
-        regexp = "^(https?|ftp)://[^\s/$.?#].[^\s]*$",
-        message = "Invalid URL format"
-    )
     @Column(name = "google_link")
     private String google_link;
 
-    @Pattern(
-        regexp = "^(https?|ftp)://[^\s/$.?#].[^\s]*$",
-        message = "Invalid URL format"
-    )
     @Column(name = "discord_link")
     private String discord_link;
 
-    @Pattern(
-        regexp = "^(https?|ftp)://[^\s/$.?#].[^\s]*$",
-        message = "Invalid URL format"
-    )
     @Column(name = "kakao_link")
     private String kakao_link;
 
@@ -152,38 +140,39 @@ public class Study extends BaseTimeEntity  {
         super.delete();
     }
 
-    public void validateAvailableJoin() {
+
+    public int getUserAmountOfGathered() {
+        return userStudies.size();
+    }
+
+    private void validateAvailableJoin() {
         status.validateAvailableRecruitment();
         validateHeadCount();
     }
 
-    public void validateHeadCount() {
+    private void validateHeadCount() {
         if (isFullHeadCount()) {
             close();
             throw new StudyException(STUDY_GATHERED_USER_EXCEED);
         }
     }
 
-    public boolean isFullHeadCount() {
+    private boolean isFullHeadCount() {
         return getUserAmountOfGathered() >= MAX_HEAD_COUNT;
     }
 
-    public int getUserAmountOfGathered() {
-        return userStudies.size();
-    }
-
-    public void validateAvailableDelete(Long userId) {
+    private void validateAvailableDelete(Long userId) {
         validateAdmin(userId);
         validateAlreadyDeleted();
     }
 
-    public void validateAlreadyDeleted() {
+    private void validateAlreadyDeleted() {
         if (getDeletedAt() != null) {
             throw new StudyException(ALREADY_DELETED_STUDY);
         }
     }
 
-    public void validateAdmin(Long userId) {
+    private void validateAdmin(Long userId) {
         // TODO: user role == ADMIN 검증해야 함
     }
 }
