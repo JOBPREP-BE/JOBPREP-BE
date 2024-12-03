@@ -12,7 +12,7 @@ import lombok.Getter;
 @Schema(description = "스터디 스케줄 생성 요청")
 public class StudyScheduleCreateRequest {
 
-    private final int INIT_WEEK_NUMBER = 1;
+    private static final int INIT_WEEK_NUMBER = 1;
 
     @Schema(description = "스터디 ID", example = "3", implementation = Long.class)
     @NotNull
