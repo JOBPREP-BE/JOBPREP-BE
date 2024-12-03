@@ -34,11 +34,11 @@ public class JobInterviewController {
     }
 
     @DeleteMapping("/{interviewId}")
-    public ResponseEntity<JobInterviewIdResponse> delete (
+    public ResponseEntity<Void> delete (
             @PathVariable("interviewId") Long interviewId
     ) {
-        JobInterviewIdResponse id = jobInterviewService.delete(interviewId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(id);
+        jobInterviewService.delete(interviewId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping

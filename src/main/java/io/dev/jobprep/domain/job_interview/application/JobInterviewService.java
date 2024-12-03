@@ -42,11 +42,10 @@ public class JobInterviewService {
         return FindJobInterviewResponse.from(savedEntity);
     }
 
-    public JobInterviewIdResponse delete(Long id) {
+    public void delete(Long id) {
         JobInterview jobInterview = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("면접 데이터를 찾을 수 없습니다."));
         jobInterviewRepository.delete(jobInterview);
-        return JobInterviewIdResponse.from(id);
     }
 
     public List<FindJobInterviewResponse> find() {
