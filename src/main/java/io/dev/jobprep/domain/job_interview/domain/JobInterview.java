@@ -1,8 +1,8 @@
 package io.dev.jobprep.domain.job_interview.domain;
 
+import io.dev.jobprep.domain.job_interview.domain.enums.JobInterviewCategory;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class JobInterview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,5 +30,12 @@ public class JobInterview {
         question = request.getQuestion();
         category = request.getCategory();
         answer = request.getAnswer();
+    }
+
+    private JobInterview(Long id, String question, JobInterviewCategory category, String answer) {
+        this.id = id;
+        this.question = question;
+        this.category = category;
+        this.answer = answer;
     }
 }
