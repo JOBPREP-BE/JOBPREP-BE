@@ -1,6 +1,7 @@
 package io.dev.jobprep.domain.users.presentation;
 
 
+import io.dev.jobprep.domain.users.application.dto.res.SignUpResponse;
 import io.dev.jobprep.domain.users.presentation.dto.res.SignUpAPIResponse;
 import io.dev.jobprep.domain.users.application.UserService;
 import io.dev.jobprep.domain.users.application.dto.req.SignUpRequest;
@@ -11,6 +12,8 @@ import io.dev.jobprep.domain.users.presentation.dto.res.DeleteUserAccountAPIResp
 import io.dev.jobprep.domain.users.presentation.dto.res.MyPageAPIResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -24,9 +27,10 @@ public class UserController {
     public ResponseEntity<SignUpAPIResponse> signUp(@RequestBody SignUpAPIRequest signUpRequest/*,
                                                     @AuthenticationPrincipal UserDetails userDetails*/){
 
-        return ResponseEntity.ok(SignUpAPIResponse.from(
-                userService.SignUpUser(SignUpRequest.from(signUpRequest))
-                ));
+
+        SignUpResponse newUser = userService.SignUpUser(SignUpRequest.from(signUpRequest));
+        URI location = URI.create("/mypage?"+ newUser.getId().toString());
+        return ResponseEntity.created(location).body(SignUpAPIResponse.from(newUser));
     }
     @GetMapping("/mypage")
     public ResponseEntity<MyPageAPIResponse> getMyPage(@RequestParam(required = false) Long userId/*,
