@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,7 +37,7 @@ public class StudyController implements StudySwagger {
     private final StudyScheduleService studyScheduleService;
 
     @PostMapping
-    public ResponseEntity<StudyIdResponse> create(Long userId, StudyCreateRequest request) {
+    public ResponseEntity<StudyIdResponse> create(Long userId, @RequestBody StudyCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(StudyIdResponse.from(studyService.create(userId, request)));
     }
@@ -61,7 +62,7 @@ public class StudyController implements StudySwagger {
 
     @PatchMapping("/{id}/{field}/admin")
     public ResponseEntity<StudyUpdateAdminResponse> modifyForAdmin(
-        Long userId, @PathVariable Long id, @PathVariable String field, StudyUpdateAdminRequest request
+        Long userId, @PathVariable Long id, @PathVariable String field, @RequestBody StudyUpdateAdminRequest request
     ) {
         studyService.update(userId, id, field, request);
         return ResponseEntity.ok(StudyUpdateAdminResponse.of(request.getLink()));
@@ -69,7 +70,7 @@ public class StudyController implements StudySwagger {
 
     @PatchMapping("/{id}")
     public ResponseEntity<StudyUpdateResponse> modify(
-        Long userId, @PathVariable Long id, StudyUpdateRequest request
+        Long userId, @PathVariable Long id, @RequestBody StudyUpdateRequest request
     ) {
         studyScheduleService.modify(userId, id, request);
         return ResponseEntity.ok(StudyUpdateResponse.of(request.getStartDate(), request.getWeekNumber()));
