@@ -1,5 +1,8 @@
 package io.dev.jobprep.domain.study.domain.entity.enums;
 
+import static io.dev.jobprep.exception.code.ErrorCode400.INVALID_POSITION_ARG;
+
+import io.dev.jobprep.domain.study.exception.StudyException;
 import java.util.Arrays;
 import lombok.Getter;
 
@@ -25,6 +28,6 @@ public enum Position {
         return Arrays.stream(Position.values())
             .filter(pos -> pos.description.equals(description))
             .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Unknown description: " + description));
+            .orElseThrow(() -> new StudyException(INVALID_POSITION_ARG));
     }
 }

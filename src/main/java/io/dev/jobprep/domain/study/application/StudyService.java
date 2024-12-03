@@ -46,7 +46,7 @@ public class StudyService {
         validateAlreadyCreated(id);
         validateAlreadyGathered(id);
 
-        Study study = req.toEntity(id);
+        Study study = req.toEntity();
         study.join(creator);
         studyRepository.save(study);
 

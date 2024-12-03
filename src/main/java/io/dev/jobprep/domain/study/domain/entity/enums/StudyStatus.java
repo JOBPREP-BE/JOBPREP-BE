@@ -1,6 +1,7 @@
 package io.dev.jobprep.domain.study.domain.entity.enums;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_FINISHED_STUDY;
+import static io.dev.jobprep.exception.code.ErrorCode400.INVALID_STATUS_ARG;
 import static io.dev.jobprep.exception.code.ErrorCode400.INVALID_STUDY_STATUS_TO_RECRUIT;
 
 import io.dev.jobprep.domain.study.exception.StudyException;
@@ -43,6 +44,6 @@ public enum StudyStatus {
         return Arrays.stream(StudyStatus.values())
             .filter(status -> status.description.equals(description))
             .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Unknown description: " + description));
+            .orElseThrow(() -> new StudyException(INVALID_STATUS_ARG));
     }
 }
