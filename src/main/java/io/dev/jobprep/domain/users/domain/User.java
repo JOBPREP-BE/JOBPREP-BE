@@ -1,7 +1,7 @@
 package io.dev.jobprep.domain.users.domain;
 
 import io.dev.jobprep.common.base.BaseTimeEntity;
-import io.dev.jobprep.exception.exception_class.UserException;
+import io.dev.jobprep.domain.users.exception.UserException;
 import jakarta.persistence.*;
 import lombok.*;
 

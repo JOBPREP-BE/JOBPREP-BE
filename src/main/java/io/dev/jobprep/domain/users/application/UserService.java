@@ -3,7 +3,7 @@ import io.dev.jobprep.domain.users.application.dto.req.SignUpRequest;
 import io.dev.jobprep.domain.users.application.dto.res.MyPageResponse;
 import io.dev.jobprep.domain.users.application.dto.res.SignUpResponse;
 import io.dev.jobprep.domain.users.infrastructure.UserRepository;
-import io.dev.jobprep.exception.exception_class.UserException;
+import io.dev.jobprep.domain.users.exception.UserException;
 import io.dev.jobprep.domain.users.application.dto.res.DeleteUserAccountResponse;
 import io.dev.jobprep.domain.users.domain.User;
 import org.springframework.stereotype.Service;
