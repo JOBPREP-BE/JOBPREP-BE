@@ -1,6 +1,6 @@
 package io.dev.jobprep.domain.study.domain.entity;
 
-import io.dev.jobprep.domain.user.domain.entity.User;
+import io.dev.jobprep.domain.users.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

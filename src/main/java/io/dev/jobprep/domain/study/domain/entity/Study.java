@@ -7,7 +7,7 @@ import io.dev.jobprep.common.base.BaseTimeEntity;
 import io.dev.jobprep.domain.study.domain.entity.enums.Position;
 import io.dev.jobprep.domain.study.domain.entity.enums.StudyStatus;
 import io.dev.jobprep.domain.study.exception.StudyException;
-import io.dev.jobprep.domain.user.domain.entity.User;
+import io.dev.jobprep.domain.users.domain.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
