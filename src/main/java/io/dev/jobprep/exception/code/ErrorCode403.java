@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode403 implements ErrorCode {
 
-    AUTH_ACCESS_DENIED("E02-AUTH-001", "접근 권한이 없습니다."),
+    AUTH_ACCESS_DENIED("E01-AUTH-001", "접근 권한이 없습니다."),
     ;
 
     private final HttpStatus httpStatus = HttpStatus.FORBIDDEN;

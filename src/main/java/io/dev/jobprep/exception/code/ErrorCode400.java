@@ -10,7 +10,7 @@ public enum ErrorCode400 implements ErrorCode {
 
     INVALID_STUDY_STATUS_TO_RECRUIT("E01-STUDY-001", "스터디가 현재 모집중이 아닙니다."),
 
-    USER_ACCOUNT_ALREADY_EXISTS("E01-USER-001", "이미 존재하는 계정입니다.")
+    USER_ACCOUNT_ALREADY_EXISTS("E02-USER-001", "이미 존재하는 계정입니다.")
     ,
 
     ;
