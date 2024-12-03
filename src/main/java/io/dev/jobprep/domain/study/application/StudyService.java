@@ -30,9 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StudyService {
 
-    private final static int MAX_HEAD_COUNT = 3;
-    private final static int INIT_WEEK_NUM = 1;
-    private final static int MAX_WEEK_NUM = 3;
+    private static final int MAX_HEAD_COUNT = 3;
+    private static final int INIT_WEEK_NUM = 1;
+    private static final int MAX_WEEK_NUM = 3;
 
     private final StudyJpaRepository studyRepository;
     private final StudyScheduleService studyScheduleService;
