@@ -1,14 +1,10 @@
 package io.dev.jobprep.domain.study.application.dto.res;
 
-import io.dev.jobprep.domain.study.domain.entity.Study;
-import io.dev.jobprep.domain.study.domain.entity.StudySchedule;
 import io.dev.jobprep.domain.study.domain.entity.enums.Position;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
-@Schema(description = "모집 중인 스터디 정보 응답 DTO.")
 @Getter
 public class StudyInfoDto {
 
@@ -43,14 +39,14 @@ public class StudyInfoDto {
         this.dueDate = dueDate;
     }
 
-    public static StudyInfoDto of(Study study, StudySchedule studySchedule, int headCount) {
+    public static StudyInfoDto of(StudyWithStartDateDto dto, int headCount) {
         return StudyInfoDto.builder()
-            .id(study.getId())
-            .name(study.getName())
-            .startDate(studySchedule.getStart_date())
+            .id(dto.getStudy().getId())
+            .name(dto.getStudy().getName())
+            .startDate(dto.getStartDate())
             .headCount(headCount)
-            .position(study.getPosition())
-            .dueDate(calculateDueDate(studySchedule.getStart_date()))
+            .position(dto.getStudy().getPosition())
+            .dueDate(calculateDueDate(dto.getStartDate()))
             .build();
     }
 

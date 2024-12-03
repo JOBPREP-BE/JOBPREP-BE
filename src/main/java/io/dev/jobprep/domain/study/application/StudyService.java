@@ -64,8 +64,7 @@ public class StudyService {
 
         validateAlreadyGathered(id);
 
-        StudyWithStartDateDto studyWithDate = studyRepository.getStudyWithStartDate(studyId)
-            .orElseThrow(() -> new StudyException(STUDY_NOT_FOUND));
+        StudyWithStartDateDto studyWithDate = getStudyWithStartDate(studyId);
         Study study = studyWithDate.getStudy();
 
         if (isPassedDueDate(studyWithDate.getStartDate())) {
@@ -98,8 +97,7 @@ public class StudyService {
         List<Study> studies = studyRepository.findRecruitingStudy();
         return studies.stream().map(
             (study) -> StudyInfoDto.of(
-                    study,
-                    studyScheduleService.getStudySchedule(study.getId(), INIT_WEEK_NUM),
+                    getStudyWithStartDate(study.getId()),
                     study.getUserAmountOfGathered())
         ).toList();
     }
@@ -164,6 +162,11 @@ public class StudyService {
     private boolean isPassedDueDate(LocalDateTime startDate) {
         LocalDate today = LocalDate.now();
         return today.isAfter(startDate.toLocalDate());
+    }
+
+    private StudyWithStartDateDto getStudyWithStartDate(Long studyId) {
+        return studyRepository.getStudyWithStartDate(studyId)
+            .orElseThrow(() -> new StudyException(STUDY_NOT_FOUND));
     }
 
     private User getUser(Long id) {
