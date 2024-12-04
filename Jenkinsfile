@@ -41,7 +41,7 @@ pipeline {
     }
     stage('Docker Push') {
       steps {
-        sh 'docker push jobprep/jobprep:$BUILD_NUMBER'
+        sh 'docker push jobprep/jobprep'
       }
     }
   }
