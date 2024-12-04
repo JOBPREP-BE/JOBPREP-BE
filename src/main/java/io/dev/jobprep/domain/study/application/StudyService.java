@@ -84,6 +84,7 @@ public class StudyService {
     public Optional<Study> getGatheredStudy(Long userId) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
+        User user = getUser(userId);
 
         // TODO: User 엔티티 추가 시, 양뱡향 연관관계 매핑 후 수정
         return studyRepository.findGatheredStudyByUserId(userId);
@@ -92,6 +93,7 @@ public class StudyService {
     public List<StudyInfoDto> getRecruitingStudy(Long userId) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
+        User user = getUser(userId);
 
         // TODO: User 엔티티 추가 시, 양뱡향 연관관계 매핑 후 수정
         List<Study> studies = studyRepository.findRecruitingStudy();
@@ -106,6 +108,7 @@ public class StudyService {
     public void delete(Long userId, Long studyId) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
+        User user = getUser(userId);
 
         Study study = getStudy(studyId);
         study.delete(userId);
@@ -127,6 +130,7 @@ public class StudyService {
     public List<Study> getAll(Long userId) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
+        User user = getUser(userId);
 
         return studyRepository.findNonDeletedAllStudy();
     }
@@ -134,6 +138,7 @@ public class StudyService {
     public void update(Long userId, Long studyId, String field, StudyUpdateAdminRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
+        User user = getUser(userId);
 
         Study study = getStudy(studyId);
         study.modifyLink(userId, field, req.getLink());
@@ -170,8 +175,8 @@ public class StudyService {
     }
 
     private User getUser(Long id) {
-        // TODO: 유저 조회 로직 추가
-        return null;
+        return userRepository.findUserById(id)
+            .orElseThrow(() -> new UserException(USER_NOT_FOUND));
     }
 
     private Study getStudy(Long id) {
