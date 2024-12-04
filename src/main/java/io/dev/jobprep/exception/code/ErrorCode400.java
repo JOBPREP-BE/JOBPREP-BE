@@ -19,7 +19,7 @@ public enum ErrorCode400 implements ErrorCode {
     INVALID_POSITION_ARG("E01-STUDY-009", "스터디 직무 입력이 잘못되었습니다."),
     INVALID_STATUS_ARG("E01-STUDY-010", "스터디 상태가 잘못되었습니다."),
 
-    USER_ACCOUNT_ALREADY_EXISTS("E01-USER-001", "이미 존재하는 계정입니다."),
+    USER_ACCOUNT_ALREADY_EXISTS("E01-USER-001", "해당 이메일로 가입된 계정이 이미 존재합니다."),
     ;
 
     private final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
