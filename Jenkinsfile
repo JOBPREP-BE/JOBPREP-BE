@@ -5,11 +5,22 @@ pipeline {
   }
   environment {
     DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+    SECRETS = credentials('secrets')
   }
   stages {
     stage('Grant Gradlew Permission') {
       steps {
         sh 'chmod +x ./gradlew'
+      }
+    }
+    stage('Generate and Move application.yml') {
+      steps {
+        script {
+          sh '''
+            echo "Creating application.yml from secrets..."
+            echo "${SECRETS}" > ./src/main/resources/application.yml
+          '''
+        }
       }
     }
     stage('Gradle Build') {
@@ -35,7 +46,10 @@ pipeline {
   }
   post {
     always {
-      sh 'docker logout'
+      sh '''
+        rm -rf ./src/main/resources/application.yml
+        docker logout
+      '''
     }
   }
 }
