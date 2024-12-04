@@ -15,7 +15,7 @@ pipeline {
     stage('Generate and Move application.yml') {
       steps {
         script {
-          withCredentials([file(credentialsId: 'secrets', variable: 'SECRETS_FILE')]) {
+          withCredentials([file(credentialsId: 'SECRETS', variable: 'SECRETS_FILE')]) {
             sh '''
               echo "Creating application.yml from secrets..."
               cp $SECRETS_FILE > ./src/main/resources/application.yml
