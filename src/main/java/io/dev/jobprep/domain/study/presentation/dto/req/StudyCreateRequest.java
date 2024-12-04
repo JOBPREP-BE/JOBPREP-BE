@@ -26,7 +26,7 @@ public class StudyCreateRequest {
     @NotNull
     private Position position;
 
-    @Schema(description = "시작 일자", example = "2024-02-18T:14:00:00", pattern = "yyyy-MM-dd'T'HH:mm:ss", type = "string")
+    @Schema(description = "시작 일자", example = "2024-02-18T:14:00:00", pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @NotNull
     private LocalDateTime startDate;
 

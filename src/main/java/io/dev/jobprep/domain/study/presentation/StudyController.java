@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -37,24 +38,24 @@ public class StudyController implements StudySwagger {
     private final StudyScheduleService studyScheduleService;
 
     @PostMapping
-    public ResponseEntity<StudyIdResponse> create(Long userId, @RequestBody StudyCreateRequest request) {
+    public ResponseEntity<StudyIdResponse> create(@RequestParam Long userId, @RequestBody StudyCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(StudyIdResponse.from(studyService.create(userId, request)));
     }
 
     @PostMapping("/{id}/join")
-    public ResponseEntity<StudyIdResponse> join(Long userId, @PathVariable Long id) {
+    public ResponseEntity<StudyIdResponse> join(@RequestParam Long userId, @PathVariable Long id) {
         return ResponseEntity.ok(StudyIdResponse.from(studyService.join(userId, id)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(Long userId, @PathVariable Long id) {
+    public ResponseEntity<Void> delete(@RequestParam Long userId, @PathVariable Long id) {
         studyService.delete(userId, id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<List<StudyInfoAdminResponse>> getAllForAdmin(Long userId) {
+    public ResponseEntity<List<StudyInfoAdminResponse>> getAllForAdmin(@RequestParam Long userId) {
         return ResponseEntity.ok(studyService.getAll(userId).stream()
             .map(StudyInfoAdminResponse::of)
             .collect(Collectors.toList()));
@@ -62,7 +63,7 @@ public class StudyController implements StudySwagger {
 
     @PatchMapping("/{id}/{field}/admin")
     public ResponseEntity<StudyUpdateAdminResponse> modifyForAdmin(
-        Long userId, @PathVariable Long id, @PathVariable String field, @RequestBody StudyUpdateAdminRequest request
+        @RequestParam Long userId, @PathVariable Long id, @PathVariable String field, @RequestBody StudyUpdateAdminRequest request
     ) {
         studyService.update(userId, id, field, request);
         return ResponseEntity.ok(StudyUpdateAdminResponse.of(request.getLink()));
@@ -70,20 +71,20 @@ public class StudyController implements StudySwagger {
 
     @PatchMapping("/{id}")
     public ResponseEntity<StudyUpdateResponse> modify(
-        Long userId, @PathVariable Long id, @RequestBody StudyUpdateRequest request
+        @RequestParam Long userId, @PathVariable Long id, @RequestBody StudyUpdateRequest request
     ) {
         studyScheduleService.modify(userId, id, request);
         return ResponseEntity.ok(StudyUpdateResponse.of(request.getStartDate(), request.getWeekNumber()));
     }
 
     @GetMapping
-    public ResponseEntity<List<StudyCommonResponse>> getRecruitingStudy(Long userId) {
+    public ResponseEntity<List<StudyCommonResponse>> getRecruitingStudy(@RequestParam Long userId) {
         return ResponseEntity.ok(studyService.getRecruitingStudy(userId)
             .stream().map(StudyCommonResponse::from).collect(Collectors.toList()));
     }
 
     @GetMapping("/my")
-    public ResponseEntity<StudyInfoResponse> getMyStudy(Long userId) {
+    public ResponseEntity<StudyInfoResponse> getMyStudy(@RequestParam Long userId) {
 
         Optional<Study> study = studyService.getGatheredStudy(userId);
         return study.map(value -> ResponseEntity.ok(StudyInfoResponse.of(

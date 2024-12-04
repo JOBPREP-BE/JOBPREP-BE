@@ -140,8 +140,9 @@ public class StudyService {
     }
 
     private void validateAlreadyCreated(Long creatorId) {
-        studyRepository.findStudyByCreatorId(creatorId)
-            .orElseThrow(() -> new StudyException(ALREADY_CREATED_STUDY));
+        if (studyRepository.findStudyByCreatorId(creatorId).isPresent()) {
+            throw new StudyException(ALREADY_CREATED_STUDY);
+        }
     }
 
     private void validateAlreadyGathered(Long userId) {
