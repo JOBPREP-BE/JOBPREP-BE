@@ -14,7 +14,7 @@ import io.dev.jobprep.domain.study.infrastructure.StudyJpaRepository;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyCreateRequest;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyScheduleCreateRequest;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyUpdateAdminRequest;
-import io.dev.jobprep.domain.user.domain.entity.User;
+import io.dev.jobprep.domain.users.domain.User;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
