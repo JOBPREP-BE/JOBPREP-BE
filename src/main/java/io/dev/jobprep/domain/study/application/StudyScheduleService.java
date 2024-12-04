@@ -1,6 +1,9 @@
 package io.dev.jobprep.domain.study.application;
 
+import static io.dev.jobprep.exception.code.ErrorCode403.STUDY_FORBIDDEN_OPERATION;
+import static io.dev.jobprep.exception.code.ErrorCode403.USER_FORBIDDEN_OPERATION;
 import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
+import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
 import io.dev.jobprep.domain.study.domain.entity.Study;
 import io.dev.jobprep.domain.study.domain.entity.StudySchedule;
@@ -9,6 +12,9 @@ import io.dev.jobprep.domain.study.infrastructure.StudyJpaRepository;
 import io.dev.jobprep.domain.study.infrastructure.StudyScheduleJpaRepository;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyScheduleCreateRequest;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyUpdateRequest;
+import io.dev.jobprep.domain.users.domain.User;
+import io.dev.jobprep.domain.users.exception.UserException;
+import io.dev.jobprep.domain.users.infrastructure.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,16 +27,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StudyScheduleService {
 
+    private final UserRepository userRepository;
     private final StudyJpaRepository studyRepository;
     private final StudyScheduleJpaRepository studyScheduleRepository;
+    private final StudyCommonService studyCommonService;
 
     public Long create(Long id, StudyScheduleCreateRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
-
-        // TODO: 해당 유저가 스터디 생성자가 맞는지 검사
+        User user = getUser(id);
 
         Study study = getStudy(req.getStudyId());
+        validateCreator(study, id);
 
         Long scheduleId = createForcedSchedule(study, req);
         createEmptySchedule(study, req);
@@ -41,10 +49,12 @@ public class StudyScheduleService {
     public void modify(Long id, Long studyId, StudyUpdateRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
-
-        // TODO: 해당 유저가 스터디 참여자가 맞는지 검사
+        User user = getUser(id);
 
         StudySchedule studySchedule = getStudySchedule(studyId, req.getWeekNumber());
+        Study study = studySchedule.getStudy();
+
+        validateCreatorOrParticipator(study, id);
         studySchedule.modify(req.getStartDate());
     }
 
@@ -55,6 +65,18 @@ public class StudyScheduleService {
     private Study getStudy(Long studyId) {
         return studyRepository.findById(studyId)
             .orElseThrow(() -> new StudyException(STUDY_NOT_FOUND));
+    }
+
+    private void validateCreatorOrParticipator(Study study, Long userId) {
+        if (!study.isCreator(userId) && !studyCommonService.isParticipator(study.getId(), userId)) {
+            throw new StudyException(USER_FORBIDDEN_OPERATION);
+        }
+    }
+
+    private void validateCreator(Study study, Long userId) {
+        if (!study.isCreator(userId)) {
+            throw new StudyException(STUDY_FORBIDDEN_OPERATION);
+        }
     }
 
     public StudySchedule getStudySchedule(Long studyId, int weekNum) {
@@ -74,6 +96,11 @@ public class StudyScheduleService {
             StudySchedule emptySchedule = req.toInitEntity(study, i);
             studyScheduleRepository.save(emptySchedule);
         }
+    }
+
+    private User getUser(Long id) {
+        return userRepository.findUserById(id)
+            .orElseThrow(() -> new UserException(USER_NOT_FOUND));
     }
 
 }

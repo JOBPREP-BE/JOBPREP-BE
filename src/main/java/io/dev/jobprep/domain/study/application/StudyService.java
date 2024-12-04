@@ -3,8 +3,10 @@ package io.dev.jobprep.domain.study.application;
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_CREATED_STUDY;
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_GATHERED_STUDY;
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_PASSED_DUE_DATE;
+import static io.dev.jobprep.exception.code.ErrorCode400.DUPLICATE_STUDY_NAME;
 import static io.dev.jobprep.exception.code.ErrorCode400.STUDY_GATHERED_USER_EXCEED;
 import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
+import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
 import io.dev.jobprep.domain.study.application.dto.res.StudyInfoDto;
 import io.dev.jobprep.domain.study.application.dto.res.StudyWithStartDateDto;
@@ -15,6 +17,9 @@ import io.dev.jobprep.domain.study.presentation.dto.req.StudyCreateRequest;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyScheduleCreateRequest;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyUpdateAdminRequest;
 import io.dev.jobprep.domain.users.domain.User;
+import io.dev.jobprep.domain.users.exception.UserException;
+import io.dev.jobprep.domain.users.infrastructure.UserRepository;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +39,7 @@ public class StudyService {
     private static final int INIT_WEEK_NUM = 1;
     private static final int MAX_WEEK_NUM = 3;
 
+    private final UserRepository userRepository;
     private final StudyJpaRepository studyRepository;
     private final StudyScheduleService studyScheduleService;
 
@@ -48,7 +54,12 @@ public class StudyService {
 
         Study study = req.toEntity();
         study.join(creator);
-        studyRepository.save(study);
+
+        try {
+            studyRepository.save(study);
+        } catch (ConstraintViolationException e) {
+            throw new StudyException(DUPLICATE_STUDY_NAME);
+        }
 
         StudyScheduleCreateRequest scheduleReq = req.from(study.getId());
         studyScheduleService.create(id, scheduleReq);
@@ -86,7 +97,6 @@ public class StudyService {
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User user = getUser(userId);
 
-        // TODO: User 엔티티 추가 시, 양뱡향 연관관계 매핑 후 수정
         return studyRepository.findGatheredStudyByUserId(userId);
     }
 
@@ -111,7 +121,7 @@ public class StudyService {
         User user = getUser(userId);
 
         Study study = getStudy(studyId);
-        study.delete(userId);
+        study.delete(user);
     }
 
     // TODO: 트랜잭션 쪼개기
@@ -141,7 +151,7 @@ public class StudyService {
         User user = getUser(userId);
 
         Study study = getStudy(studyId);
-        study.modifyLink(userId, field, req.getLink());
+        study.modifyLink(user, field, req.getLink());
     }
 
     private void validateAlreadyCreated(Long creatorId) {
