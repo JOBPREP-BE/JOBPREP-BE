@@ -1,7 +1,6 @@
 package io.dev.jobprep.domain.study.application;
 
 import static io.dev.jobprep.exception.code.ErrorCode403.STUDY_FORBIDDEN_OPERATION;
-import static io.dev.jobprep.exception.code.ErrorCode403.USER_FORBIDDEN_OPERATION;
 import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
 import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
@@ -69,7 +68,7 @@ public class StudyScheduleService {
 
     private void validateCreatorOrParticipator(Study study, Long userId) {
         if (!study.isCreator(userId) && !studyCommonService.isParticipator(study.getId(), userId)) {
-            throw new StudyException(USER_FORBIDDEN_OPERATION);
+            throw new StudyException(STUDY_FORBIDDEN_OPERATION);
         }
     }
 
