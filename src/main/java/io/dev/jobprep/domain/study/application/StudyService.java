@@ -52,7 +52,7 @@ public class StudyService {
         validateAlreadyCreated(id);
         validateAlreadyGathered(id);
 
-        Study study = req.toEntity();
+        Study study = req.toEntity(creator);
         study.join(creator);
 
         try {

@@ -19,7 +19,7 @@ public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRep
     @Query("select std from Study std where std.deletedAt = null")
     List<Study> findNonDeletedAllStudy();
 
-    @Query("select std from Study std where std.userId = :creatorId")
+    @Query("select std from Study std where std.creator.id = :creatorId")
     Optional<Study> findStudyByCreatorId(Long creatorId);
 
     @Query("""
