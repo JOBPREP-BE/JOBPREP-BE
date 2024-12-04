@@ -8,6 +8,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 import static io.dev.jobprep.exception.code.ErrorCode401.USER_ACCOUNT_DISABLED;
+import static io.dev.jobprep.exception.code.ErrorCode403.ADMIN_FORBIDDEN_OPERATION;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
