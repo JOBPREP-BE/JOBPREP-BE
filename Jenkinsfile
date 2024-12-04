@@ -18,7 +18,7 @@ pipeline {
           withCredentials([file(credentialsId: 'SECRETS', variable: 'SECRETS_FILE')]) {
             sh '''
               echo "Creating application.yml from secrets..."
-              cp $SECRETS_FILE > ./src/main/resources/application.yml
+              cp $SECRETS_FILE ./src/main/resources/application.yml
             '''
           }
         }
