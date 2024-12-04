@@ -60,5 +60,11 @@ public class User extends BaseTimeEntity {
         }
     }
 
+    public void validateAdmin() {
+        if (!this.userRole.equals(UserRole.ADMIN)) {
+            throw new UserException(ADMIN_FORBIDDEN_OPERATION);
+        }
+    }
+
 }
 
