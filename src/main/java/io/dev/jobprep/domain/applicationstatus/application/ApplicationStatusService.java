@@ -31,9 +31,9 @@ public class ApplicationStatusService {
     public Long create(Long userId, ApplicationStatusCreateRequest req) {
 
         // TODO: 유저 토큰 검증
-        getUser(userId);
+        User user = getUser(userId);
 
-        ApplicationStatus applicationStatus = req.toEntity(userId);
+        ApplicationStatus applicationStatus = req.toEntity(user);
         save(applicationStatus);
 
         return applicationStatus.getId();

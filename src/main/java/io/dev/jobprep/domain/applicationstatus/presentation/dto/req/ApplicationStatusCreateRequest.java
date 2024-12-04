@@ -3,6 +3,7 @@ package io.dev.jobprep.domain.applicationstatus.presentation.dto.req;
 import io.dev.jobprep.domain.applicationstatus.domain.entity.ApplicationStatus;
 import io.dev.jobprep.domain.applicationstatus.domain.entity.enums.ApplicationProcess;
 import io.dev.jobprep.domain.applicationstatus.domain.entity.enums.ApplicationProgress;
+import io.dev.jobprep.domain.users.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import java.time.LocalDateTime;
@@ -42,9 +43,9 @@ public class ApplicationStatusCreateRequest {
     @Nullable
     private String url;
 
-    public ApplicationStatus toEntity(Long userId) {
+    public ApplicationStatus toEntity(User creator) {
         return ApplicationStatus.builder()
-            .userId(userId)
+            .creator(creator)
             .company(company)
             .position(position)
             .progress(ApplicationProgress.from(progress))
