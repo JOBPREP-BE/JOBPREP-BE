@@ -21,6 +21,7 @@ pipeline {
               echo "Creating application.yml from secrets..."
               cp $SECRETS_FILE > ./src/main/resources/application.yml
             '''
+          }
         }
       }
     }
