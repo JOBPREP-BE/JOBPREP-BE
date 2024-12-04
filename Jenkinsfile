@@ -41,7 +41,7 @@ pipeline {
     }
     stage('Docker Push') {
       steps {
-        sh 'docker push jobprep/jobprep'
+        sh 'docker push jobpreb/jobprep'
       }
     }
   }
