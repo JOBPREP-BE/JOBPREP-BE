@@ -31,17 +31,17 @@ pipeline {
     }
     stage('Docker Login') {
       steps {
-        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_ID --password-stdin'
       }
     }
     stage('Docker Build') {
       steps {
-        sh 'docker build -f Dockerfile -t $DOCKERHUB_CREDENTIALS_USR/jobprep .'
+        sh 'docker build -f Dockerfile -t jobprep/jobprep .'
       }
     }
     stage('Docker Push') {
       steps {
-        sh 'docker push $DOCKERHUB_CREDENTIALS_USR/jobprep:$BUILD_NUMBER'
+        sh 'docker push jobprep/jobprep:$BUILD_NUMBER'
       }
     }
   }
