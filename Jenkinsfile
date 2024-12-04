@@ -36,7 +36,7 @@ pipeline {
     }
     stage('Docker Build') {
       steps {
-        sh 'docker build -f Dockerfile -t jobprep/jobprep .'
+        sh 'docker build -f Dockerfile -t jobpreb/jobprep .'
       }
     }
     stage('Docker Push') {
