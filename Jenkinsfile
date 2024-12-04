@@ -5,7 +5,6 @@ pipeline {
   }
   environment {
     DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-    SECRETS = credentials('secrets')
   }
   stages {
     stage('Grant Gradlew Permission') {
