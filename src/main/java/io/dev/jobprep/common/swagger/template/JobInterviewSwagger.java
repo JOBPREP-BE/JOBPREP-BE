@@ -39,24 +39,24 @@ public interface JobInterviewSwagger {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "면접 삭제 성공",
                     content = @Content(schema = @Schema(implementation = JobInterviewIdResponse.class))),
-            @ApiResponse(responseCode = "400", description = "요청한 데이터가 유효하지 않음",
+            @ApiResponse(responseCode = "400", description = "해당 면접 데이터는 이미 삭제되었습니다.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(name = "E01-STUDY-005", value = SwaggerJobInterviewErrorExamples.ALREADY_DELETED_INTERVIEW)
+                            examples = @ExampleObject(name = "E01-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.ALREADY_DELETED_INTERVIEW)
                     )),
-            @ApiResponse(responseCode = "403", description = "스터디 삭제 권한이 없음",
+            @ApiResponse(responseCode = "403", description = "해당 작업은 작성자 권한이 필요합니다.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerJobInterviewErrorExamples.INTERVIEW_FORBIDDEN_OPERATION)
+                            examples = @ExampleObject(name = "E02-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.INTERVIEW_FORBIDDEN_OPERATION)
                     )),
             @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = {
-                                    @ExampleObject(name = "E03-STUDY-001", value = SwaggerJobInterviewErrorExamples.INTERVIEW_NOT_FOUND),
+                                    @ExampleObject(name = "E03-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.INTERVIEW_NOT_FOUND),
                                     @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                             }
                     ))
@@ -66,11 +66,11 @@ public interface JobInterviewSwagger {
     @Operation(summary = "면접 조회", description = "모든 면접 데이터를 조회합니다.")
     @ApiResponses (value = {
             @ApiResponse(responseCode = "200", description = "면접 조회 성공"),
-            @ApiResponse(responseCode = "403", description = "스터디 조회 권한이 없음",
+            @ApiResponse(responseCode = "403", description = "해당 작업은 작성자 권한이 필요합니다.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerJobInterviewErrorExamples.INTERVIEW_FORBIDDEN_OPERATION)
+                            examples = @ExampleObject(name = "E02-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.INTERVIEW_FORBIDDEN_OPERATION)
                     )),
             @ApiResponse(responseCode = "404", description = "요청한 사용자가 존재하지 않음",
                     content = @Content(
@@ -85,26 +85,32 @@ public interface JobInterviewSwagger {
     @ApiResponses (value = {
             @ApiResponse(responseCode = "200", description = "면접 수정 성공",
                     content = @Content(schema = @Schema(implementation = FindJobInterviewResponse.class))),
-            @ApiResponse(responseCode = "400", description = "요청한 데이터가 유효하지 않음",
+            @ApiResponse(responseCode = "400", description = "해당 면접 데이터는 이미 삭제되었습니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(name = "E01-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.ALREADY_DELETED_INTERVIEW)
+                    )),
+            @ApiResponse(responseCode = "400", description = "해당 면접 카테고리가 잘못되었습니다.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = {
-                                    @ExampleObject(name = "E01-STUDY-005", value = SwaggerJobInterviewErrorExamples.ALREADY_DELETED_INTERVIEW)
+                                    @ExampleObject(name = "E01-JOB-INTERVIEW-002", value = SwaggerJobInterviewErrorExamples.ALREADY_DELETED_INTERVIEW)
                             }
                     )),
-            @ApiResponse(responseCode = "403", description = "스터디를 수정할 권한이 없음",
+            @ApiResponse(responseCode = "403", description = "해당 작업은 작성자 권한이 필요합니다.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerJobInterviewErrorExamples.INTERVIEW_FORBIDDEN_OPERATION)
+                            examples = @ExampleObject(name = "E02-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.INTERVIEW_FORBIDDEN_OPERATION)
                     )),
             @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = {
-                                    @ExampleObject(name = "E03-STUDY-001", value = SwaggerJobInterviewErrorExamples.INTERVIEW_NOT_FOUND),
+                                    @ExampleObject(name = "E03-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.INTERVIEW_NOT_FOUND),
                                     @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                             }
                     ))
