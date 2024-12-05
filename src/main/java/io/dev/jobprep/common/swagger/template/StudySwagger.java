@@ -48,7 +48,10 @@ public interface StudySwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             )),
     })
-    ResponseEntity<StudyIdResponse> create(@Parameter(hidden = true) Long userId, StudyCreateRequest req);
+    ResponseEntity<StudyIdResponse> create(
+        @Parameter(description = "유저 ID", required = true) Long userId,
+        StudyCreateRequest req
+    );
 
     @Operation(summary = "스터디 참여", description = "사용자가 스터디에 참여할 때 사용하는 API")
     @ApiResponses(value = {
@@ -77,7 +80,10 @@ public interface StudySwagger {
                     @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             }))
     })
-    ResponseEntity<StudyIdResponse> join(Long userId, @PathVariable Long id);
+    ResponseEntity<StudyIdResponse> join(
+        @Parameter(description = "유저 ID", required = true) Long userId,
+        @PathVariable Long id
+    );
 
     @Operation(summary = "스터디 삭제", description = "관리자가 스터디를 삭제할 때 사용하는 API")
     @ApiResponses(value = {
@@ -104,7 +110,10 @@ public interface StudySwagger {
                 }
             ))
     })
-    ResponseEntity<Void> delete(Long userId, @PathVariable Long id);
+    ResponseEntity<Void> delete(
+        @Parameter(description = "유저 ID", required = true) Long userId,
+        @PathVariable Long id
+    );
 
     @Operation(summary = "모든 스터디 조회", description = "관리자가 스터디를 조회할 때 사용하는 API")
     @ApiResponses(value = {
@@ -122,7 +131,9 @@ public interface StudySwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             )),
     })
-    ResponseEntity<List<StudyInfoAdminResponse>> getAllForAdmin(Long userId);
+    ResponseEntity<List<StudyInfoAdminResponse>> getAllForAdmin(
+        @Parameter(description = "유저 ID", required = true) Long userId
+    );
 
     @Operation(summary = "스터디 수정", description = "관리자가 스터디를 수정할 때 사용하는 API")
     @ApiResponses(value = {
@@ -151,7 +162,8 @@ public interface StudySwagger {
             )),
     })
     ResponseEntity<StudyUpdateAdminResponse> modifyForAdmin(
-        Long userId, @PathVariable Long id, @PathVariable String field,
+        @Parameter(description = "유저 ID", required = true) Long userId,
+        @PathVariable Long id, @PathVariable String field,
         StudyUpdateAdminRequest request
     );
 
@@ -185,7 +197,9 @@ public interface StudySwagger {
             ))
     })
     ResponseEntity<StudyUpdateResponse> modify(
-        Long userId, @PathVariable Long id, StudyUpdateRequest request
+        @Parameter(description = "유저 ID", required = true) Long userId,
+        @PathVariable Long id,
+        StudyUpdateRequest request
     );
 
     @Operation(summary = "모집중인 스터디 조회", description = "사용자가 모집 중인 스터디를 조회할 때 사용하는 API")
@@ -211,5 +225,7 @@ public interface StudySwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             ))
     })
-    ResponseEntity<StudyInfoResponse> getMyStudy(Long userId);
+    ResponseEntity<StudyInfoResponse> getMyStudy(
+        @Parameter(description = "유저 ID", required = true) Long userId
+    );
 }

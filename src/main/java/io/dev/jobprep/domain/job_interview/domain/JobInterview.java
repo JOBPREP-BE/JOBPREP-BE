@@ -2,7 +2,9 @@ package io.dev.jobprep.domain.job_interview.domain;
 
 import io.dev.jobprep.domain.job_interview.domain.enums.JobInterviewCategory;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
+import io.dev.jobprep.domain.users.domain.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class JobInterview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,16 +28,21 @@ public class JobInterview {
     @Column(length = 1500)
     private String answer;
 
-    public void update(PutJobInterviewRequest request) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", updatable = false)
+    private User creator;
+
+    public void update(PutJobInterviewRequest request, JobInterviewCategory reqCategory) {
         question = request.getQuestion();
-        category = request.getCategory();
+        category = reqCategory;
         answer = request.getAnswer();
     }
 
-    private JobInterview(Long id, String question, JobInterviewCategory category, String answer) {
+    private JobInterview(Long id, String question, JobInterviewCategory category, String answer, User creator) {
         this.id = id;
         this.question = question;
         this.category = category;
         this.answer = answer;
+        this.creator = creator;
     }
 }

@@ -9,11 +9,12 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public final class SignUpResponse {
+    private Long id;
     private String email;
     private String username;
     private LocalDateTime time;
 
     public static SignUpResponse from(User user){
-        return new SignUpResponse(user.getEmail(), user.getUsername(), user.getCreatedAt());
+        return new SignUpResponse(user.getId(), user.getEmail(), user.getUsername(), user.getCreatedAt());
     }
 }
