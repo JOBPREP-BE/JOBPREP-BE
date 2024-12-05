@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode400 implements ErrorCode {
     PATH_PARAMETER_BAD_REQUEST("E00-COMMON-001", "잘못된 경로 파라미터입니다."),
     INVALID_INPUT_VALUE("E00-COMMON-002", "기본 유효성 검사에 실패하였습니다."),
+    ILLEGAL_INPUT_ARG("E00-COMMON-03", "유효하지 않은 입력 값입니다."),
 
     INVALID_STUDY_STATUS_TO_RECRUIT("E01-STUDY-001", "스터디가 현재 모집중이 아닙니다."),
     STUDY_WEEK_NUMBER_EXCEED("E01-STUDY-002", "스터디는 3주 이상 진행할 수 없습니다."),
@@ -21,6 +22,9 @@ public enum ErrorCode400 implements ErrorCode {
     DUPLICATE_STUDY_NAME("E00-STUDY-01", "해당 스터디 이름이 이미 존재합니다."),
 
     USER_ACCOUNT_ALREADY_EXISTS("E02-USER-001", "이미 존재하는 계정입니다."),
+
+    INVALID_APPLICATION_PROGRESS_ARG("E01-APPLICATIONSTATUS-001", "지원 상황 입력이 잘못되었습니다."),
+    INVALID_APPLICATION_PROCESS_ARG("E01-APPLICATIONSTATUS-002", "전형 단계 입력이 잘못되었습니다."),
     ;
 
     private final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
