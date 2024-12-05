@@ -8,6 +8,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 import static io.dev.jobprep.exception.code.ErrorCode401.USER_ACCOUNT_DISABLED;
+import static io.dev.jobprep.exception.code.ErrorCode403.ADMIN_FORBIDDEN_OPERATION;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -57,6 +58,12 @@ public class User extends BaseTimeEntity {
     public void validateUserActive() {
         if (super.getDeletedAt() != null) {
             throw new UserException(USER_ACCOUNT_DISABLED);
+        }
+    }
+
+    public void validateAdmin() {
+        if (!this.userRole.equals(UserRole.ADMIN)) {
+            throw new UserException(ADMIN_FORBIDDEN_OPERATION);
         }
     }
 

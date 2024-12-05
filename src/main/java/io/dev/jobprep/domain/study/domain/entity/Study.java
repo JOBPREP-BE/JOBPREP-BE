@@ -14,9 +14,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
@@ -46,8 +49,9 @@ public class Study extends BaseTimeEntity  {
     @Column(name = "study_name")
     private String name;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", updatable = false)
+    private User creator;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserStudy> userStudies = new ArrayList<>();
@@ -77,7 +81,7 @@ public class Study extends BaseTimeEntity  {
     @Builder
     private Study(
         Long id,
-        Long creatorId,
+        User creator,
         String name,
         Position position,
         String google_link,
@@ -85,7 +89,7 @@ public class Study extends BaseTimeEntity  {
         String kakao_link
     ) {
         this.id = id;
-        this.userId = creatorId;
+        this.creator = creator;
         this.name = name;
         this.position = position;
         this.status = StudyStatus.RECRUITING;
@@ -112,9 +116,14 @@ public class Study extends BaseTimeEntity  {
         this.status = StudyStatus.FINISHED;
     }
 
-    public void modifyLink(Long userId, String field, String link) {
+    public void delete(User user) {
+        validateAvailableDelete(user);
+        super.delete();
+    }
+
+    public void modifyLink(User user, String field, String link) {
         // TODO: 어드민 검증 로직 위치 변경?
-        validateAdmin(userId);
+        validateAdmin(user);
 
         // TODO: URL 유효성 검사 로직 굳이 추가해야 하나?
 
@@ -126,13 +135,6 @@ public class Study extends BaseTimeEntity  {
         }
     }
 
-    // TODO: User 엔티티 생성 시, userId -> tokenUser로 변경
-
-    public void delete(Long userId) {
-        validateAvailableDelete(userId);
-        super.delete();
-    }
-
     // TODO: 매일 자정마다 자동 삭제를 진행하는 스케줄러 구현
     public void deleteForInternal() {
         validateAlreadyDeleted();
@@ -140,9 +142,12 @@ public class Study extends BaseTimeEntity  {
         super.delete();
     }
 
-
     public int getUserAmountOfGathered() {
         return userStudies.size();
+    }
+
+    public boolean isCreator(Long userId) {
+        return creator.getId().equals(userId);
     }
 
     private void validateAvailableJoin() {
@@ -161,8 +166,8 @@ public class Study extends BaseTimeEntity  {
         return getUserAmountOfGathered() >= MAX_HEAD_COUNT;
     }
 
-    private void validateAvailableDelete(Long userId) {
-        validateAdmin(userId);
+    private void validateAvailableDelete(User user) {
+        validateAdmin(user);
         validateAlreadyDeleted();
     }
 
@@ -172,7 +177,8 @@ public class Study extends BaseTimeEntity  {
         }
     }
 
-    private void validateAdmin(Long userId) {
+    private void validateAdmin(User user) {
         // TODO: user role == ADMIN 검증해야 함
+        user.validateAdmin();
     }
 }
