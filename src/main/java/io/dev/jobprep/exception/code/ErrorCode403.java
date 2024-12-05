@@ -8,7 +8,7 @@ public enum ErrorCode403 implements ErrorCode {
 
     AUTH_ACCESS_DENIED("E02-AUTH-001", "접근 권한이 없습니다."),
 
-    INTERVIEW_FORBIDDEN_OPERATION("E02-JOB-INTERVIEW-001", "해당 작업은 작성자 권한이 필요합니다.")
+    INTERVIEW_FORBIDDEN_OPERATION("E02-JOB-INTERVIEW-001", "해당 작업은 작성자 권한이 필요합니다."),
 
     STUDY_FORBIDDEN_OPERATION("E02-STUDY-001", "해당 작업에 대한 권한이 없습니다."),
 
