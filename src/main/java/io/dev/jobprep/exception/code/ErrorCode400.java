@@ -20,6 +20,9 @@ public enum ErrorCode400 implements ErrorCode {
     INVALID_STATUS_ARG("E01-STUDY-010", "스터디 상태가 잘못되었습니다."),
 
     USER_ACCOUNT_ALREADY_EXISTS("E02-USER-001", "이미 존재하는 계정입니다."),
+
+    ALREADY_DELETED_INTERVIEW("E01-JOB-INTERVIEW-001", "해당 면접 데이터는 이미 삭제되었습니다."),
+    INVALID_INTERVIEW_STATUS("E01-JOB-INTERVIEW-002", "해당 면접 카테고리가 잘못되었습니다.")
     ;
 
     private final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
