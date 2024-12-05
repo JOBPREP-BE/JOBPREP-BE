@@ -36,7 +36,10 @@ public interface StudySwagger {
             content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = ErrorResponse.class),
-                examples = @ExampleObject(name = "E01-STUDY-001", value = SwaggerStudyErrorExamples.ALREADY_CREATED_STUDY)
+                examples = {
+                    @ExampleObject(name = "E00-STUDY-001", value = SwaggerStudyErrorExamples.DUPLICATE_STUDY_NAME),
+                    @ExampleObject(name = "E01-STUDY-001", value = SwaggerStudyErrorExamples.ALREADY_CREATED_STUDY)
+                }
             )),
         @ApiResponse(responseCode = "404", description = "요청한 사용자가 존재하지 않음",
             content = @Content(
@@ -89,7 +92,7 @@ public interface StudySwagger {
             content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = ErrorResponse.class),
-                examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerStudyErrorExamples.STUDY_FORBIDDEN_OPERATION)
+                examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerUserErrorExamples.ADMIN_FORBIDDEN_OPERATION)
             )),
         @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
             content = @Content(
@@ -110,7 +113,7 @@ public interface StudySwagger {
             content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = ErrorResponse.class),
-                examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerStudyErrorExamples.STUDY_FORBIDDEN_OPERATION)
+                examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerUserErrorExamples.ADMIN_FORBIDDEN_OPERATION)
             )),
         @ApiResponse(responseCode = "404", description = "요청한 사용자가 존재하지 않음",
             content = @Content(
@@ -138,7 +141,7 @@ public interface StudySwagger {
             content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = ErrorResponse.class),
-                examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerStudyErrorExamples.STUDY_FORBIDDEN_OPERATION)
+                examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerUserErrorExamples.ADMIN_FORBIDDEN_OPERATION)
             )),
         @ApiResponse(responseCode = "404", description = "요청한 사용자가 존재하지 않음",
             content = @Content(
@@ -169,7 +172,7 @@ public interface StudySwagger {
             content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = ErrorResponse.class),
-                examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerStudyErrorExamples.STUDY_PARTICIPANTS_FORBIDDEN_OPERATION)
+                examples = @ExampleObject(name = "E02-STUDY-002", value = SwaggerStudyErrorExamples.STUDY_FORBIDDEN_OPERATION)
             )),
         @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
             content = @Content(
