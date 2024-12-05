@@ -53,9 +53,11 @@ public class UserService {
     public MyPageResponse getUserMyPageInfo(Long userId){
         User userData = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
-
-        userData.validateUserActive();
-
+        try {
+            userData.validateUserActive();
+        }catch(UserException e){
+            throw new UserException(USER_NOT_FOUND);
+        }
         return MyPageResponse.builder().userEmail(userData.getEmail())
                 .Username(userData.getUsername())
                 .userRole(userData.getUserRole())
