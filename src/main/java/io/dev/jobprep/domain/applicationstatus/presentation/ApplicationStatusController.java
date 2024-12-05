@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,7 +30,8 @@ public class ApplicationStatusController implements ApplicationStatusSwagger {
 
     @PostMapping
     public ResponseEntity<ApplicationStatusIdResponse> create(
-        Long userId, @RequestBody ApplicationStatusCreateRequest request
+        @RequestParam Long userId,
+        @RequestBody ApplicationStatusCreateRequest request
     ) {
         return ResponseEntity.status(201).body(
             ApplicationStatusIdResponse.of(applicationStatusService.create(userId, request))
@@ -37,14 +39,15 @@ public class ApplicationStatusController implements ApplicationStatusSwagger {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(Long userId, @PathVariable Long id) {
+    public ResponseEntity<Void> delete(@RequestParam Long userId, @PathVariable Long id) {
         applicationStatusService.delete(userId, id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApplicationStatusInfoResponse> getMyApplicationStatus(
-        Long userId, @PathVariable Long id
+        @RequestParam Long userId,
+        @PathVariable Long id
     ) {
         return ResponseEntity.ok(
             ApplicationStatusInfoResponse.from(applicationStatusService.get(userId, id))
@@ -52,7 +55,7 @@ public class ApplicationStatusController implements ApplicationStatusSwagger {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<ApplicationStatusCommonResponse>> getAll(Long userId) {
+    public ResponseEntity<List<ApplicationStatusCommonResponse>> getAll(@RequestParam Long userId) {
         return ResponseEntity.ok(applicationStatusService.getAll(userId).stream()
             .map(ApplicationStatusCommonResponse::from)
             .toList());
@@ -60,7 +63,8 @@ public class ApplicationStatusController implements ApplicationStatusSwagger {
 
     @PatchMapping("/{id}/{field}")
     public ResponseEntity<ApplicationStatusUpdateResponse> modify(
-        Long userId, @PathVariable Long id, @PathVariable String field,
+        @RequestParam Long userId,
+        @PathVariable Long id, @PathVariable String field,
         @RequestBody ApplicationStatusUpdateRequest request
     ) {
         applicationStatusService.modify(userId, id, field, request);
