@@ -1,6 +1,5 @@
 package io.dev.jobprep.common.swagger.template;
 
-import io.dev.jobprep.core.properties.swagger.error.SwaggerExpMasterClErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerJobInterviewErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
