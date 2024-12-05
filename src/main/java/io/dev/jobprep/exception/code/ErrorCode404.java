@@ -11,7 +11,7 @@ public enum ErrorCode404 implements ErrorCode {
 
     USER_NOT_FOUND("E03-USER-001", "존재하지 않는 유저입니다."),
 
-    INTERVIEW_NOT_FOUND("E03-JOB-INTERVIEW-001", "존재하지 않는 면접 데이터입니다.")
+    INTERVIEW_NOT_FOUND("E03-JOB-INTERVIEW-001", "존재하지 않는 면접 데이터입니다."),
 
     APPLICATION_STATUS_NOT_FOUND("E03-APPLICATIONSTATUS-001", "해당 지원 현황이 존재하지 않습니다."),
 
