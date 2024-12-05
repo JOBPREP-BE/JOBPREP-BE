@@ -1,5 +1,6 @@
 package io.dev.jobprep.common.swagger.template;
 
+import io.dev.jobprep.core.properties.swagger.error.SwaggerExpMasterClErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerJobInterviewErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -33,14 +35,12 @@ public interface JobInterviewSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<JobInterviewIdResponse> save();
+    ResponseEntity<JobInterviewIdResponse> save(@RequestParam Long userId);
 
     @Operation(summary = "면접 삭제", description = "면접 데이터를 삭제합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "면접 삭제 성공",
-                    content = @Content(schema = @Schema(implementation = JobInterviewIdResponse.class))),
-            @ApiResponse(responseCode = "400", description = "해당 면접 데이터는 이미 삭제되었습니다.",
-                    content = @Content(
+            @ApiResponse(responseCode = "200", description = "면접 삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "해당 면접 데이터는 이미 삭제되었습니다.", content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject(name = "E01-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.ALREADY_DELETED_INTERVIEW)
@@ -61,7 +61,7 @@ public interface JobInterviewSwagger {
                             }
                     ))
     })
-    ResponseEntity<Void> delete (@PathVariable("interviewId") Long interviewId);
+    ResponseEntity<Void> delete (@PathVariable("interviewId") Long interviewId, @RequestParam Long userId);
 
     @Operation(summary = "면접 조회", description = "모든 면접 데이터를 조회합니다.")
     @ApiResponses (value = {
@@ -79,7 +79,7 @@ public interface JobInterviewSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<List<FindJobInterviewResponse>> find ();
+    ResponseEntity<List<FindJobInterviewResponse>> find (@RequestParam Long userId);
 
     @Operation(summary = "면접 수정", description = "면접 데이터를 수정합니다.")
     @ApiResponses (value = {
@@ -116,6 +116,6 @@ public interface JobInterviewSwagger {
                     ))
     })
     ResponseEntity<FindJobInterviewResponse> update (
-            @PathVariable("interviewId") Long id, @RequestBody PutJobInterviewRequest dto
+            @PathVariable("interviewId") Long id, @RequestBody PutJobInterviewRequest dto, @RequestParam Long userId
     );
 }
