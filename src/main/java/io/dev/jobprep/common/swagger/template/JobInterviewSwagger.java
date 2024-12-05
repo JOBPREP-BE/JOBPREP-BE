@@ -33,7 +33,7 @@ public interface JobInterviewSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<Long> save();
+    ResponseEntity<JobInterviewIdResponse> save();
 
     @Operation(summary = "면접 삭제", description = "면접 데이터를 삭제합니다.")
     @ApiResponses(value = {
@@ -61,7 +61,7 @@ public interface JobInterviewSwagger {
                             }
                     ))
     })
-    ResponseEntity<JobInterviewIdResponse> delete (@PathVariable("interviewId") Long interviewId);
+    ResponseEntity<Void> delete (@PathVariable("interviewId") Long interviewId);
 
     @Operation(summary = "면접 조회", description = "모든 면접 데이터를 조회합니다.")
     @ApiResponses (value = {
