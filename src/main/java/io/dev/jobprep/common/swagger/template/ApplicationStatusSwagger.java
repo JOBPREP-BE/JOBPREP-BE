@@ -10,6 +10,7 @@ import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationS
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusUpdateResponse;
 import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,7 +19,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 public interface ApplicationStatusSwagger {
 
@@ -34,7 +34,8 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<ApplicationStatusIdResponse> create(
-        Long userId, @RequestBody ApplicationStatusCreateRequest request
+        @Parameter(description = "유저 ID", required = true) Long userId,
+        ApplicationStatusCreateRequest request
     );
 
     @Operation(summary = "지원 현황 삭제", description = "사용자가 지원현황을 삭제할 때 사용하는 API")
@@ -56,7 +57,10 @@ public interface ApplicationStatusSwagger {
                 }
             ))
     })
-    ResponseEntity<Void> delete(Long userId, @PathVariable Long id);
+    ResponseEntity<Void> delete(
+        @Parameter(description = "유저 ID", required = true) Long userId,
+        @PathVariable Long id
+    );
 
     @Operation(summary = "지원 현황 조회", description = "사용자가 자신의 지원현황을 조회할 때 사용하는 API")
     @ApiResponses(value = {
@@ -79,7 +83,8 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<ApplicationStatusInfoResponse> getMyApplicationStatus(
-        Long userId, @PathVariable Long id
+        @Parameter(description = "유저 ID", required = true)Long userId,
+        @PathVariable Long id
     );
 
     @Operation(summary = "모든 지원 현황 리스트 조회", description = "사용자가 자신의 지원현황 리스트를 조회할 때 사용하는 API")
@@ -92,7 +97,9 @@ public interface ApplicationStatusSwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             ))
     })
-    ResponseEntity<List<ApplicationStatusCommonResponse>> getAll(Long userId);
+    ResponseEntity<List<ApplicationStatusCommonResponse>> getAll(
+        @Parameter(description = "유저 ID", required = true) Long userId
+    );
 
     @Operation(summary = "지원 현황 수정", description = "사용자가 자신의 지원 현황을 수정할 때 사용하는 API")
     @ApiResponses(value = {
@@ -115,10 +122,10 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<ApplicationStatusUpdateResponse> modify(
-        Long userId,
+        @Parameter(description = "유저 ID", required = true) Long userId,
         @PathVariable Long id,
         @PathVariable String field,
-        @RequestBody ApplicationStatusUpdateRequest request
+        ApplicationStatusUpdateRequest request
     );
 
 }
