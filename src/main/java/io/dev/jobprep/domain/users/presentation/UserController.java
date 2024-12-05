@@ -11,6 +11,7 @@ import io.dev.jobprep.domain.users.application.dto.res.MyPageResponse;
 import io.dev.jobprep.domain.users.presentation.dto.req.SignUpAPIRequest;
 import io.dev.jobprep.domain.users.presentation.dto.res.DeleteUserAPIResponse;
 import io.dev.jobprep.domain.users.presentation.dto.res.MyPageAPIResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ import java.net.URI;
 @RequestMapping("/api/v1/users")
 public class UserController implements UsersSwagger {
     private final UserService userService;
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }

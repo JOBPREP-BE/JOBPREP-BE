@@ -6,6 +6,7 @@ import io.dev.jobprep.domain.users.infrastructure.UserRepository;
 import io.dev.jobprep.domain.users.exception.UserException;
 import io.dev.jobprep.domain.users.application.dto.res.DeleteUserAccountResponse;
 import io.dev.jobprep.domain.users.domain.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -32,7 +34,7 @@ public class UserService {
             User existingUser = userData.get();
 
             try {//탈퇴했던 회원인지 체크
-                existingUser.validateUserActive();
+                existingUser.validateUserDelete();
             }catch(UserException e){//탈퇴취소 로직
                 existingUser.restore();
             }
@@ -53,11 +55,7 @@ public class UserService {
     public MyPageResponse getUserMyPageInfo(Long userId){
         User userData = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
-        try {
-            userData.validateUserActive();
-        }catch(UserException e){
-            throw new UserException(USER_NOT_FOUND);
-        }
+        userData.validateUserDelete();
         return MyPageResponse.builder().userEmail(userData.getEmail())
                 .Username(userData.getUsername())
                 .userRole(userData.getUserRole())

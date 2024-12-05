@@ -1,0 +1,1 @@
+ALTER TABLE essential_material MODIFY id BIGINT AUTO_INCREMENT;
