@@ -11,6 +11,8 @@ public enum ErrorCode404 implements ErrorCode {
     USER_NOT_FOUND("E03-USER-002", "요청된 ID를 가진 유저가 존재하지 않습니다"),
 
     APPLICATION_STATUS_NOT_FOUND("E03-APPLICATIONSTATUS-001", "해당 지원 현황이 존재하지 않습니다."),
+
+    ESSENTIAL_MATERIAL_NOT_FOUND("E03-ESSENTIALMATERIAL-001", "해당 자원이 존재하지 않습니다")
     ;
 
     private final HttpStatus httpStatus = HttpStatus.NOT_FOUND;
