@@ -1,5 +1,6 @@
 package io.dev.jobprep.domain.job_interview.presentation;
 
+import io.dev.jobprep.common.swagger.template.JobInterviewSwagger;
 import io.dev.jobprep.domain.job_interview.application.JobInterviewService;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
@@ -16,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/${springdoc.version}/interview")
 @Slf4j
 @RequiredArgsConstructor
-public class JobInterviewController {
+public class JobInterviewController implements JobInterviewSwagger {
     private final JobInterviewService jobInterviewService;
 
     @PostMapping

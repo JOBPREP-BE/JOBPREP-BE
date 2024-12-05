@@ -26,9 +26,9 @@ public class JobInterview {
     @Column(length = 1500)
     private String answer;
 
-    public void update(PutJobInterviewRequest request) {
+    public void update(PutJobInterviewRequest request, JobInterviewCategory reqCategory) {
         question = request.getQuestion();
-        category = request.getCategory();
+        category = reqCategory;
         answer = request.getAnswer();
     }
 
