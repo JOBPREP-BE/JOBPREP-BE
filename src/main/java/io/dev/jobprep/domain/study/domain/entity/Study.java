@@ -56,6 +56,7 @@ public class Study extends BaseTimeEntity  {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserStudy> userStudies = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "position")
     private Position position;
 

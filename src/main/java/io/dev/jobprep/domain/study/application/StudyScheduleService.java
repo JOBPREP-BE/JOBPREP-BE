@@ -31,20 +31,22 @@ public class StudyScheduleService {
     private final StudyScheduleJpaRepository studyScheduleRepository;
     private final StudyCommonService studyCommonService;
 
+    @Transactional
     public Long create(Long id, StudyScheduleCreateRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User user = getUser(id);
 
-        Study study = getStudy(req.getStudyId());
+        Study study = req.getStudy();
         validateCreator(study, id);
 
-        Long scheduleId = createForcedSchedule(study, req);
+        Long scheduleId = createForcedSchedule(req);
         createEmptySchedule(study, req);
 
         return scheduleId;
     }
 
+    @Transactional
     public void modify(Long id, Long studyId, StudyUpdateRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
@@ -82,16 +84,16 @@ public class StudyScheduleService {
         return studyScheduleRepository.findSpecificScheduleByStudyIdAndWeekNum(studyId, weekNum);
     }
 
-    private Long createForcedSchedule(Study study, StudyScheduleCreateRequest req) {
+    private Long createForcedSchedule(StudyScheduleCreateRequest req) {
 
-        StudySchedule forcedSchedule = req.toEntity(study, req.getStartDate());
+        StudySchedule forcedSchedule = req.toEntity(req.getStartDate());
         studyScheduleRepository.save(forcedSchedule);
         return forcedSchedule.getId();
     }
 
     private void createEmptySchedule(Study study, StudyScheduleCreateRequest req) {
 
-        for (int i = 1; i < study.getDuration_weeks(); i++) {
+        for (int i = 2; i <= study.getDuration_weeks(); i++) {
             StudySchedule emptySchedule = req.toInitEntity(study, i);
             studyScheduleRepository.save(emptySchedule);
         }
