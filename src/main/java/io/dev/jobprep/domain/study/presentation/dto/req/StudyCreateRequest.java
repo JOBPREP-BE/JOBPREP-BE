@@ -51,9 +51,9 @@ public class StudyCreateRequest {
             .build();
     }
 
-    public StudyScheduleCreateRequest from(Long studyId) {
+    public StudyScheduleCreateRequest from(Study study) {
         return StudyScheduleCreateRequest.builder()
-            .studyId(studyId)
+            .study(study)
             .startDate(startDate)
             .build();
     }
