@@ -1,6 +1,7 @@
 package io.dev.jobprep.domain.study.domain.entity;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_DELETED_STUDY;
+import static io.dev.jobprep.exception.code.ErrorCode400.NON_GATHERED_USER;
 import static io.dev.jobprep.exception.code.ErrorCode400.STUDY_GATHERED_USER_EXCEED;
 
 import io.dev.jobprep.common.base.BaseTimeEntity;
