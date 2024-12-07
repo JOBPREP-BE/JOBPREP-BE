@@ -10,6 +10,7 @@ public enum ErrorCode404 implements ErrorCode {
 
 
     USER_NOT_FOUND("E03-USER-001", "존재하지 않는 유저입니다."),
+    ADMIN_NOT_FOUND("E03-USER-002", "관리자를 찾을 수 없습니다."),
 
     INTERVIEW_NOT_FOUND("E03-JOB-INTERVIEW-001", "존재하지 않는 면접 데이터입니다."),
 

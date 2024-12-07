@@ -41,6 +41,12 @@ public interface StudySwagger {
                     @ExampleObject(name = "E01-STUDY-001", value = SwaggerStudyErrorExamples.ALREADY_CREATED_STUDY)
                 }
             )),
+        @ApiResponse(responseCode = "403", description = "스터디를 생성할 권한이 없음",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(name = "E02-USER-003", value = SwaggerUserErrorExamples.USER_PERMISSION_SUSPENDED)
+            )),
         @ApiResponse(responseCode = "404", description = "요청한 사용자가 존재하지 않음",
             content = @Content(
                 mediaType = "application/json",
@@ -70,6 +76,12 @@ public interface StudySwagger {
                     @ExampleObject(name = "E01-STUDY-007", value = SwaggerStudyErrorExamples.ALREADY_GATHERED_STUDY),
                     @ExampleObject(name = "E01-STUDY-008", value = SwaggerStudyErrorExamples.ALREADY_PASSED_DUE_DATE)
                 }
+            )),
+        @ApiResponse(responseCode = "403", description = "스터디를 참여할 권한이 없음",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(name = "E02-USER-003", value = SwaggerUserErrorExamples.USER_PERMISSION_SUSPENDED)
             )),
         @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
             content = @Content(

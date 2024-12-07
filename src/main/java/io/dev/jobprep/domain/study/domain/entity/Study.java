@@ -107,6 +107,12 @@ public class Study extends BaseTimeEntity  {
         userStudies.add(userStudy);
     }
 
+    public void kickOut(User user) {
+        UserStudy userStudy = UserStudy.of(user, this);
+        validateAvailableKickOut(userStudy);
+        userStudies.remove(userStudy);
+    }
+
     public void close() {
         status.validateAvailableRecruitment();
         this.status = StudyStatus.RECRUITMENT_CLOSED;
@@ -154,6 +160,12 @@ public class Study extends BaseTimeEntity  {
     private void validateAvailableJoin() {
         status.validateAvailableRecruitment();
         validateHeadCount();
+    }
+
+    private void validateAvailableKickOut(UserStudy userStudy) {
+        if (!userStudies.contains(userStudy)) {
+            throw new StudyException(NON_GATHERED_USER);
+        }
     }
 
     private void validateHeadCount() {

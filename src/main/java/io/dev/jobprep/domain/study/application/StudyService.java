@@ -5,6 +5,7 @@ import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_GATHERED_STUDY;
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_PASSED_DUE_DATE;
 import static io.dev.jobprep.exception.code.ErrorCode400.DUPLICATE_STUDY_NAME;
 import static io.dev.jobprep.exception.code.ErrorCode400.STUDY_GATHERED_USER_EXCEED;
+import static io.dev.jobprep.exception.code.ErrorCode403.USER_PERMISSION_SUSPENDED;
 import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
 import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
@@ -49,6 +50,10 @@ public class StudyService {
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User creator = getUser(id);
 
+        if (creator.validateStillPenalized()) {
+            throw new UserException(USER_PERMISSION_SUSPENDED);
+        }
+
         validateAlreadyCreated(id);
         validateAlreadyGathered(id);
 
@@ -73,6 +78,9 @@ public class StudyService {
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User user = getUser(id);
 
+        if (user.validateStillPenalized()) {
+            throw new UserException(USER_PERMISSION_SUSPENDED);
+        }
         validateAlreadyGathered(id);
 
         StudyWithStartDateDto studyWithDate = getStudyWithStartDate(studyId);

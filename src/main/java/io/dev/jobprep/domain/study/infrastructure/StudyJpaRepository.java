@@ -22,6 +22,9 @@ public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRep
     @Query("select std from Study std where std.creator.id = :creatorId")
     Optional<Study> findStudyByCreatorId(Long creatorId);
 
+    @Query("select std from Study std where std.name = :name")
+    Optional<Study> findStudyByName(String name);
+
     @Query("""
         select std from Study std join UserStudy us on std.id = us.study.id
         where us.user.id = :userId and not std.status in ('FINISHED') and std.deletedAt = null
