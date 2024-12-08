@@ -37,8 +37,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Study extends BaseTimeEntity  {
 
-    // jenkins_cd_test
-
     private final static int MAX_HEAD_COUNT = 3;
     private final static int MAX_DURATION_WEEKS = 3;
 
@@ -58,6 +56,7 @@ public class Study extends BaseTimeEntity  {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserStudy> userStudies = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "position")
     private Position position;
 
