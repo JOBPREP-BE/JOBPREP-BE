@@ -6,6 +6,8 @@ import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMaster
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.ExpMasterClIdResponse;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindAllExpMasterClResponse;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
+import io.dev.jobprep.domain.users.application.UserCommonService;
+import io.dev.jobprep.domain.users.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +20,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExpMasterClController implements ExpMasterClSwagger {
     private final ExpMasterClService expMasterClService;
+    private final UserCommonService userCommonService;
 
     @PostMapping
     public ResponseEntity<ExpMasterClIdResponse> save (@RequestParam Long userId) {
-        ExpMasterClIdResponse id = expMasterClService.save(userId);
+        User user = userCommonService.getUserWithId(userId);
+        ExpMasterClIdResponse id = expMasterClService.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 
@@ -31,7 +35,8 @@ public class ExpMasterClController implements ExpMasterClSwagger {
             @RequestParam Long userId,
             @RequestBody ExpMasterClPatchRequest request
             ) {
-        return ResponseEntity.status(HttpStatus.OK).body(expMasterClService.patch(id, userId, request));
+        User user = userCommonService.getUserWithId(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(expMasterClService.patch(id, user, request));
     }
 
     @DeleteMapping("/{id}")
@@ -39,13 +44,15 @@ public class ExpMasterClController implements ExpMasterClSwagger {
             @PathVariable("id") Long id,
             @RequestParam Long userId
     ) {
-        expMasterClService.delete(id, userId);
+        User user = userCommonService.getUserWithId(userId);
+        expMasterClService.delete(id, user);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping
     public ResponseEntity<List<FindAllExpMasterClResponse>> findAll (@RequestParam Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(expMasterClService.findAll(userId));
+        User user = userCommonService.getUserWithId(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(expMasterClService.findAll(user));
     }
 
     @GetMapping("/{id}")
@@ -53,6 +60,7 @@ public class ExpMasterClController implements ExpMasterClSwagger {
             @PathVariable("id") Long id,
             @RequestParam Long userId
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(expMasterClService.find(id, userId));
+        User user = userCommonService.getUserWithId(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(expMasterClService.find(id, user));
     }
 }

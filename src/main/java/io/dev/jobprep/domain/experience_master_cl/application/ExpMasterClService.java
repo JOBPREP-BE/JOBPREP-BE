@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.INVALID_INPUT_VALUE;
 import static io.dev.jobprep.exception.code.ErrorCode403.MASTER_CL_FORBIDDEN_OPERATION;
-import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
 @Service
 @Transactional(readOnly = true)
@@ -35,8 +34,7 @@ public class ExpMasterClService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ExpMasterClIdResponse save (Long userId) {
-        User user = getUser(userId);
+    public ExpMasterClIdResponse save (User user) {
 
         ExpMasterCl expMasterCl = ExpMasterCl.builder()
                 .material("")
@@ -54,11 +52,10 @@ public class ExpMasterClService {
     }
 
     @Transactional
-    public FindExpMasterClResponse patch (Long id, Long userId, ExpMasterClPatchRequest request) {
-        User user = getUser(userId);
+    public FindExpMasterClResponse patch (Long id, User user, ExpMasterClPatchRequest request) {
         ExpMasterCl expMasterCl = findById(id);
 
-        validateUser(user.getId(), expMasterCl.getId());
+        validateUser(user.getId(), expMasterCl.getCreator().getId());
 
         expMasterCl.update(request);
 
@@ -66,16 +63,14 @@ public class ExpMasterClService {
     }
 
     @Transactional
-    public void delete (Long id, Long userId) {
-        User user = getUser(userId);
+    public void delete (Long id, User user) {
         ExpMasterCl expMasterCl = findById(id);
 
-        validateUser(user.getId(), expMasterCl.getId());
+        validateUser(user.getId(), expMasterCl.getCreator().getId());
         expMasterCl.disable();
     }
 
-    public List<FindAllExpMasterClResponse> findAll (Long userId) {
-        User user = getUser(userId);
+    public List<FindAllExpMasterClResponse> findAll (User user) {
         List<ExpMasterCl> expMasterClList = expMasterClRepository.findAllByActiveTrueAndCreatorId(user.getId());
 
         return expMasterClList.stream()
@@ -83,8 +78,7 @@ public class ExpMasterClService {
                 .collect(Collectors.toList());
     }
 
-    public FindExpMasterClResponse find (Long id, Long userId) {
-        User user = getUser(userId);
+    public FindExpMasterClResponse find (Long id, User user) {
         ExpMasterCl expMasterCl = findById(id);
 
         validateUser(user.getId(), expMasterCl.getCreator().getId());
@@ -92,8 +86,7 @@ public class ExpMasterClService {
     }
 
     @Transactional
-    public void defaultSave (Long userId) {
-        User user = getUser(userId);
+    public void defaultSave (User user) {
 
         ExpMasterCl expMasterCl = ExpMasterCl.builder()
                 .material("예시)글로번 커리어 SNS를 통한 수상")
@@ -112,11 +105,6 @@ public class ExpMasterClService {
     private ExpMasterCl findById (Long id) {
         return expMasterClRepository.findById(id)
                 .orElseThrow(() -> new ExpMasterClException(INVALID_INPUT_VALUE));
-    }
-
-    private User getUser(Long id) {
-        return userRepository.findUserById(id)
-                .orElseThrow(() -> new UserException(USER_NOT_FOUND));
     }
 
     private void validateUser(Long userId, Long jobInterviewId) {
