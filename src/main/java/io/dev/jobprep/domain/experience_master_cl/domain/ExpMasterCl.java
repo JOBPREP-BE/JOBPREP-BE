@@ -53,6 +53,8 @@ public class ExpMasterCl extends BaseTimeEntity {
     private User creator;
 
 
+    private static final String BLANK = "";
+
     private ExpMasterCl(Long id, String material, String emphasis, ExpAnalProcess expAnalProcess, MasterClProcess masterClProcess, String expAnal, String masterCl, boolean active, User creator) {
         this.id = id;
         this.material = material;
@@ -75,6 +77,19 @@ public class ExpMasterCl extends BaseTimeEntity {
             case "masterCl" -> this.masterCl = request.getContent();
             default -> throw new ExpMasterClException(INVALID_INPUT_VALUE);
         }
+    }
+
+    public static ExpMasterCl createData(User user) {
+        return ExpMasterCl.builder()
+                .material(BLANK)
+                .emphasis(BLANK)
+                .expAnalProcess(ExpAnalProcess.PREPARATION)
+                .masterClProcess(MasterClProcess.PREPARATION)
+                .expAnal(BLANK)
+                .masterCl(BLANK)
+                .creator(user)
+                .active(true)
+                .build();
     }
 
     public void disable() {

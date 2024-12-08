@@ -11,7 +11,6 @@ import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindAllEx
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
 import io.dev.jobprep.domain.job_interview.exception.JobInterviewException;
 import io.dev.jobprep.domain.users.domain.User;
-import io.dev.jobprep.domain.users.exception.UserException;
 import io.dev.jobprep.domain.users.infrastructure.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,21 +30,11 @@ import static io.dev.jobprep.exception.code.ErrorCode403.MASTER_CL_FORBIDDEN_OPE
 @Slf4j
 public class ExpMasterClService {
     private final ExpMasterClRepository expMasterClRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public ExpMasterClIdResponse save (User user) {
 
-        ExpMasterCl expMasterCl = ExpMasterCl.builder()
-                .material("")
-                .emphasis("")
-                .expAnalProcess(ExpAnalProcess.PREPARATION)
-                .masterClProcess(MasterClProcess.PREPARATION)
-                .expAnal("")
-                .masterCl("")
-                .creator(user)
-                .active(true)
-                .build();
+        ExpMasterCl expMasterCl = ExpMasterCl.createData(user);
 
         expMasterClRepository.save(expMasterCl);
         return ExpMasterClIdResponse.from(expMasterCl.getId());
