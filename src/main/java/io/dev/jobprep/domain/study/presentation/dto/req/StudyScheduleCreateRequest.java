@@ -36,9 +36,10 @@ public class StudyScheduleCreateRequest {
             .build();
     }
 
-    public StudySchedule toInitEntity(Study study, int week_number) {
+    public StudySchedule toInitEntity(Study study, LocalDateTime startDate, int week_number) {
         return StudySchedule.builder()
             .study(study)
+            .start_date(startDate)
             .week_number(week_number)
             .build();
     }

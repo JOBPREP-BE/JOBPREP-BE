@@ -14,6 +14,7 @@ import io.dev.jobprep.domain.study.presentation.dto.req.StudyUpdateRequest;
 import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.domain.users.exception.UserException;
 import io.dev.jobprep.domain.users.infrastructure.UserRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class StudyScheduleService {
+
+    private static final int WEEK = 7;
 
     private final UserRepository userRepository;
     private final StudyJpaRepository studyRepository;
@@ -41,7 +44,7 @@ public class StudyScheduleService {
         validateCreator(study, id);
 
         Long scheduleId = createForcedSchedule(req);
-        createEmptySchedule(study, req);
+        createInitSchedule(study, req);
 
         return scheduleId;
     }
@@ -91,10 +94,12 @@ public class StudyScheduleService {
         return forcedSchedule.getId();
     }
 
-    private void createEmptySchedule(Study study, StudyScheduleCreateRequest req) {
+    private void createInitSchedule(Study study, StudyScheduleCreateRequest req) {
 
         for (int i = 2; i <= study.getDuration_weeks(); i++) {
-            StudySchedule emptySchedule = req.toInitEntity(study, i);
+            StudySchedule emptySchedule = req.toInitEntity(
+                study, calcuateNextStartDate(req.getStartDate(), i - 1), i
+            );
             studyScheduleRepository.save(emptySchedule);
         }
     }
@@ -102,6 +107,10 @@ public class StudyScheduleService {
     private User getUser(Long id) {
         return userRepository.findUserById(id)
             .orElseThrow(() -> new UserException(USER_NOT_FOUND));
+    }
+
+    private LocalDateTime calcuateNextStartDate(LocalDateTime startDate, int weekNum) {
+        return startDate.plusDays((long) weekNum * WEEK);
     }
 
 }
