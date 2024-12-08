@@ -5,6 +5,7 @@ import static io.dev.jobprep.exception.code.ErrorCode404.APPLICATION_STATUS_NOT_
 import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
 import io.dev.jobprep.domain.applicationstatus.domain.entity.ApplicationStatus;
+import io.dev.jobprep.domain.applicationstatus.domain.entity.InitData;
 import io.dev.jobprep.domain.applicationstatus.exception.ApplicationStatusException;
 import io.dev.jobprep.domain.applicationstatus.infrastructure.ApplicationStatusJpaRepository;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusCreateRequest;
@@ -12,6 +13,7 @@ import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationS
 import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.domain.users.exception.UserException;
 import io.dev.jobprep.domain.users.infrastructure.UserRepository;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +76,28 @@ public class ApplicationStatusService {
 
         ApplicationStatus status = getApplicationStatus(id);
         status.modify(field, req.getNewVal());
+    }
+
+    // TODO: 회원가입 시 user 엔티티와 동시 생성
+    @Transactional
+    public void init(Long userId) {
+
+        // TODO: 유저 토큰 검증
+        User creator = getUser(userId);
+
+        List<ApplicationStatus> dummy = Arrays.stream(InitData.values()).map(
+            (init) -> ApplicationStatus.of(
+                creator,
+                init.getCompany(),
+                init.getPosition(),
+                init.getProgress(),
+                init.getProcess(),
+                init.getUrl(),
+                init.getCoverLetter()
+            )
+        ).toList();
+
+        applicationStatusRepository.saveAll(dummy);
     }
 
     private void validateCreator(Long userId, Long id) {
