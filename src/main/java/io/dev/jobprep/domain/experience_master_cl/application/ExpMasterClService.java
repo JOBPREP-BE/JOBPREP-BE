@@ -87,8 +87,26 @@ public class ExpMasterClService {
         User user = getUser(userId);
         ExpMasterCl expMasterCl = findById(id);
 
-        validateUser(user.getId(), expMasterCl.getId());
+        validateUser(user.getId(), expMasterCl.getCreator().getId());
         return FindExpMasterClResponse.toDto(expMasterCl);
+    }
+
+    @Transactional
+    public void defaultSave (Long userId) {
+        User user = getUser(userId);
+
+        ExpMasterCl expMasterCl = ExpMasterCl.builder()
+                .material("예시)글로번 커리어 SNS를 통한 수상")
+                .emphasis("기획력, 분석력, 프로젝트 관리 능력")
+                .expAnalProcess(ExpAnalProcess.PREPARATION)
+                .masterClProcess(MasterClProcess.IN_PROGRESS)
+                .expAnal("문항 1. 당사에 지원한 동기와 지원 직무를 선택한 이유에 대해 말씀해주세요.\n저는 완전 좋은 사람입니다. 그래서 뽑혀야 합니다.\n근데 알고보면 진짜 더 좋은 사람입니다. 그래서 뽑아야 합니다.\n진짜입니다")
+                .masterCl("문항 1. 당사에 지원한 동기와 지원 직무를 선택한 이유에 대해 말씀해주세요.\n저는 완전 좋은 사람입니다. 그래서 뽑혀야 합니다.\n근데 알고보면 진짜 더 좋은 사람입니다. 그래서 뽑아야 합니다.\n진짜입니다")
+                .creator(user)
+                .active(true)
+                .build();
+
+        expMasterClRepository.save(expMasterCl);
     }
 
     private ExpMasterCl findById (Long id) {
