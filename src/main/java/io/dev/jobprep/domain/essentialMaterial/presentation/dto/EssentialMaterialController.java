@@ -6,23 +6,16 @@ import io.dev.jobprep.domain.essentialMaterial.presentation.dto.req.EssentialMat
 import io.dev.jobprep.domain.essentialMaterial.presentation.dto.res.EssentialMaterialGetAPIResponse;
 import io.dev.jobprep.domain.essentialMaterial.presentation.dto.res.EssentialMaterialUpdateAPIResponse;
 import io.dev.jobprep.domain.users.application.UserCommonService;
-import io.dev.jobprep.domain.users.domain.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/essential-material")
 public class EssentialMaterialController implements EssentialMaterialSwagger {
     private final EssentialMaterialService essentialMaterialService;
     private final UserCommonService userCommonService;
-
-    @Autowired
-    public EssentialMaterialController(EssentialMaterialService essentialMaterialService,
-                                       UserCommonService userCommonService){
-        this.essentialMaterialService = essentialMaterialService;
-        this.userCommonService = userCommonService;
-    }
 
     @GetMapping(value = "/")
     public ResponseEntity<EssentialMaterialGetAPIResponse> get(@RequestParam(required = false) Long userId){
@@ -30,7 +23,7 @@ public class EssentialMaterialController implements EssentialMaterialSwagger {
         return ResponseEntity.ok(new EssentialMaterialGetAPIResponse(material));
     }
 
-    @PutMapping(value ="/update")
+    @PatchMapping(value ="/update")
     public ResponseEntity<EssentialMaterialUpdateAPIResponse> update(@RequestParam(required = false) Long userId,
                                                                      @RequestBody EssentialMaterialIUpdateAPIRequest req){
         String material = essentialMaterialService.update(userCommonService.getUserWithId(userId),req.getContent());

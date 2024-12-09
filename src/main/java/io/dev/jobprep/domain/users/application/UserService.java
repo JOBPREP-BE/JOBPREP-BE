@@ -6,7 +6,7 @@ import io.dev.jobprep.domain.users.infrastructure.UserRepository;
 import io.dev.jobprep.domain.users.exception.UserException;
 import io.dev.jobprep.domain.users.application.dto.res.DeleteUserAccountResponse;
 import io.dev.jobprep.domain.users.domain.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +16,9 @@ import static io.dev.jobprep.exception.code.ErrorCode400.USER_ACCOUNT_ALREADY_EX
 import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    @Autowired
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
 
     @Transactional
