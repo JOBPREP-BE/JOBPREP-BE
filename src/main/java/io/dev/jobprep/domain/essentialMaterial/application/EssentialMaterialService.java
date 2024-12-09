@@ -4,21 +4,17 @@ import io.dev.jobprep.domain.essentialMaterial.Exception.EssentialMaterialExcept
 import io.dev.jobprep.domain.essentialMaterial.domain.EssentialMaterial;
 import io.dev.jobprep.domain.essentialMaterial.infrastructure.EssentialMaterialRepository;
 import io.dev.jobprep.domain.users.domain.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static io.dev.jobprep.exception.code.ErrorCode404.ESSENTIAL_MATERIAL_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class EssentialMaterialService {
 
     private final EssentialMaterialRepository essentialMaterialRepository;
-    @Autowired
-    public EssentialMaterialService(EssentialMaterialRepository essentialMaterialRepository){
-        this.essentialMaterialRepository = essentialMaterialRepository;
-    }
-
 
     @Transactional
     public String get(User user) {
