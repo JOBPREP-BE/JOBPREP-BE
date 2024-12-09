@@ -23,7 +23,7 @@ public class EssentialMaterialController implements EssentialMaterialSwagger {
         return ResponseEntity.ok(new EssentialMaterialGetAPIResponse(material));
     }
 
-    @PutMapping(value ="/update")
+    @PatchMapping(value ="/update")
     public ResponseEntity<EssentialMaterialUpdateAPIResponse> update(@RequestParam(required = false) Long userId,
                                                                      @RequestBody EssentialMaterialIUpdateAPIRequest req){
         String material = essentialMaterialService.update(userCommonService.getUserWithId(userId),req.getContent());
