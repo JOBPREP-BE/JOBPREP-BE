@@ -12,9 +12,9 @@ import java.util.Map;
 @ToString
 @Slf4j
 public class OAuthAttributes {
-    private Map<String, Object> attributes;     // OAuth2 반환하는 유저 정보
-    private String name;
-    private String email;
+    private final Map<String, Object> attributes;     // OAuth2 반환하는 유저 정보
+    private final String name;
+    private final String email;
 
     @Builder
     public OAuthAttributes(Map<String, Object> attributes, String name, String email) {
