@@ -22,7 +22,7 @@ public enum ApplicationProcess {
     }
 
     public static ApplicationProcess from(String description) {
-        if (description == null) return DOCUMENT_SCREENING;
+        if (description == null) return null;
         return Arrays.stream(ApplicationProcess.values())
             .filter(process -> process.getDescription().equals(description))
             .findFirst()
