@@ -17,6 +17,8 @@ public enum ErrorCode403 implements ErrorCode {
     USER_PERMISSION_SUSPENDED("E02-USER-003", "페널티로 인해 이용이 제한되었습니다."),
 
     APPLICATION_STATUS_FORBIDDEN_OPERATION("E02-APPLICATIONSTATUS-001", "해당 작업에 대한 권한이 없습니다."),
+
+    MASTER_CL_FORBIDDEN_OPERATION("E02-EXP-MASTER-001", "해당 작업은 작성자 권한이 필요합니다."),
     ;
 
     private final HttpStatus httpStatus = HttpStatus.FORBIDDEN;

@@ -13,6 +13,10 @@ import lombok.Getter;
 @Getter
 public class ApplicationStatusCommonResponse {
 
+    @Schema(description = "지원 현황 ID", example = "2", implementation = Long.class)
+    @Nullable
+    private final Long id;
+
     @Schema(description = "지원 기업", example = "애플", implementation = String.class)
     @Nullable
     private final String company;
@@ -41,16 +45,23 @@ public class ApplicationStatusCommonResponse {
     @Nullable
     private final String url;
 
+    @Schema(description = "자기소개서", example = "저를 꼭 뽑아주세요!", implementation = String.class)
+    @Nullable
+    private final String coverLetter;
+
     @Builder
     private ApplicationStatusCommonResponse(
+        Long id,
         String company,
         String position,
         ApplicationProgress progress,
         ApplicationProcess process,
         LocalDateTime applicationDate,
         LocalDateTime dueDate,
-        String url
+        String url,
+        String coverLetter
     ) {
+        this.id = id;
         this.company = company;
         this.position = position;
         this.progress = progress;
@@ -58,10 +69,12 @@ public class ApplicationStatusCommonResponse {
         this.applicationDate = applicationDate;
         this.dueDate = dueDate;
         this.url = url;
+        this.coverLetter = coverLetter;
     }
 
     public static ApplicationStatusCommonResponse from(ApplicationStatus applicationStatus) {
         return ApplicationStatusCommonResponse.builder()
+            .id(applicationStatus.getId())
             .company(applicationStatus.getCompany())
             .position(applicationStatus.getPosition())
             .progress(applicationStatus.getProgress())
@@ -69,6 +82,7 @@ public class ApplicationStatusCommonResponse {
             .applicationDate(applicationStatus.getApplicationDate())
             .dueDate(applicationStatus.getDueDate())
             .url(applicationStatus.getUrl())
+            .coverLetter(applicationStatus.getCoverLetter())
             .build();
     }
 
