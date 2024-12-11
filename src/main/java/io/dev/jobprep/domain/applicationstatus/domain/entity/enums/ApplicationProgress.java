@@ -22,7 +22,7 @@ public enum ApplicationProgress {
     }
 
     public static ApplicationProgress from(String description) {
-        if (description == null) return NOT_STARTED;
+        if (description == null) return null;
         return Arrays.stream(ApplicationProgress.values())
             .filter(progress -> progress.getDescription().equals(description))
             .findFirst()

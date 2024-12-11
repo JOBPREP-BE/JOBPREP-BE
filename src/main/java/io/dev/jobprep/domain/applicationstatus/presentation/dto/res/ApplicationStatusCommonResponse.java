@@ -45,6 +45,10 @@ public class ApplicationStatusCommonResponse {
     @Nullable
     private final String url;
 
+    @Schema(description = "자기소개서", example = "저를 꼭 뽑아주세요!", implementation = String.class)
+    @Nullable
+    private final String coverLetter;
+
     @Builder
     private ApplicationStatusCommonResponse(
         Long id,
@@ -54,7 +58,8 @@ public class ApplicationStatusCommonResponse {
         ApplicationProcess process,
         LocalDateTime applicationDate,
         LocalDateTime dueDate,
-        String url
+        String url,
+        String coverLetter
     ) {
         this.id = id;
         this.company = company;
@@ -64,6 +69,7 @@ public class ApplicationStatusCommonResponse {
         this.applicationDate = applicationDate;
         this.dueDate = dueDate;
         this.url = url;
+        this.coverLetter = coverLetter;
     }
 
     public static ApplicationStatusCommonResponse from(ApplicationStatus applicationStatus) {
@@ -76,6 +82,7 @@ public class ApplicationStatusCommonResponse {
             .applicationDate(applicationStatus.getApplicationDate())
             .dueDate(applicationStatus.getDueDate())
             .url(applicationStatus.getUrl())
+            .coverLetter(applicationStatus.getCoverLetter())
             .build();
     }
 
