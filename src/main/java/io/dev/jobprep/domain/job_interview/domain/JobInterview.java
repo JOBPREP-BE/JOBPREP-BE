@@ -32,10 +32,12 @@ public class JobInterview {
     @JoinColumn(name = "user_id", updatable = false)
     private User creator;
 
-    public void update(PutJobInterviewRequest request, JobInterviewCategory reqCategory) {
-        question = request.getQuestion();
-        category = reqCategory;
-        answer = request.getAnswer();
+    public void update(PutJobInterviewRequest request) {
+        switch (request.getField()) {
+            case "question" -> question = request.getContent();
+            case "category" -> category = JobInterviewCategory.from(request.getContent());
+            case "answer" -> answer = request.getContent();
+        }
     }
 
     private JobInterview(Long id, String question, JobInterviewCategory category, String answer, User creator) {
