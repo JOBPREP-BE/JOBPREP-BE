@@ -63,6 +63,14 @@ public class ChatMongoRepository {
         return mongoTemplate.find(query, ChatMessage.class);
     }
 
+    public ChatRoom getLastMessage(UUID roomId, Long userId) {
+        Query query = new Query();
+        query.addCriteria(verifyRoomId(roomId))
+             .addCriteria(verifyActive())
+             .addCriteria(verifyLastMsgRead(userId));
+        return mongoTemplate.findOne(query, ChatRoom.class);
+    }
+
     public void markMessageAsRead(UUID roomId, Long userId) {
         Query query = new Query();
         query.addCriteria(verifyRoomId(roomId))
