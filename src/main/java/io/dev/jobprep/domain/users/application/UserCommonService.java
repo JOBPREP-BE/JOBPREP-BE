@@ -15,6 +15,7 @@ import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserCommonService {
+  
     private final UserRepository userRepository;
 
     public User getUserWithId(Long id){

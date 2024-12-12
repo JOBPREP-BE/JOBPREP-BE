@@ -4,6 +4,7 @@ import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_CREATED_STUDY;
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_GATHERED_STUDY;
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_PASSED_DUE_DATE;
 import static io.dev.jobprep.exception.code.ErrorCode400.DUPLICATE_STUDY_NAME;
+import static io.dev.jobprep.exception.code.ErrorCode400.INVALID_START_DATE;
 import static io.dev.jobprep.exception.code.ErrorCode400.STUDY_GATHERED_USER_EXCEED;
 import static io.dev.jobprep.exception.code.ErrorCode403.USER_PERMISSION_SUSPENDED;
 import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
@@ -67,7 +68,11 @@ public class StudyService {
         }
 
         StudyScheduleCreateRequest scheduleReq = req.from(study);
-        studyScheduleService.create(id, scheduleReq);
+        try {
+            studyScheduleService.create(id, scheduleReq);
+        } catch (ConstraintViolationException e) {
+            throw new StudyException(INVALID_START_DATE);
+        }
 
         return study.getId();
     }

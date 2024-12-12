@@ -1,11 +1,14 @@
 package io.dev.jobprep.domain.users.application;
 
+import static io.dev.jobprep.exception.code.ErrorCode400.NON_GATHERED_USER;
 import static io.dev.jobprep.exception.code.ErrorCode403.ADMIN_FORBIDDEN_OPERATION;
 import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
 
 import io.dev.jobprep.domain.study.domain.entity.Study;
+import io.dev.jobprep.domain.study.domain.entity.UserStudy;
 import io.dev.jobprep.domain.study.exception.StudyException;
 import io.dev.jobprep.domain.study.infrastructure.StudyJpaRepository;
+import io.dev.jobprep.domain.study.infrastructure.UserStudyJpaRepository;
 import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.domain.users.domain.UserRole;
 import io.dev.jobprep.domain.users.exception.UserException;
@@ -23,6 +26,7 @@ public class AdminCommonService {
 
     private final UserCommonService userCommonService;
     private final StudyJpaRepository studyRepository;
+    private final UserStudyJpaRepository userStudyRepository;
 
     @Transactional
     public Long penalize(Long userId, UserPenalizeRequest req) {
@@ -38,7 +42,8 @@ public class AdminCommonService {
         fugitive.penalize();
 
         Study study = getStudy(req.getName());
-        study.kickOut(fugitive);
+        UserStudy userStudy = validateGatheredUser(fugitive.getId(), study.getId());
+        study.kickOut(userStudy);
 
         return study.getId();
     }
@@ -54,6 +59,11 @@ public class AdminCommonService {
 
     private boolean validateisAdmin(Long userId) {
         return userCommonService.getUserWithId(userId).getUserRole().equals(UserRole.ADMIN);
+    }
+
+    private UserStudy validateGatheredUser(Long userId, Long studyId) {
+        return userStudyRepository.findByUserIdAndStudyId(studyId, userId)
+            .orElseThrow(() -> new StudyException(NON_GATHERED_USER));
     }
 
 }
