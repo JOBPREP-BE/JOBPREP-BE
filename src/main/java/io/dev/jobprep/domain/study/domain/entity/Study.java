@@ -108,9 +108,7 @@ public class Study extends BaseTimeEntity  {
         userStudies.add(userStudy);
     }
 
-    public void kickOut(User user) {
-        UserStudy userStudy = UserStudy.of(user, this);
-        validateAvailableKickOut(userStudy);
+    public void kickOut(UserStudy userStudy) {
         userStudies.remove(userStudy);
     }
 
