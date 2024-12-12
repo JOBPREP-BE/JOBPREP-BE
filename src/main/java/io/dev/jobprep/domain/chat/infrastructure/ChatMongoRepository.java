@@ -106,7 +106,7 @@ public class ChatMongoRepository {
     }
 
     private Criteria verifyActive() {
-        return Criteria.where("status").is(ChatRoomStatus.ACTIVE);
+        return Criteria.where("chat_status").is(ChatRoomStatus.ACTIVE);
     }
 
     private Criteria verifyRead(Long userId) {
