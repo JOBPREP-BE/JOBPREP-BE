@@ -9,7 +9,6 @@ import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewR
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
 import io.dev.jobprep.domain.users.domain.User;
-import io.dev.jobprep.domain.users.exception.UserException;
 import io.dev.jobprep.domain.users.infrastructure.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,14 +21,12 @@ import java.util.stream.Collectors;
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_DELETED_INTERVIEW;
 import static io.dev.jobprep.exception.code.ErrorCode403.INTERVIEW_FORBIDDEN_OPERATION;
 import static io.dev.jobprep.exception.code.ErrorCode404.INTERVIEW_NOT_FOUND;
-import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class JobInterviewService {
     private final JobInterviewRepository jobInterviewRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public JobInterviewIdResponse saveJobInterview (User user) {
@@ -49,7 +46,7 @@ public class JobInterviewService {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
 
-        validateUser(user.getId(), savedEntity.getId());
+        validateUser(user.getId(), savedEntity.getCreator().getId());
         savedEntity.update(request);
 
         return FindJobInterviewResponse.from(savedEntity);
@@ -60,7 +57,7 @@ public class JobInterviewService {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(ALREADY_DELETED_INTERVIEW));
 
-        validateUser(user.getId(), savedEntity.getId());
+        validateUser(user.getId(), savedEntity.getCreator().getId());
 
         jobInterviewRepository.delete(savedEntity);
     }
