@@ -4,7 +4,7 @@ import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.domain.users.domain.UserRole;
 import io.dev.jobprep.domain.users.exception.UserException;
 import io.dev.jobprep.domain.users.infrastructure.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,12 +13,10 @@ import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class UserCommonService {
+  
     private final UserRepository userRepository;
-    @Autowired
-    public UserCommonService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public User getUserWithId(Long id){
         User user = userRepository.findUserById(id)

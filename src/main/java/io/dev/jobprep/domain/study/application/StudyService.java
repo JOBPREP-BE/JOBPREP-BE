@@ -153,6 +153,7 @@ public class StudyService {
         return studyRepository.findNonDeletedAllStudy();
     }
 
+    @Transactional
     public void update(Long userId, Long studyId, String field, StudyUpdateAdminRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사

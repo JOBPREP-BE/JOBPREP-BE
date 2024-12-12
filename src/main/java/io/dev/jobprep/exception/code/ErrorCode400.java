@@ -31,6 +31,10 @@ public enum ErrorCode400 implements ErrorCode {
     INVALID_APPLICATION_PROGRESS_ARG("E01-APPLICATIONSTATUS-001", "지원 상황 입력이 잘못되었습니다."),
     INVALID_APPLICATION_PROCESS_ARG("E01-APPLICATIONSTATUS-002", "전형 단계 입력이 잘못되었습니다."),
 
+    ALREADY_DELETED_MASTER_CL("E01-EXP-MASTER-001", "해당 자소서는 이미 삭제되었습니다."),
+    INVALID_PROCESS_MASTER_CL("E01-EXP-MASTER-002", "해당 자소서는 알맞은 과정이 아닙니다."),
+    INVALID_FIELD_MASTER_CL("E01-EXP-MASTER-003", "해당 필드는 마스터 자소서에 없습니다."),
+
     ;
 
     private final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;

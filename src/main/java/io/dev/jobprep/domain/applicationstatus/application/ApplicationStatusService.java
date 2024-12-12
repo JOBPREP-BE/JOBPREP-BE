@@ -69,6 +69,7 @@ public class ApplicationStatusService {
         return applicationStatusRepository.findMyAppStatusAll(userId);
     }
 
+    @Transactional
     public void modify(Long userId, Long id, String field, ApplicationStatusUpdateRequest req) {
 
         // TODO: 유저 토큰 검증

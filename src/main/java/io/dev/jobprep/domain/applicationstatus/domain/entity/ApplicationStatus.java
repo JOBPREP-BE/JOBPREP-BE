@@ -6,6 +6,8 @@ import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.util.LocalDateTimeConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -42,9 +44,11 @@ public class ApplicationStatus {
     @Column(name = "position")
     private String position;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "application_progress")
     private ApplicationProgress progress;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "application_process")
     private ApplicationProcess process;
 
