@@ -102,7 +102,7 @@ public class ChatMongoRepository {
     }
 
     private Criteria verifyUserId(Long userId) {
-        return Criteria.where("users.user_id").is(userId);
+        return Criteria.where("users.user_id").in(userId);
     }
 
     private Criteria verifyActive() {
