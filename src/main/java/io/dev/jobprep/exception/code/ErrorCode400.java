@@ -19,10 +19,11 @@ public enum ErrorCode400 implements ErrorCode {
     ALREADY_PASSED_DUE_DATE("E01-STUDY-008", "스터디의 모집 기간이 지났습니다."),
     INVALID_POSITION_ARG("E01-STUDY-009", "스터디 직무 입력이 잘못되었습니다."),
     INVALID_STATUS_ARG("E01-STUDY-010", "스터디 상태가 잘못되었습니다."),
+    NON_GATHERED_USER("E01-STUDY-011", "해당 스터디에 유저가 존재하지 않습니다."),
     DUPLICATE_STUDY_NAME("E00-STUDY-01", "해당 스터디 이름이 이미 존재합니다."),
 
-
     USER_ACCOUNT_ALREADY_EXISTS("E01-USER-001", "해당 이메일로 가입된 계정이 이미 존재합니다."),
+    ALREADY_PENALIZED_USER("E01-USER-002", "이미 페널티가 부여된 유저입니다."),
 
     ALREADY_DELETED_INTERVIEW("E01-JOB-INTERVIEW-001", "해당 면접 데이터는 이미 삭제되었습니다."),
     INVALID_INTERVIEW_STATUS("E01-JOB-INTERVIEW-002", "해당 면접 카테고리가 잘못되었습니다."),
