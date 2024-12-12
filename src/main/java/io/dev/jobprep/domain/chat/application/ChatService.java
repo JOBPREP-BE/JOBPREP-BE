@@ -9,7 +9,6 @@ import io.dev.jobprep.domain.chat.domain.entity.document.ChatMessage;
 import io.dev.jobprep.domain.chat.domain.entity.document.ChatRoom;
 import io.dev.jobprep.domain.chat.exception.ChatException;
 import io.dev.jobprep.domain.chat.infrastructure.ChatMongoRepository;
-import io.dev.jobprep.domain.chat.presentation.dto.res.ChatMessageCommonResponse;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.domain.users.domain.UserRole;
@@ -61,20 +60,31 @@ public class ChatService {
         ).toList();
     }
 
-    public List<ChatMessageCommonResponse> getMessageHistory(Long userId) {
+    public List<ChatMessageCommonInfo> getMessageHistory(Long userId) {
+
+        // TODO: 유저 존재 여부 및 토큰 유효성 검사
+        User user = getUser(userId);
 
         ChatRoom chatRoom = getChatRoom(userId);
         if (chatRoom == null) {
-            return List.of(ChatMessageCommonResponse.from(null));
+            return List.of(ChatMessageCommonInfo.of(null, null, userId));
         }
 
-        return getMessageHistory(userId, chatRoom.getId())
-            .stream()
-            .map(ChatMessageCommonResponse::from)
-            .toList();
+        return getAllMessages(userId, chatRoom.getId());
     }
 
     public List<ChatMessageCommonInfo> getMessageHistory(Long userId, UUID roomId) {
+
+        User admin = getUser(userId);
+
+        if (!validateisAdmin(userId)) {
+            throw new ChatException(CHAT_ROOM_FORBIDDEN_OPERATION);
+        }
+
+        return getAllMessages(userId, roomId);
+    }
+
+    private List<ChatMessageCommonInfo> getAllMessages(Long userId, UUID roomId) {
         ChatRoom chatRoom = getChatRoom(roomId);
         return getMessages(roomId).stream().map(
             chatMessage -> ChatMessageCommonInfo.of(
