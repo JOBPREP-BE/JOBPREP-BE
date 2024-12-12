@@ -43,6 +43,10 @@ public class ApplicationStatusCreateRequest {
     @Nullable
     private String url;
 
+    @Schema(description = "자기소개서", example = "저를 꼭 뽑아주세요ㅠㅠ", implementation = String.class)
+    @Nullable
+    private String coverLetter;
+
     public ApplicationStatus toEntity(User creator) {
         return ApplicationStatus.builder()
             .creator(creator)
@@ -53,6 +57,7 @@ public class ApplicationStatusCreateRequest {
             .applicationDate(applicationDate)
             .dueDate(dueDate)
             .url(url)
+            .coverLetter(coverLetter)
             .build();
     }
 
