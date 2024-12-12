@@ -132,9 +132,7 @@ public class ChatService {
     }
 
     private boolean stillReadMore(ChatRoom chatRoom, Long userId) {
-        return chatRepository.getLastMessage(chatRoom.getId(), userId)
-            .getLastMessage()
-            .validateAvailableRead(userId);
+        return chatRepository.getLastMessage(chatRoom.getId(), userId) != null;
     }
 
     private List<ChatRoom> getAllActiveRooms(Long userId) {
