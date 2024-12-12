@@ -32,9 +32,7 @@ public class JobInterviewService {
     private final UserRepository userRepository;
 
     @Transactional
-    public JobInterviewIdResponse saveJobInterview (Long userId) {
-        User user = getUser(userId);
-
+    public JobInterviewIdResponse saveJobInterview (User user) {
         JobInterview jobInterview = JobInterview.builder()
                 .question("")
                 .category(JobInterviewCategory.PERSONALITY)
@@ -47,24 +45,18 @@ public class JobInterviewService {
     }
 
     @Transactional
-    public FindJobInterviewResponse update (PutJobInterviewRequest request, Long id, Long userId) {
-        User user = getUser(userId);
-
-        JobInterviewCategory category = JobInterviewCategory.from(request.getCategory());
-
+    public FindJobInterviewResponse update (PutJobInterviewRequest request, Long id, User user) {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
 
         validateUser(user.getId(), savedEntity.getId());
-        savedEntity.update(request, category);
+        savedEntity.update(request);
 
         return FindJobInterviewResponse.from(savedEntity);
     }
 
     @Transactional
-    public void delete(Long id, Long userId) {
-        User user = getUser(userId);
-
+    public void delete(Long id, User user) {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(ALREADY_DELETED_INTERVIEW));
 
@@ -73,9 +65,7 @@ public class JobInterviewService {
         jobInterviewRepository.delete(savedEntity);
     }
 
-    public List<FindJobInterviewResponse> find(Long userId) {
-        User user = getUser(userId);
-
+    public List<FindJobInterviewResponse> find(User user) {
         List<JobInterview> jobInterviewList = jobInterviewRepository.findAllByCreator(user);
 
         return jobInterviewList
@@ -97,11 +87,6 @@ public class JobInterviewService {
 
             jobInterviewRepository.save(jobInterview);
         }
-    }
-
-    private User getUser(Long id) {
-        return userRepository.findUserById(id)
-                .orElseThrow(() -> new UserException(USER_NOT_FOUND));
     }
 
     private void validateUser(Long userId, Long jobInterviewId) {

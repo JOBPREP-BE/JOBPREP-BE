@@ -5,6 +5,8 @@ import io.dev.jobprep.domain.job_interview.application.JobInterviewService;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
+import io.dev.jobprep.domain.users.application.UserCommonService;
+import io.dev.jobprep.domain.users.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,12 +21,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JobInterviewController implements JobInterviewSwagger {
     private final JobInterviewService jobInterviewService;
+    private final UserCommonService userCommonService;
 
     @PostMapping
     public ResponseEntity<JobInterviewIdResponse> save (
             @RequestParam Long userId
     ) {
-        JobInterviewIdResponse id = jobInterviewService.saveJobInterview(userId);
+        User user = userCommonService.getUserWithId(userId);
+        JobInterviewIdResponse id = jobInterviewService.saveJobInterview(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 
@@ -34,7 +38,8 @@ public class JobInterviewController implements JobInterviewSwagger {
             @RequestBody PutJobInterviewRequest dto,
             @RequestParam Long userId
             ) {
-        return ResponseEntity.ok(jobInterviewService.update(dto, id, userId));
+        User user = userCommonService.getUserWithId(userId);
+        return ResponseEntity.ok(jobInterviewService.update(dto, id, user));
     }
 
     @DeleteMapping("/{interviewId}")
@@ -42,7 +47,8 @@ public class JobInterviewController implements JobInterviewSwagger {
             @PathVariable("interviewId") Long interviewId,
             @RequestParam Long userId
     ) {
-        jobInterviewService.delete(interviewId, userId);
+        User user = userCommonService.getUserWithId(userId);
+        jobInterviewService.delete(interviewId, user);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -50,6 +56,7 @@ public class JobInterviewController implements JobInterviewSwagger {
     public ResponseEntity<List<FindJobInterviewResponse>> find (
             @RequestParam Long userId
     ) {
-        return ResponseEntity.ok(jobInterviewService.find(userId));
+        User user = userCommonService.getUserWithId(userId);
+        return ResponseEntity.ok(jobInterviewService.find(user));
     }
 }
