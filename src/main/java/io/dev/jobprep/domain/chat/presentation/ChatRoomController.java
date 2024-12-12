@@ -43,6 +43,7 @@ public class ChatRoomController implements ChatSwagger {
             .toList());
     }
 
+    @GetMapping
     public ResponseEntity<List<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
         @RequestParam Long userId
     ) {

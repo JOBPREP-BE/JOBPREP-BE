@@ -6,6 +6,7 @@ import io.dev.jobprep.domain.chat.presentation.dto.res.ChatMessageCommonResponse
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomAdminResponse;
 import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,7 +15,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 public interface ChatSwagger {
 
@@ -28,7 +28,9 @@ public interface ChatSwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             ))
     })
-    ResponseEntity<List<ChatMessageCommonResponse>> getMyMessageHistory(@RequestParam Long userId);
+    ResponseEntity<List<ChatMessageCommonResponse>> getMyMessageHistory(
+        @Parameter(required = true) Long userId
+    );
 
     @Operation(summary = "채팅 메시지 내역 조회", description = "관리자가 유저와의 채팅 메시지 내역을 조회할 때 사용하는 API")
     @ApiResponses(value = {
@@ -50,7 +52,7 @@ public interface ChatSwagger {
             ))
     })
     ResponseEntity<List<ChatMessageCommonResponse>> getUsersMessageHistoryForAdmin(
-        @RequestParam Long userId,
+        @Parameter(required = true) Long userId,
         @PathVariable String id
     );
 
@@ -71,7 +73,7 @@ public interface ChatSwagger {
             ))
     })
     ResponseEntity<List<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
-        @RequestParam Long userId
+        @Parameter(required = true) Long userId
     );
 
 }

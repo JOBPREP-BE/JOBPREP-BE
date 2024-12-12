@@ -51,7 +51,7 @@ public class ChatWSService {
         chatRepository.save(chatRoom);
         chatRepository.save(chatMessage);
 
-        return ChatMessageCommonInfo.of(chatRoom, chatMessage);
+        return ChatMessageCommonInfo.of(chatRoom, chatMessage, userId);
     }
 
     private void markAsRead(ChatMessage chatMessage, Long readerId) {
