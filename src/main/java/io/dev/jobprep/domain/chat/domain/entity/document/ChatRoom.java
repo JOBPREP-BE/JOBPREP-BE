@@ -60,6 +60,10 @@ public class ChatRoom {
         }
     }
 
+    public boolean isActive() {
+        return status.equals(ChatRoomStatus.DEACTIVE);
+    }
+
     public static ChatRoom of(ChatMessage lastMessage) {
         return ChatRoom.builder()
             .lastMessage(lastMessage)

@@ -3,6 +3,7 @@ package io.dev.jobprep.domain.chat.application.dto.res;
 import static io.dev.jobprep.exception.code.ErrorCode400.NON_GATHERED_CHAT_USER;
 
 import io.dev.jobprep.domain.chat.domain.entity.document.ChatRoom;
+import io.dev.jobprep.domain.chat.domain.entity.document.ChatUser;
 import io.dev.jobprep.domain.chat.exception.ChatException;
 import io.dev.jobprep.domain.users.application.dto.res.UserCommonInfo;
 import jakarta.annotation.Nullable;
@@ -40,21 +41,19 @@ public class ChatRoomCommonInfo {
         this.isRead = isRead;
     }
 
-    public static ChatRoomCommonInfo from(ChatRoom chatRoom, Long userId, boolean isRead) {
-        Integer adminIdx = getUserIdx(chatRoom, userId);
-        int receiverIdx = adminIdx.equals(0) ? 1 : 0;
+    public static ChatRoomCommonInfo from(ChatRoom chatRoom, Long adminId, boolean isRead) {
+        ChatUser opposite = getUserIdx(chatRoom, adminId);
 
         return ChatRoomCommonInfo.builder()
             .id(chatRoom.getId())
-            .userInfo(UserCommonInfo.from(chatRoom.getUsers().get(receiverIdx)))
+            .userInfo(UserCommonInfo.from(opposite))
             .updatedAt(chatRoom.getLastMessage().getCreatedAt())
             .isRead(isRead)
             .build();
     }
 
-    private static Integer getUserIdx(ChatRoom chatRoom, Long senderId) {
-        return chatRoom.getUsers().stream().filter(chatUser -> chatUser.getUserId().equals(senderId))
-            .map(chatRoom.getUsers()::indexOf)
+    private static ChatUser getUserIdx(ChatRoom chatRoom, Long adminId) {
+        return chatRoom.getUsers().stream().filter(chatUser -> !chatUser.getUserId().equals(adminId))
             .findFirst()
             .orElseThrow(() -> new ChatException(NON_GATHERED_CHAT_USER));
     }

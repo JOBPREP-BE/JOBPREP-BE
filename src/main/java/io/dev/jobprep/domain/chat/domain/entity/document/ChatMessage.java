@@ -44,13 +44,13 @@ public class ChatMessage {
     }
 
     public void addReader(Long userId) {
-        if (!validateAvailableRead(userId)) {
+        if (validateAvailableRead(userId)) {
             readBy.add(userId);
         }
     }
 
-    private boolean validateAvailableRead(Long userId) {
-        return readBy.contains(userId);
+    public boolean validateAvailableRead(Long userId) {
+        return !readBy.contains(userId);
     }
 
     public static ChatMessage of(Long id, UUID roomId, Long senderId, String messasge) {
