@@ -31,14 +31,14 @@ public class ChatMongoRepository {
 
     public Optional<ChatRoom> findByRoomIdAndUserId(@NonNull UUID roomId, @NonNull Long userId) {
         Query query = new Query();
-        query.addCriteria(verifyRoomId(roomId))
+        query.addCriteria(verifyId(roomId))
              .addCriteria(verifyUserId(userId));
         return Optional.ofNullable(mongoTemplate.findOne(query, ChatRoom.class));
     }
 
     public Optional<ChatRoom> findByRoomId(UUID roomId) {
         Query query = new Query();
-        query.addCriteria(verifyRoomId(roomId));
+        query.addCriteria(verifyId(roomId));
         return Optional.ofNullable(mongoTemplate.findOne(query, ChatRoom.class));
     }
 
@@ -65,7 +65,7 @@ public class ChatMongoRepository {
 
     public ChatRoom getLastMessage(UUID roomId, Long userId) {
         Query query = new Query();
-        query.addCriteria(verifyRoomId(roomId))
+        query.addCriteria(verifyId(roomId))
              .addCriteria(verifyActive())
              .addCriteria(verifyLastMsgRead(userId));
         return mongoTemplate.findOne(query, ChatRoom.class);
