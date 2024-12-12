@@ -67,10 +67,10 @@ public class ChatService {
 
         ChatRoom chatRoom = getChatRoom(userId);
         if (chatRoom == null) {
-            return List.of(ChatMessageCommonInfo.of(null, null, userId));
+            return List.of(ChatMessageCommonInfo.of(null, null));
         }
 
-        return getAllMessages(userId, chatRoom.getId());
+        return getAllMessages(chatRoom.getId());
     }
 
     public List<ChatMessageCommonInfo> getMessageHistory(Long userId, UUID roomId) {
@@ -81,16 +81,15 @@ public class ChatService {
             throw new ChatException(CHAT_ROOM_FORBIDDEN_OPERATION);
         }
 
-        return getAllMessages(userId, roomId);
+        return getAllMessages(roomId);
     }
 
-    private List<ChatMessageCommonInfo> getAllMessages(Long userId, UUID roomId) {
+    private List<ChatMessageCommonInfo> getAllMessages(UUID roomId) {
         ChatRoom chatRoom = getChatRoom(roomId);
         return getMessages(roomId).stream().map(
             chatMessage -> ChatMessageCommonInfo.of(
                 chatRoom,
-                chatMessage,
-                userId
+                chatMessage
             )
         ).toList();
     }

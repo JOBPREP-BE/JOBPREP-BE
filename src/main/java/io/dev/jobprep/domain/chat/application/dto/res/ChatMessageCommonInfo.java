@@ -34,11 +34,12 @@ public class ChatMessageCommonInfo {
         this.createdAt = createdAt;
     }
 
-    public static ChatMessageCommonInfo of(ChatRoom chatRoom, ChatMessage chatMessage, Long userId) {
+    public static ChatMessageCommonInfo of(ChatRoom chatRoom, ChatMessage chatMessage) {
         return ChatMessageCommonInfo.builder()
             .id(chatMessage != null ? chatMessage.getId() : null)
             .senderInfo(chatMessage != null ?
-                UserCommonInfo.from(chatRoom.getUsers().get(getSenderIdx(chatRoom, userId))) : null)
+                UserCommonInfo.from(chatRoom.getUsers().get(getSenderIdx(chatRoom,
+                    chatMessage.getSenderId()))) : null)
             .message(chatMessage != null ? chatMessage.getMessage() : null)
             .createdAt(chatMessage != null ? chatMessage.getCreatedAt() : null)
             .build();
