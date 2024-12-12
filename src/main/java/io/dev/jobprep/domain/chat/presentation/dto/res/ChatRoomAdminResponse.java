@@ -11,12 +11,16 @@ import lombok.Getter;
 @Getter
 public class ChatRoomAdminResponse {
 
+    @Schema(description = "채팅방 ID", implementation = UUID.class)
     private final UUID roomId;
 
+    @Schema(description = "채팅 발신자 정보")
     private final ChatUserCommonResponse chatSender;
 
+    @Schema(description = "마지막 수정일자", implementation = LocalDateTime.class)
     private final LocalDateTime updatedAt;
 
+    @Schema(description = "안 읽은 메시지 존재 여부", implementation = Boolean.class)
     private final boolean isRead;
 
     @Builder

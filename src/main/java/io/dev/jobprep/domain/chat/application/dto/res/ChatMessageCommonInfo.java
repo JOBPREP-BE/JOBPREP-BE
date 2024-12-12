@@ -2,10 +2,10 @@ package io.dev.jobprep.domain.chat.application.dto.res;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.NON_GATHERED_CHAT_USER;
 
-import io.dev.jobprep.domain.chat.application.dto.UserInfo;
 import io.dev.jobprep.domain.chat.domain.entity.document.ChatMessage;
 import io.dev.jobprep.domain.chat.domain.entity.document.ChatRoom;
 import io.dev.jobprep.domain.chat.exception.ChatException;
+import io.dev.jobprep.domain.users.application.dto.res.UserCommonInfo;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,9 +15,7 @@ public class ChatMessageCommonInfo {
 
     private final Long id;
 
-    private final UserInfo senderInfo;
-
-    private final UserInfo receiverInfo;
+    private final UserCommonInfo senderInfo;
 
     private final String message;
 
@@ -26,32 +24,27 @@ public class ChatMessageCommonInfo {
     @Builder
     private ChatMessageCommonInfo(
         Long id,
-        UserInfo senderInfo,
-        UserInfo receiverInfo,
+        UserCommonInfo senderInfo,
         String message,
         LocalDateTime createdAt
     ) {
         this.id = id;
         this.senderInfo = senderInfo;
-        this.receiverInfo = receiverInfo;
         this.message = message;
         this.createdAt = createdAt;
     }
 
-    public static ChatMessageCommonInfo of(ChatRoom chatRoom, ChatMessage chatMessage) {
-        Integer senderIdx = getUserIdx(chatRoom, chatMessage.getSenderId());
-        int receiverIdx = senderIdx.equals(0) ? 1 : 0;
-
+    public static ChatMessageCommonInfo of(ChatRoom chatRoom, ChatMessage chatMessage, Long userId) {
         return ChatMessageCommonInfo.builder()
-            .id(chatMessage.getId())
-            .senderInfo(UserInfo.of(chatRoom.getUsers().get(senderIdx)))
-            .receiverInfo(UserInfo.of(chatRoom.getUsers().get(receiverIdx)))
-            .message(chatMessage.getMessage())
-            .createdAt(chatMessage.getCreatedAt())
+            .id(chatMessage != null ? chatMessage.getId() : null)
+            .senderInfo(chatMessage != null ?
+                UserCommonInfo.from(chatRoom.getUsers().get(getSenderIdx(chatRoom, userId))) : null)
+            .message(chatMessage != null ? chatMessage.getMessage() : null)
+            .createdAt(chatMessage != null ? chatMessage.getCreatedAt() : null)
             .build();
     }
 
-    private static Integer getUserIdx(ChatRoom chatRoom, Long senderId) {
+    private static Integer getSenderIdx(ChatRoom chatRoom, Long senderId) {
         return chatRoom.getUsers().stream().filter(chatUser -> chatUser.getUserId().equals(senderId))
             .map(chatRoom.getUsers()::indexOf)
             .findFirst()
