@@ -4,7 +4,6 @@ import io.dev.jobprep.core.properties.swagger.error.SwaggerExpMasterClErrorExamp
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMasterClPatchRequest;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.ExpMasterClIdResponse;
-import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindAllExpMasterClResponse;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
 import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -79,26 +78,7 @@ public interface ExpMasterClSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<List<FindAllExpMasterClResponse>> findAll (@RequestParam Long userId);
-
-    @Operation(summary = "마스터 자소서 조회", description = "모든 마스터 자소서 데이터를 조회합니다.")
-    @ApiResponses (value = {
-            @ApiResponse(responseCode = "200", description = "마스터 자소서 조회 성공",
-                    content = @Content(schema = @Schema(implementation = FindExpMasterClResponse.class))),
-            @ApiResponse(responseCode = "403", description = "마스터 자소서 조회 권한이 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(name = "E02-EXP-MASTER-001", value = SwaggerExpMasterClErrorExamples.MASTER_CL_FORBIDDEN_OPERATION)
-                    )),
-            @ApiResponse(responseCode = "404", description = "요청한 사용자가 존재하지 않음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
-                    )),
-    })
-    ResponseEntity<FindExpMasterClResponse> find (@PathVariable("id") Long id, @RequestParam Long userId);
+    ResponseEntity<List<FindExpMasterClResponse>> findAll (@RequestParam Long userId);
 
     @Operation(summary = "마스터 자소서 수정", description = "마스터 자소서 데이터를 수정합니다.")
     @ApiResponses (value = {
