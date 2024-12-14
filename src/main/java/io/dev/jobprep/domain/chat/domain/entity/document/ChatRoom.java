@@ -1,6 +1,7 @@
 package io.dev.jobprep.domain.chat.domain.entity.document;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.CHAT_ROOM_DISABLED;
+import static io.dev.jobprep.exception.code.ErrorCode400.NON_GATHERED_CHAT_USER;
 
 import io.dev.jobprep.domain.chat.domain.entity.enums.ChatRoomStatus;
 import io.dev.jobprep.domain.chat.exception.ChatException;
@@ -60,8 +61,11 @@ public class ChatRoom {
         }
     }
 
-    public boolean isActive() {
-        return status.equals(ChatRoomStatus.DEACTIVE);
+    public void isGathered(User user) {
+        users.stream()
+            .map(chatUser -> chatUser.getUserId().equals(user.getId()))
+            .findFirst()
+            .orElseThrow(() -> new ChatException(NON_GATHERED_CHAT_USER));
     }
 
     public static ChatRoom of(ChatMessage lastMessage) {
