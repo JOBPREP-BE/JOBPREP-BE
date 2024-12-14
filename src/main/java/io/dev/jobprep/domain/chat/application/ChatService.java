@@ -65,20 +65,20 @@ public class ChatService {
         ).toList();
     }
 
-    public List<ChatMessageCommonInfo> getMessageHistory(Long userId) {
+    public List<ChatMessageCommonInfo> getMessageHistory(Long userId, Long cursorId, int pageSize) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User user = getUser(userId);
 
         try {
             ChatRoom chatRoom = getChatRoom(userId);
-            return getAllMessages(chatRoom);
+            return getAllMessages(chatRoom, cursorId, pageSize);
         } catch (NullPointerException e) {
             return List.of(ChatMessageCommonInfo.of(null, null));
         }
     }
 
-    public List<ChatMessageCommonInfo> getMessageHistoryForAdmin(Long userId, UUID roomId) {
+    public List<ChatMessageCommonInfo> getMessageHistoryForAdmin(Long userId, UUID roomId, Long cursorId, int pageSize) {
 
         User admin = getUser(userId);
 
@@ -87,11 +87,11 @@ public class ChatService {
         }
 
         ChatRoom chatRoom = getChatRoom(roomId);
-        return getAllMessages(chatRoom);
+        return getAllMessages(chatRoom, cursorId, pageSize);
     }
 
-    private List<ChatMessageCommonInfo> getAllMessages(ChatRoom chatRoom) {
-        return getMessages(chatRoom.getId()).stream().map(
+    private List<ChatMessageCommonInfo> getAllMessages(ChatRoom chatRoom, Long cursorId, int pageSize) {
+        return getMessages(chatRoom.getId(), cursorId, pageSize).stream().map(
             chatMessage -> ChatMessageCommonInfo.of(
                 chatRoom,
                 chatMessage
@@ -145,8 +145,8 @@ public class ChatService {
         return chatRepository.findAllActiveRooms(userId);
     }
 
-    private List<ChatMessage> getMessages(UUID roomId) {
-        return chatRepository.findMessageHistory(roomId);
+    private List<ChatMessage> getMessages(UUID roomId, Long cursorId, int pageSize) {
+        return chatRepository.findAllMessageHistory(roomId, cursorId, pageSize);
     }
 
     private User getUser(Long userId) {

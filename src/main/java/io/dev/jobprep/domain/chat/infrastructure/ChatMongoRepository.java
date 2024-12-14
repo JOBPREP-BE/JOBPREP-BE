@@ -56,9 +56,12 @@ public class ChatMongoRepository {
         return mongoTemplate.find(query, ChatRoom.class);
     }
 
-    public List<ChatMessage> findMessageHistory(UUID roomId) {
+
+    public List<ChatMessage> findAllMessageHistory(UUID roomId, Long cursorId, int pageSize) {
         Query query = new Query();
-        query.addCriteria(verifyRoomId(roomId))
+        query.limit(pageSize + 1)
+             .addCriteria(verifyRoomId(roomId))
+             .addCriteria(cursorIdCondition(cursorId))
              .with(Sort.by(Sort.Order.desc("timestamp")));
         return mongoTemplate.find(query, ChatMessage.class);
     }
@@ -115,6 +118,26 @@ public class ChatMongoRepository {
 
     private Criteria verifyLastMsgRead(Long userId) {
         return Criteria.where("last_message.read_by").nin(userId);
+    }
+
+    private Criteria cursorIdCondition(Long cursorId) {
+        return cursorId != null ? Criteria.where("_id").lt(cursorId) : Criteria.where("_id").gt(0L);
+    }
+
+    private Criteria verifyCursorId(Long cursorId) {
+        return Criteria.where("_id").lt(cursorId);
+    }
+
+    private boolean hasNext(Long cursorId, int pageSize, UUID roomId) {
+        Query query = new Query();
+        query.addCriteria(verifyRoomId(roomId));
+
+        Query queryWithId = new Query();
+        query.addCriteria(verifyRoomId(roomId))
+             .addCriteria(verifyCursorId(cursorId));
+
+        return cursorId == null ? mongoTemplate.count(query, ChatMessage.class) > pageSize
+            : mongoTemplate.count(queryWithId, ChatMessage.class) > pageSize;
     }
 
 }
