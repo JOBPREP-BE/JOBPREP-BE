@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChatMessageRequest {
 
-    @Schema(description = "유저 ID", example = "2", implementation = Long.class)
+    @Schema(description = "발신자 ID", example = "2", implementation = Long.class)
     @NotNull
     private Long userId;
 

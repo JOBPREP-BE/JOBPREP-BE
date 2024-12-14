@@ -2,12 +2,14 @@ package io.dev.jobprep.domain.chat.interceptor;
 
 import static io.dev.jobprep.exception.code.ErrorCode401.AUTH_MISSING_CREDENTIALS;
 
+import io.dev.jobprep.domain.chat.application.ChatCommonService;
 import io.dev.jobprep.domain.chat.application.ChatService;
 import io.dev.jobprep.domain.chat.exception.ChatException;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -28,6 +30,7 @@ public class StompInterceptor implements ChannelInterceptor {
     private static final int PREFIX_COUNTER = 7;
 
     private final UserCommonService userCommonService;
+    private final ChatCommonService chatCommonService;
     private final ChatService chatService;
 
     @Override
@@ -59,6 +62,62 @@ public class StompInterceptor implements ChannelInterceptor {
         }
     }
 
+    private void verifyHeaderToConnect(StompHeaderAccessor stompHeaderAccessor) {
+        UUID roomId = verifyDestination(stompHeaderAccessor);
+        Long userId = verifyHeaderTemporary(stompHeaderAccessor);
+        connectToChatRoom(roomId, userId, stompHeaderAccessor.getSessionId());
+    }
+
+    private UUID verifyDestination(StompHeaderAccessor stompHeaderAccessor) {
+
+        List<String> values = stompHeaderAccessor.getNativeHeader(DESTINATION_HEADER);
+        if (values == null || values.isEmpty()) {
+            throw new ChatException(AUTH_MISSING_CREDENTIALS);
+        }
+        String token = values.get(0);
+        if (token == null || token.isBlank()) {
+            throw new ChatException(AUTH_MISSING_CREDENTIALS);
+        }
+        UUID roomId = extractRoomId(token);
+        chatCommonService.getChatRoom(roomId);
+
+        return roomId;
+    }
+
+    private Long verifyHeaderTemporary(StompHeaderAccessor stompHeaderAccessor) {
+
+        List<String> values = stompHeaderAccessor.getNativeHeader(TEMP_AUTHORIZATION_HEADER);
+        if (values == null || values.size() == 0) {
+            throw new ChatException(AUTH_MISSING_CREDENTIALS);
+        }
+        String token = values.get(0);
+        if (token == null || token.isBlank()) {
+            throw new ChatException(AUTH_MISSING_CREDENTIALS);
+        }
+        Long userId = Long.valueOf(token);
+        userCommonService.getUserWithId(userId);
+
+        return userId;
+    }
+
+    private void connectToChatRoom(UUID roomId, Long userId, String sessionId) {
+        log.info("extract destId '{}' for classify chatRoom in destination on StompHeaderAccessor", roomId);
+        chatService.connectChatRoom(roomId, userId, sessionId);
+    }
+
+    private void disconnectToChatRoom(String sessionId) {
+        chatService.disconnectChatRoom(sessionId);
+    }
+
+    private UUID extractRoomId(String token) {
+        if (token.startsWith(DESTINATION_PREFIX)) {
+            return UUID.fromString(token.substring(PREFIX_COUNTER));
+        } else {
+            // TODO: 에러 핸들링
+            throw new IllegalArgumentException();
+        }
+    }
+
     private void verifyAccessToken(StompHeaderAccessor stompHeaderAccessor) {
         var values = stompHeaderAccessor.getNativeHeader(AUTHORIZATION_HEADER);
         if (values == null || values.isEmpty()) {
@@ -70,57 +129,5 @@ public class StompInterceptor implements ChannelInterceptor {
         }
         // TODO: parsing Access Token to verify
         // TODO: verify Access Token using JWT
-    }
-
-    private List<Long> verifyHeaderTemporary(StompHeaderAccessor stompHeaderAccessor) {
-
-        List<String> values = stompHeaderAccessor.getNativeHeader(DESTINATION_HEADER);
-        if (values == null || values.isEmpty()) {
-            throw new ChatException(AUTH_MISSING_CREDENTIALS);
-        }
-        String token = values.get(0);
-        if (token == null || token.isBlank()) {
-            throw new ChatException(AUTH_MISSING_CREDENTIALS);
-        }
-        Long destId = extractDestId(token);
-        userCommonService.getUserWithId(destId);
-
-        values = stompHeaderAccessor.getNativeHeader(TEMP_AUTHORIZATION_HEADER);
-        if (values == null || values.size() == 0) {
-            throw new ChatException(AUTH_MISSING_CREDENTIALS);
-        }
-        token = values.get(0);
-        if (token == null || token.isBlank()) {
-            throw new ChatException(AUTH_MISSING_CREDENTIALS);
-        }
-        Long userId = Long.valueOf(token);
-        userCommonService.getUserWithId(userId);
-
-        return List.of(userId, destId);
-    }
-
-    private void verifyHeaderToConnect(StompHeaderAccessor stompHeaderAccessor) {
-        List<Long> Ids = verifyHeaderTemporary(stompHeaderAccessor);
-        connectToChatRoom(Ids, stompHeaderAccessor.getSessionId());
-    }
-
-    private void connectToChatRoom(List<Long> Ids, String sessionId) {
-        Long userId = Ids.get(0);
-        Long destId = Ids.get(1);
-        log.info("extract destId '{}' for classify chatRoom in destination on StompHeaderAccessor", destId);
-        chatService.connectChatRoom(destId, userId, sessionId);
-    }
-
-    private void disconnectToChatRoom(String sessionId) {
-        chatService.disconnectChatRoom(sessionId);
-    }
-
-    private Long extractDestId(String token) {
-        if (token.startsWith(DESTINATION_PREFIX)) {
-            return Long.parseLong(token.substring(PREFIX_COUNTER));
-        } else {
-            // TODO: 에러 핸들링
-            throw new IllegalArgumentException();
-        }
     }
 }

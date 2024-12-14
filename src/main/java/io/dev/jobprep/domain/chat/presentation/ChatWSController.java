@@ -4,6 +4,7 @@ import io.dev.jobprep.domain.chat.application.ChatWSService;
 import io.dev.jobprep.domain.chat.application.dto.res.ChatMessageCommonInfo;
 import io.dev.jobprep.domain.chat.presentation.dto.req.ChatMessageRequest;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatMessageCommonResponse;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -21,16 +22,16 @@ public class ChatWSController {
     private final ChatWSService chatWSService;
 
     // TODO: 첫 메시지를 보냄으로써 roomId가 아직 생성되어 있지 않은 경우, destination 어떻게 처리할지?
-    @MessageMapping("/{userId}")
-    @SendTo("/topic/{userId}")
+    @MessageMapping("/{roomId}")
+    @SendTo("/topic/{roomId}")
     public ChatMessageCommonResponse send(
-        @DestinationVariable("userId") Long userId,
+        @DestinationVariable("roomId") String roomId,
         ChatMessageRequest request
     ) {
-        log.info("send chatMessage from userId: {} on ChatWSController", userId);
+        log.info("send chatMessage to chatRoom {} on ChatWSController", roomId);
         // TODO: handling chatMessage
         ChatMessageCommonInfo commonInfo = chatWSService.handle(
-            userId,
+            UUID.fromString(roomId),
             request.getUserId(),
             request.getMessage()
         );
