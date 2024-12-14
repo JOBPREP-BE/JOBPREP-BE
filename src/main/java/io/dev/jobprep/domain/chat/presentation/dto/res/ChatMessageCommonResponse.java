@@ -36,11 +36,12 @@ public class ChatMessageCommonResponse {
     }
 
     public static ChatMessageCommonResponse from(ChatMessageCommonInfo commonInfo) {
+
         return ChatMessageCommonResponse.builder()
-            .id(commonInfo != null ? commonInfo.getId() : null)
-            .chatSender(commonInfo != null ? ChatUserCommonResponse.from(commonInfo.getSenderInfo()) : null)
-            .message(commonInfo != null ? commonInfo.getMessage() : null)
-            .createdAt(commonInfo != null ? commonInfo.getCreatedAt() : null)
+            .id(commonInfo.getId())
+            .chatSender(commonInfo.getSenderInfo() != null ? ChatUserCommonResponse.from(commonInfo.getSenderInfo()) : null)
+            .message(commonInfo.getMessage())
+            .createdAt(commonInfo.getCreatedAt())
             .build();
     }
 
