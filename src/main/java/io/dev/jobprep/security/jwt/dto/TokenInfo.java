@@ -3,6 +3,7 @@ package io.dev.jobprep.security.jwt.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
 @Data
 @AllArgsConstructor

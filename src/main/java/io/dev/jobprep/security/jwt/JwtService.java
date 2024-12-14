@@ -1,6 +1,7 @@
 package io.dev.jobprep.security.jwt;
 
 import io.dev.jobprep.security.jwt.dto.TokenInfo;
+import io.dev.jobprep.security.oauth.PrincipalDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -27,25 +28,21 @@ public class JwtService {
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
     //토큰 생성기
-    //리프레쉬토큰 다시 생성
-    public TokenInfo generateTokenInfo(
-            UserDetails userDetails
-    ){
-        String authorities = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(",")); //사용자의 권한 목록을 콤마로 구분
+    //리프레쉬토큰, 액세스 토큰 재생성
+    public TokenInfo generateTokenInfo(String userId, String userEmail, String userRoles ){
 
         //JWT 토큰 반환
         String accessToken = Jwts.builder()
-                .claim("auth" , authorities )
-                .setSubject(userDetails.getUsername())
+                .claim("auth" , userRoles )
+                .setSubject(userId)
+                .claim("email", userEmail)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+ accessTokenValidityTime))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
 
         String refreshToken = Jwts.builder()
-                .setSubject(userDetails.getUsername())
+                .setSubject(userId)
                 .setExpiration(new Date(System.currentTimeMillis()+ refreshTokenValidityTime))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
@@ -57,8 +54,6 @@ public class JwtService {
                 .build();
 
     }
-
-    //accsess토큰만 리턴
 
     public Boolean isTokenValid(String token, UserDetails userDetails){
         final String username = extractUsername(token);
