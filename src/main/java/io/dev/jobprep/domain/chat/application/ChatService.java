@@ -1,7 +1,7 @@
 package io.dev.jobprep.domain.chat.application;
 
+import static io.dev.jobprep.exception.code.ErrorCode400.CHAT_ROOM_ALREADY_EXIST;
 import static io.dev.jobprep.exception.code.ErrorCode403.CHAT_ROOM_FORBIDDEN_OPERATION;
-import static io.dev.jobprep.exception.code.ErrorCode404.CHATROOM_NOT_FOUND;
 
 import io.dev.jobprep.domain.chat.application.dto.res.ChatMessageCommonInfo;
 import io.dev.jobprep.domain.chat.application.dto.res.ChatRoomCommonInfo;
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ChatService {
 
+    private final ChatCommonService chatCommonService;
     private final ChatMongoRepository chatRepository;
     private final UserCommonService userCommonService;
     private final ChatRedisService redisService;
@@ -32,11 +33,15 @@ public class ChatService {
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User sender = getUser(userId);
 
+        validateAlreadyExistChatRoom(userId);
+
         User admin = getAdmin();
 
         ChatRoom chatRoom = ChatRoom.of(null);
         chatRoom.join(sender);
         chatRoom.join(admin);
+
+        chatRepository.save(chatRoom);
 
         return chatRoom;
     }
@@ -65,15 +70,15 @@ public class ChatService {
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User user = getUser(userId);
 
-        ChatRoom chatRoom = getChatRoom(userId);
-        if (chatRoom == null) {
+        try {
+            ChatRoom chatRoom = getChatRoom(userId);
+            return getAllMessages(chatRoom);
+        } catch (NullPointerException e) {
             return List.of(ChatMessageCommonInfo.of(null, null));
         }
-
-        return getAllMessages(chatRoom.getId());
     }
 
-    public List<ChatMessageCommonInfo> getMessageHistory(Long userId, UUID roomId) {
+    public List<ChatMessageCommonInfo> getMessageHistoryForAdmin(Long userId, UUID roomId) {
 
         User admin = getUser(userId);
 
@@ -81,12 +86,12 @@ public class ChatService {
             throw new ChatException(CHAT_ROOM_FORBIDDEN_OPERATION);
         }
 
-        return getAllMessages(roomId);
+        ChatRoom chatRoom = getChatRoom(roomId);
+        return getAllMessages(chatRoom);
     }
 
-    private List<ChatMessageCommonInfo> getAllMessages(UUID roomId) {
-        ChatRoom chatRoom = getChatRoom(roomId);
-        return getMessages(roomId).stream().map(
+    private List<ChatMessageCommonInfo> getAllMessages(ChatRoom chatRoom) {
+        return getMessages(chatRoom.getId()).stream().map(
             chatMessage -> ChatMessageCommonInfo.of(
                 chatRoom,
                 chatMessage
@@ -99,14 +104,11 @@ public class ChatService {
         chatRoom.disable();
     }
 
-    public void connectChatRoom(Long destId, Long userId, String sessionId) {
+    public void connectChatRoom(UUID roomId, Long userId, String sessionId) {
 
-        redisService.joinChatRoom(destId, userId, sessionId);
-        ChatRoom chatRoom = getChatRoom(destId);
-        if (chatRoom != null) {
-            // 지금까지 읽지 않은 메시지를 모두 읽음 처리
-            markAsRead(chatRoom.getId(), userId);
-        }
+        redisService.joinChatRoom(roomId, userId, sessionId);
+        ChatRoom chatRoom = getChatRoom(roomId);
+        markAsRead(chatRoom.getId(), userId);
     }
 
     public void disconnectChatRoom(String sessionId) {
@@ -118,16 +120,21 @@ public class ChatService {
         chatRepository.markLastMessageAsRead(roomId, userId);
     }
 
-    public ChatRoom getChatRoom(Long userId) {
+    private ChatRoom getChatRoom(Long userId) {
         if (chatRepository.findByUserId(userId).isEmpty()) {
             return null;
         }
         return chatRepository.findByUserId(userId).get();
     }
 
+    private void validateAlreadyExistChatRoom(Long userId) {
+        if (getChatRoom(userId) != null) {
+            throw new ChatException(CHAT_ROOM_ALREADY_EXIST);
+        }
+    }
+
     private ChatRoom getChatRoom(UUID roomId) {
-        return chatRepository.findByRoomId(roomId)
-            .orElseThrow(() -> new ChatException(CHATROOM_NOT_FOUND));
+        return chatCommonService.getChatRoom(roomId);
     }
 
     private boolean stillReadMore(ChatRoom chatRoom, Long userId) {

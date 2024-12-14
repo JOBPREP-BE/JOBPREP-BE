@@ -38,6 +38,7 @@ public enum ErrorCode400 implements ErrorCode {
 
     CHAT_ROOM_DISABLED("E01-CHATROOM-001", "해당 채팅방은 비활성화되었습니다."),
     NON_GATHERED_CHAT_USER("E01-CHATROOM-002", "해당 채팅방의 참여자가 아닙니다."),
+    CHAT_ROOM_ALREADY_EXIST("E01-CHATROOM-003", "이미 생성된 채팅방이 있습니다."),
     ;
 
     private final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
