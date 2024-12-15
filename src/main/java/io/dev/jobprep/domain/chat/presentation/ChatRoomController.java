@@ -8,7 +8,6 @@ import io.dev.jobprep.domain.chat.presentation.dto.res.ChatMessageCommonResponse
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomAdminResponse;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomIdResponse;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,33 +43,40 @@ public class ChatRoomController implements ChatSwagger {
             chatService.getMessageHistory(userId, pageable.getCursorId(), pageable.getPageSize())
                 .stream()
                 .map(ChatMessageCommonResponse::from)
-                .toList(), pageable.getPageSize()
+                .toList(),
+            pageable.getPageSize()
         ));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getUsersMessageHistoryForAdmin(
+    public ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getUserMessageHistoryForAdmin(
         @RequestParam Long userId,
         @PathVariable String id,
         @Valid @ModelAttribute CursorPaginationReq pageable
     ) {
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
-            chatService.getMessageHistoryForAdmin(userId, UUID.fromString(id),
-                    pageable.getCursorId(), pageable.getPageSize()).stream()
+            chatService.getMessageHistoryForAdmin(
+                userId, UUID.fromString(id), pageable.getCursorId(), pageable.getPageSize())
+                .stream()
                 .map(ChatMessageCommonResponse::from)
-                .toList(), pageable.getPageSize()
+                .toList(),
+            pageable.getPageSize()
         ));
     }
 
     @GetMapping
-    public ResponseEntity<List<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
-        @RequestParam Long userId
+    public ResponseEntity<CursorPaginationResult<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
+        @RequestParam Long userId,
+        @Valid @ModelAttribute CursorPaginationReq pageable
     ) {
 
-        return ResponseEntity.ok(chatService.getAllActiveRoomList(userId)
-            .stream()
-            .map(ChatRoomAdminResponse::from)
-            .toList());
+        return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
+            chatService.getAllActiveRoomList(userId, pageable.getCursorId(), pageable.getPageSize())
+                .stream()
+                .map(ChatRoomAdminResponse::from)
+                .toList(),
+            pageable.getPageSize()
+        ));
     }
 
 

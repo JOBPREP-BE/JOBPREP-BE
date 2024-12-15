@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,7 +75,7 @@ public interface ChatSwagger {
                 }
             ))
     })
-    ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getUsersMessageHistoryForAdmin(
+    ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getUserMessageHistoryForAdmin(
         @Parameter(required = true) Long userId,
         @PathVariable String id,
         @Valid @ModelAttribute CursorPaginationReq pageable
@@ -98,8 +97,9 @@ public interface ChatSwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             ))
     })
-    ResponseEntity<List<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
-        @Parameter(required = true) Long userId
+    ResponseEntity<CursorPaginationResult<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
+        @Parameter(required = true) Long userId,
+        @Valid @ModelAttribute CursorPaginationReq pageable
     );
 
 }
