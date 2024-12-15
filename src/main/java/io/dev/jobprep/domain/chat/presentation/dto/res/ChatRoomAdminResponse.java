@@ -17,7 +17,7 @@ public class ChatRoomAdminResponse {
     @Schema(description = "채팅 발신자 정보")
     private final ChatUserCommonResponse chatSender;
 
-    @Schema(description = "마지막 수정일자", implementation = LocalDateTime.class)
+    @Schema(description = "마지막 수정일자", example = "2024-12-14T19:55:03.733", implementation = LocalDateTime.class)
     private final LocalDateTime updatedAt;
 
     @Schema(description = "안 읽은 메시지 존재 여부", implementation = Boolean.class)
