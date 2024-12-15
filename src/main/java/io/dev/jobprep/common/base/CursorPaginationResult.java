@@ -41,8 +41,7 @@ public class CursorPaginationResult<T> {
     }
 
     public static <T> CursorPaginationResult<T> fromDataWithExtraItemForNextCheck(
-        List<T> data,
-        Integer size
+        List<T> data, Integer size
     ) {
         return new CursorPaginationResult<>(data, size);
     }
