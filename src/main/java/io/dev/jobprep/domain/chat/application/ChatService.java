@@ -12,6 +12,7 @@ import io.dev.jobprep.domain.chat.infrastructure.ChatMongoRepository;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.domain.users.domain.UserRole;
+import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class ChatService {
         return chatRoom;
     }
 
-    public List<ChatRoomCommonInfo> getAllActiveRoomList(Long userId) {
+    public List<ChatRoomCommonInfo> getAllActiveRoomsInfo(Long userId, String cursorId, int pageSize) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User admin = getUser(userId);
@@ -56,13 +57,15 @@ public class ChatService {
         }
 
         // TODO: 마지막 업데이트날짜를 기준으로 내림차순 정렬 (feat. 인덱스 적용)
-        return getAllActiveRooms(userId).stream().map(
-            (chatRoom) -> ChatRoomCommonInfo.from(
-                chatRoom,
-                userId,
-                stillReadMore(chatRoom, userId)
+        return getAllActiveRoomsWithPagination(userId, cursorId, pageSize)
+            .stream().map(
+                (chatRoom) -> ChatRoomCommonInfo.from(
+                    chatRoom,
+                    userId,
+                    stillReadMore(chatRoom, userId)
+                )
             )
-        ).toList();
+        .toList();
     }
 
     public List<ChatMessageCommonInfo> getMessageHistory(Long userId, Long cursorId, int pageSize) {
@@ -71,14 +74,16 @@ public class ChatService {
         User user = getUser(userId);
 
         try {
-            ChatRoom chatRoom = getChatRoom(userId);
-            return getAllMessages(chatRoom, cursorId, pageSize);
+            @Nullable ChatRoom chatRoom = getChatRoom(userId);
+            return getMessageHistoryForChatRoom(chatRoom, cursorId, pageSize);
         } catch (NullPointerException e) {
             return List.of(ChatMessageCommonInfo.of(null, null));
         }
     }
 
-    public List<ChatMessageCommonInfo> getMessageHistoryForAdmin(Long userId, UUID roomId, Long cursorId, int pageSize) {
+    public List<ChatMessageCommonInfo> getMessageHistoryForAdmin(
+        Long userId, UUID roomId, Long cursorId, int pageSize
+    ) {
 
         User admin = getUser(userId);
 
@@ -87,16 +92,20 @@ public class ChatService {
         }
 
         ChatRoom chatRoom = getChatRoom(roomId);
-        return getAllMessages(chatRoom, cursorId, pageSize);
+        return getMessageHistoryForChatRoom(chatRoom, cursorId, pageSize);
     }
 
-    private List<ChatMessageCommonInfo> getAllMessages(ChatRoom chatRoom, Long cursorId, int pageSize) {
-        return getMessages(chatRoom.getId(), cursorId, pageSize).stream().map(
-            chatMessage -> ChatMessageCommonInfo.of(
-                chatRoom,
-                chatMessage
+    private List<ChatMessageCommonInfo> getMessageHistoryForChatRoom(
+        ChatRoom chatRoom, Long cursorId, int pageSize
+    ) {
+        return getMessagesHistoryWithPagination(chatRoom.getId(), cursorId, pageSize)
+            .stream().map(
+                chatMessage -> ChatMessageCommonInfo.of(
+                    chatRoom,
+                    chatMessage
+                )
             )
-        ).toList();
+        .toList();
     }
 
     public void disable(UUID roomId) {
@@ -120,11 +129,16 @@ public class ChatService {
         chatRepository.markLastMessageAsRead(roomId, userId);
     }
 
-    private ChatRoom getChatRoom(Long userId) {
-        if (chatRepository.findByUserId(userId).isEmpty()) {
-            return null;
-        }
-        return chatRepository.findByUserId(userId).get();
+    private List<ChatRoom> getAllActiveRoomsWithPagination(Long userId, String cursorId, int pageSize) {
+        return chatRepository.findAllActiveRooms(userId, cursorId, pageSize);
+    }
+
+    private List<ChatMessage> getMessagesHistoryWithPagination(UUID roomId, Long cursorId, int pageSize) {
+        return chatRepository.findAllMessageHistory(roomId, cursorId, pageSize);
+    }
+
+    private boolean stillReadMore(ChatRoom chatRoom, Long userId) {
+        return chatRepository.getLastMessage(chatRoom.getId(), userId) != null;
     }
 
     private void validateAlreadyExistChatRoom(Long userId) {
@@ -137,16 +151,9 @@ public class ChatService {
         return chatCommonService.getChatRoom(roomId);
     }
 
-    private boolean stillReadMore(ChatRoom chatRoom, Long userId) {
-        return chatRepository.getLastMessage(chatRoom.getId(), userId) != null;
-    }
-
-    private List<ChatRoom> getAllActiveRooms(Long userId) {
-        return chatRepository.findAllActiveRooms(userId);
-    }
-
-    private List<ChatMessage> getMessages(UUID roomId, Long cursorId, int pageSize) {
-        return chatRepository.findAllMessageHistory(roomId, cursorId, pageSize);
+    @Nullable
+    private ChatRoom getChatRoom(Long userId) {
+        return chatCommonService.getChatRoom(userId);
     }
 
     private User getUser(Long userId) {

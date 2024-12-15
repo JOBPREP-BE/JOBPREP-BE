@@ -53,7 +53,7 @@ public interface ChatSwagger {
     })
     ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getMyMessageHistory(
         @Parameter(required = true) Long userId,
-        @Valid @ModelAttribute CursorPaginationReq<Long> pageable
+        @Valid @ModelAttribute CursorPaginationReq pageable
     );
 
     @Operation(summary = "채팅 메시지 내역 조회", description = "관리자가 유저와의 채팅 메시지 내역을 조회할 때 사용하는 API")
@@ -78,7 +78,7 @@ public interface ChatSwagger {
     ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getUserMessageHistoryForAdmin(
         @Parameter(required = true) Long userId,
         @PathVariable String id,
-        @Valid @ModelAttribute CursorPaginationReq<Long> pageable
+        @Valid @ModelAttribute CursorPaginationReq pageable
     );
 
     @Operation(summary = "활성화된 채팅방 리스트 조회", description = "관리자가 활성화된 채팅방 목록을 조회할 때 사용하는 API")
@@ -99,7 +99,7 @@ public interface ChatSwagger {
     })
     ResponseEntity<CursorPaginationResult<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
         @Parameter(required = true) Long userId,
-        @Valid @ModelAttribute CursorPaginationReq<String> pageable
+        @Valid @ModelAttribute CursorPaginationReq pageable
     );
 
 }

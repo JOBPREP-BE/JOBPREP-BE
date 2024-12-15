@@ -3,6 +3,8 @@ package io.dev.jobprep.domain.chat.infrastructure;
 import io.dev.jobprep.domain.chat.domain.entity.document.ChatMessage;
 import io.dev.jobprep.domain.chat.domain.entity.document.ChatRoom;
 import io.dev.jobprep.domain.chat.domain.entity.enums.ChatRoomStatus;
+import io.dev.jobprep.util.LocalDateTimeConverter;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,7 +38,7 @@ public class ChatMongoRepository {
         return Optional.ofNullable(mongoTemplate.findOne(query, ChatRoom.class));
     }
 
-    public Optional<ChatRoom> findByRoomId(UUID roomId) {
+    public Optional<ChatRoom> findByRoomId(@NonNull UUID roomId) {
         Query query = new Query();
         query.addCriteria(verifyId(roomId));
         return Optional.ofNullable(mongoTemplate.findOne(query, ChatRoom.class));
@@ -49,10 +51,16 @@ public class ChatMongoRepository {
         return Optional.ofNullable(mongoTemplate.findOne(query, ChatRoom.class));
     }
 
-    public List<ChatRoom> findAllActiveRooms(Long userId) {
+    public List<ChatRoom> findAllActiveRooms(Long userId, String cursorId, int pageSize) {
         Query query = new Query();
-        query.addCriteria(verifyUserId(userId))
-             .addCriteria(verifyActive());
+        query.limit(pageSize + 1)
+            .addCriteria(verifyUserId(userId))
+            .with(Sort.by(Sort.Order.desc("last_message.timestamp")));
+
+        if (!cursorId.isBlank()) {
+            query.addCriteria(cursorIdConditionForChatRoom(cursorId));
+        }
+
         return mongoTemplate.find(query, ChatRoom.class);
     }
 
@@ -121,11 +129,16 @@ public class ChatMongoRepository {
     }
 
     private Criteria cursorIdCondition(Long cursorId) {
-        return cursorId != null ? Criteria.where("_id").lt(cursorId) : Criteria.where("_id").gt(0L);
+        return cursorId != null ? Criteria.where("message_id").lt(cursorId) : Criteria.where("message_id").gt(0L);
+    }
+
+    private Criteria cursorIdConditionForChatRoom(String cursorId) {
+        LocalDateTime lastCursorDate = LocalDateTimeConverter.convertToUtcLDT(cursorId);
+        return Criteria.where("last_message.timestamp").lt(lastCursorDate);
     }
 
     private Criteria verifyCursorId(Long cursorId) {
-        return Criteria.where("_id").lt(cursorId);
+        return Criteria.where("message_id").lt(cursorId);
     }
 
     private boolean hasNext(Long cursorId, int pageSize, UUID roomId) {

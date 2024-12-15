@@ -7,6 +7,7 @@ import io.dev.jobprep.domain.chat.application.ChatService;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatMessageCommonResponse;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomAdminResponse;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomIdResponse;
+import io.dev.jobprep.util.LongParsingProvider;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +38,14 @@ public class ChatRoomController implements ChatSwagger {
 
     @GetMapping("/my")
     public ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getMyMessageHistory(
-        @RequestParam Long userId, @Valid @ModelAttribute CursorPaginationReq pageable) {
+        @RequestParam Long userId,
+        @Valid @ModelAttribute CursorPaginationReq pageable
+    ) {
+
+        Long cursorId = LongParsingProvider.provide(pageable.getCursorId());
 
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
-            chatService.getMessageHistory(userId, pageable.getCursorId(), pageable.getPageSize())
+            chatService.getMessageHistory(userId, cursorId, pageable.getPageSize())
                 .stream()
                 .map(ChatMessageCommonResponse::from)
                 .toList(),
@@ -54,9 +59,11 @@ public class ChatRoomController implements ChatSwagger {
         @PathVariable String id,
         @Valid @ModelAttribute CursorPaginationReq pageable
     ) {
+        Long cursorId = LongParsingProvider.provide(pageable.getCursorId());
+
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
             chatService.getMessageHistoryForAdmin(
-                userId, UUID.fromString(id), pageable.getCursorId(), pageable.getPageSize())
+                userId, UUID.fromString(id), cursorId, pageable.getPageSize())
                 .stream()
                 .map(ChatMessageCommonResponse::from)
                 .toList(),
@@ -71,7 +78,7 @@ public class ChatRoomController implements ChatSwagger {
     ) {
 
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
-            chatService.getAllActiveRoomList(userId, pageable.getCursorId(), pageable.getPageSize())
+            chatService.getAllActiveRoomsInfo(userId, pageable.getCursorId(), pageable.getPageSize())
                 .stream()
                 .map(ChatRoomAdminResponse::from)
                 .toList(),
