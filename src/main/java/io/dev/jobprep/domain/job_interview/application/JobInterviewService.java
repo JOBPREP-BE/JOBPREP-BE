@@ -27,7 +27,6 @@ import static io.dev.jobprep.exception.code.ErrorCode404.INTERVIEW_NOT_FOUND;
 @Transactional(readOnly = true)
 public class JobInterviewService {
     private final JobInterviewRepository jobInterviewRepository;
-    private final String NOT_MODIFY_FIELD = "question";
 
     @Transactional
     public JobInterviewIdResponse saveJobInterview (User user) {
@@ -97,7 +96,7 @@ public class JobInterviewService {
         }
     }
     private void validateIsDefault(JobInterview savedEntity, PutJobInterviewRequest request) {
-        if (savedEntity.getIsDefault() && request.getField().equals(NOT_MODIFY_FIELD)) {
+        if (savedEntity.getIsDefault() && (request.getField().equals("question") || request.getField().equals("category"))) {
             throw new JobInterviewException(IS_DEFAULT_INTERVIEW);
         }
     }
