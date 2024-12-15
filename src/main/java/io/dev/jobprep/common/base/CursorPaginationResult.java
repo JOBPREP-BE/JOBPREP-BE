@@ -10,16 +10,16 @@ import lombok.Getter;
 public class CursorPaginationResult<T> {
 
     @Schema(description = "데이터 목록")
-    private List<T> data;
+    private final List<T> data;
 
     @Schema(description = "다음 페이지가 있는지 여부")
-    private boolean hasNext;
+    private final boolean hasNext;
 
     @Schema(description = "현재 페이지의 데이터 수")
-    private Integer numberOfElements;
+    private final Integer numberOfElements;
 
     @Schema(description = "요청한 데이터 수")
-    private Integer size;
+    private final Integer size;
 
     private CursorPaginationResult(List<T> data, Integer size) {
         this.size = size;
