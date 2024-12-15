@@ -28,6 +28,9 @@ public class JobInterview {
     @Column(length = 1500)
     private String answer;
 
+    @Column(nullable = false)
+    private Boolean isDefault;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", updatable = false)
     private User creator;
@@ -40,11 +43,12 @@ public class JobInterview {
         }
     }
 
-    private JobInterview(Long id, String question, JobInterviewCategory category, String answer, User creator) {
+    private JobInterview(Long id, String question, JobInterviewCategory category, String answer, Boolean isDefault, User creator) {
         this.id = id;
         this.question = question;
         this.category = category;
         this.answer = answer;
+        this.isDefault = isDefault;
         this.creator = creator;
     }
 }
