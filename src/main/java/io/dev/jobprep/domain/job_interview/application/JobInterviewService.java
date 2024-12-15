@@ -9,9 +9,7 @@ import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewR
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
 import io.dev.jobprep.domain.users.domain.User;
-import io.dev.jobprep.domain.users.infrastructure.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +24,6 @@ import static io.dev.jobprep.exception.code.ErrorCode404.INTERVIEW_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional(readOnly = true)
 public class JobInterviewService {
     private final JobInterviewRepository jobInterviewRepository;
@@ -34,7 +31,6 @@ public class JobInterviewService {
 
     @Transactional
     public JobInterviewIdResponse saveJobInterview (User user) {
-        log.info("????????????????");
         JobInterview jobInterview = JobInterview.builder()
                 .question("")
                 .category(JobInterviewCategory.PERSONALITY)
@@ -51,7 +47,6 @@ public class JobInterviewService {
     public FindJobInterviewResponse update (PutJobInterviewRequest request, Long id, User user) {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
-
 
         validateIsDefault(savedEntity, request);
         validateUser(user.getId(), savedEntity.getCreator().getId());
@@ -82,7 +77,6 @@ public class JobInterviewService {
 
     @Transactional
     public void initJobInterview(User user) {
-        log.info("initJobInterview 실행");
 
         for (DefaultJobInterview interviewList : DefaultJobInterview.values()) {
             JobInterview jobInterview = JobInterview.builder()
@@ -94,7 +88,6 @@ public class JobInterviewService {
                     .build();
 
             jobInterviewRepository.save(jobInterview);
-            log.info("init jobInterview" + jobInterview.getId());
         }
     }
 
@@ -103,7 +96,6 @@ public class JobInterviewService {
             throw new JobInterviewException(INTERVIEW_FORBIDDEN_OPERATION);
         }
     }
-
     private void validateIsDefault(JobInterview savedEntity, PutJobInterviewRequest request) {
         if (savedEntity.getIsDefault() && request.getField().equals(NOT_MODIFY_FIELD)) {
             throw new JobInterviewException(IS_DEFAULT_INTERVIEW);
