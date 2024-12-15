@@ -26,11 +26,12 @@ public class CursorPaginationResult<T> {
         if (data.size() > size) {
             this.hasNext = true;
             this.data = new ArrayList<>(data.subList(0, size));
+            this.numberOfElements = size;
         } else {
             this.hasNext = false;
             this.data = new ArrayList<>(data);
+            this.numberOfElements = data.size();
         }
-        this.numberOfElements = data.size();
     }
 
     private CursorPaginationResult(List<T> data, Integer size, boolean hasNext) {
