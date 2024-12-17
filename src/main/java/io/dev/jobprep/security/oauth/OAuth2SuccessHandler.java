@@ -25,8 +25,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        String userId = principalDetails.getUserId().toString();
-        String userEmail = principalDetails.getUsername();
+        String userId = principalDetails.getUsername().toString();
+        String userEmail = principalDetails.getEmail();
         String userAuthority = principalDetails
                 .getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority)
@@ -35,18 +35,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         TokenInfo tokenInfo = jwtService.generateTokenInfo(userId, userEmail, userAuthority);
 
         // 쿠키 설정 - HttpOnly, Secure 설정 권장 (HTTPS 환경 필수)
-        Cookie accessTokenCookie = new Cookie("accessToken", tokenInfo.getAccessToken());
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", tokenInfo.getRefreshToken());
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
+        response.setHeader("Authorization", tokenInfo.getGrantType() + " " + tokenInfo.getAccessToken());
+        response.setHeader("X-Refresh-Token", tokenInfo.getRefreshToken());
 
         response.sendRedirect("/api/v1/applicationstatus/?userId="+userId);
     }
