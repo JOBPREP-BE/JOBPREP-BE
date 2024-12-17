@@ -21,7 +21,7 @@ public record PrincipalDetails (
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return user.getId().toString();
     }
 
     @Override
@@ -60,5 +60,7 @@ public record PrincipalDetails (
         return attributes.get(attributeKey).toString();
     }
 
-    public Long getUserId(){return user.getId();}
+    public String getEmail(){
+        return user.getEmail();
+    }
 }
