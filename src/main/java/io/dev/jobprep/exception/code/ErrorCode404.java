@@ -16,9 +16,10 @@ public enum ErrorCode404 implements ErrorCode {
 
     APPLICATION_STATUS_NOT_FOUND("E03-APPLICATIONSTATUS-001", "해당 지원 현황이 존재하지 않습니다."),
 
+    ESSENTIAL_MATERIAL_NOT_FOUND("E03-ESSENTIALMATERIAL-001", "해당 자원이 존재하지 않습니다"),
 
-    ESSENTIAL_MATERIAL_NOT_FOUND("E03-ESSENTIALMATERIAL-001", "해당 자원이 존재하지 않습니다")
-
+    CHATROOM_NOT_FOUND("E03-CHATROOM-001", "존재하지 않는 채팅방입니다."),
+    CHATUSER_NOT_FOUND("E03-CHATROOM-002", "채팅방에 다른 참여자가 없습니다."),
     ;
 
     private final HttpStatus httpStatus = HttpStatus.NOT_FOUND;

@@ -20,20 +20,51 @@ services:
     networks:
       - app-network
 
+  jobprep_mongo:
+    image: mongo:6.0
+    container_name: jobprep_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin #${MONGO_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: 1234 #${MONGO_PASSWORD:-1234}
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ${MONGO_INIT}:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - app-network
+
+  jobprep_redis:
+    image: redis:6.2.6-alpine
+    container_name: jobprep_redis
+    restart: always
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+      - ${REDIS_DEFAULT_CONFIG:-./docker/redis/redis.conf}:/usr/local/etc/redis/redis.conf
+    networks:
+      - app-network
+
   app:
     container_name: jobprep-app
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: jobpreb/jobprep:26.0
     restart: always
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://jobprep_mysql:3306/${MYSQL_DATABASE:-jobprep-mysql-dev}
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-user}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-1234}
+      SPRING_DATA_MONGODB_DATABASE: ${MONGO_DATABASE}
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@jobprep_mongo:27017/?authSource=${MONGO_DATABASE}
+      SPRING_DATA_REDIS_HOST: jobprep_redis
+      SPRING_DATA_REDIS_PORT: 6379
     ports:
       - "${APP_PORT:-8080}:8080"
     depends_on:
       - jobprep_mysql
+      - jobprep_mongo
+      - jobprep_redis
     networks:
       - app-network
 
@@ -41,6 +72,8 @@ volumes:
   db_data: {}
   db_log: {}
   db_cnf: {}
+  mongodb_data: {}
+  redis_data: {}
 
 networks:
   app-network:

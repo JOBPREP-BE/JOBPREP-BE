@@ -61,12 +61,14 @@ public class ApplicationStatusService {
         return getApplicationStatus(id);
     }
 
-    public List<ApplicationStatus> getAll(Long userId) {
+    public List<ApplicationStatus> getAll(Long userId, Long cursorId, int pageSize) {
 
         // TODO: 유저 토큰 검증
         getUser(userId);
 
-        return applicationStatusRepository.findMyAppStatusAll(userId);
+        return applicationStatusRepository.findByConditionWithPagination(
+            userId, cursorId, pageSize
+        );
     }
 
     @Transactional

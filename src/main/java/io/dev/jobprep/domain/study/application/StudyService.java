@@ -13,6 +13,7 @@ import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 import io.dev.jobprep.domain.study.application.dto.res.StudyInfoDto;
 import io.dev.jobprep.domain.study.application.dto.res.StudyWithStartDateDto;
 import io.dev.jobprep.domain.study.domain.entity.Study;
+import io.dev.jobprep.domain.study.domain.entity.enums.StudyStatus;
 import io.dev.jobprep.domain.study.exception.StudyException;
 import io.dev.jobprep.domain.study.infrastructure.StudyJpaRepository;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyCreateRequest;
@@ -113,13 +114,16 @@ public class StudyService {
         return studyRepository.findGatheredStudyByUserId(userId);
     }
 
-    public List<StudyInfoDto> getRecruitingStudy(Long userId) {
+    public List<StudyInfoDto> getRecruitingStudy(
+        Long userId, Integer page, Integer pageGroupSize, Integer pageSize
+    ) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User user = getUser(userId);
 
         // TODO: User 엔티티 추가 시, 양뱡향 연관관계 매핑 후 수정
-        List<Study> studies = studyRepository.findRecruitingStudy();
+        List<Study> studies = studyRepository
+            .findRecruitingStudyWithPagination(page, pageGroupSize, pageSize);
         return studies.stream().map(
             (study) -> StudyInfoDto.of(
                     getStudyWithStartDate(study.getId()),
@@ -150,12 +154,12 @@ public class StudyService {
         finishedStudy.forEach(Study::deleteForInternal);
     }
 
-    public List<Study> getAll(Long userId) {
+    public List<Study> getAll(Long userId, Long cursorId, int pageSize) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User user = getUser(userId);
 
-        return studyRepository.findNonDeletedAllStudy();
+        return studyRepository.findNonDeletedStudyWithPagination(cursorId, pageSize);
     }
 
     @Transactional
@@ -166,6 +170,10 @@ public class StudyService {
 
         Study study = getStudy(studyId);
         study.modifyLink(user, field, req.getLink());
+    }
+
+    public Long getTotalAmountsOfData() {
+        return studyRepository.findDistinct(StudyStatus.RECRUITING);
     }
 
     private void validateAlreadyCreated(Long creatorId) {

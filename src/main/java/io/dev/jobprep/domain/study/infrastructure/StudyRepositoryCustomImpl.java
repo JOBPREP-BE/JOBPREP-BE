@@ -4,8 +4,12 @@ import static io.dev.jobprep.domain.study.domain.entity.QStudy.study;
 import static io.dev.jobprep.domain.study.domain.entity.QStudySchedule.studySchedule;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.dev.jobprep.domain.study.application.dto.res.StudyWithStartDateDto;
+import io.dev.jobprep.domain.study.domain.entity.Study;
+import io.dev.jobprep.domain.study.domain.entity.enums.StudyStatus;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -29,5 +33,43 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
                 result.get(study),
                 result.get(studySchedule.start_date)
         ));
+    }
+
+    @Override
+    public List<Study> findNonDeletedStudyWithPagination(Long cursorId, int pageSize) {
+        return jpaQueryFactory.selectFrom(study)
+            .where(
+                cursorIdCondition(cursorId),
+                deletedAtEq()
+            )
+            .limit(pageSize + 1)
+            .fetch();
+    }
+
+    @Override
+    public List<Study> findRecruitingStudyWithPagination(int page, int pageSize, int pageGroupSize) {
+        int offset = (page - 1) * pageSize;
+
+        return jpaQueryFactory.selectFrom(study)
+            .where(
+                studyStatusEq(StudyStatus.RECRUITING),
+                deletedAtEq()
+            )
+            .offset(offset)
+            .limit((long) pageSize * pageGroupSize)
+            .orderBy(study.id.desc())
+            .fetch();
+    }
+
+    private BooleanExpression cursorIdCondition(Long cursorId) {
+        return cursorId != null ? study.id.lt(cursorId) : null;
+    }
+
+    private BooleanExpression studyStatusEq(StudyStatus status) {
+        return study.status.eq(status);
+    }
+
+    private BooleanExpression deletedAtEq() {
+        return study.deletedAt.isNull();
     }
 }
