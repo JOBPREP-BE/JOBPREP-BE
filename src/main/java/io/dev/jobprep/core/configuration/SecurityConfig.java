@@ -37,23 +37,22 @@ public class SecurityConfig {
     private final PrincipalDetailsService principalDetailsService;
     private final AuthenticationEntryPoint entryPoint;
 
+//    @Bean
+//    public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .securityMatcher("/login", "/login/**")
+//                .authorizeHttpRequests(auth -> auth
+//                        .anyRequest().permitAll()
+//                );
+//        configureCommonSecuritySettings(http);
+//        return http.build();
+//    }
     @Bean
-    @Order(100)
-    public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/login", "/login/**")
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                );
-        configureCommonSecuritySettings(http);
-        return http.build();
-    }
-    @Bean
-    @Order(200)
     public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher((request) -> !request.getServletPath().startsWith("/login"))
+
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login", "/login/**").permitAll()
                         .anyRequest().authenticated()
                 )
 //                .authorizeHttpRequests(request ->
