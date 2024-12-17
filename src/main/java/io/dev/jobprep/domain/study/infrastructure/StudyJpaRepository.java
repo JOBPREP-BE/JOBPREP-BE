@@ -1,6 +1,7 @@
 package io.dev.jobprep.domain.study.infrastructure;
 
 import io.dev.jobprep.domain.study.domain.entity.Study;
+import io.dev.jobprep.domain.study.domain.entity.enums.StudyStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,12 +13,6 @@ public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRep
 
     @Query("select std from Study std where std.id = :id")
     Optional<Study> findById(Long id);
-
-    @Query("select std from Study std where std.deletedAt = null and std.status in ('RECRUITING')")
-    List<Study> findRecruitingStudy();
-
-    @Query("select std from Study std where std.deletedAt = null")
-    List<Study> findNonDeletedAllStudy();
 
     @Query("select std from Study std where std.creator.id = :creatorId")
     Optional<Study> findStudyByCreatorId(Long creatorId);
@@ -42,5 +37,8 @@ public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRep
         where ss.week_number = :weekNum and ss.start_date = CURDATE() - INTERVAL 1 DAY;
     """, nativeQuery = true)
     List<Study> findFinishedStudy(int weekNum);
+
+    @Query("select count(std.id) from Study std where std.status = :status")
+    Long findDistinct(StudyStatus status);
 
 }
