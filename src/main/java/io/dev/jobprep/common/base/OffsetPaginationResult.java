@@ -48,7 +48,7 @@ public class OffsetPaginationResult<T> {
 
     private Integer calculateGroupSizeForElements(Integer numberOfElements, Integer size) {
         if (size != 0) {
-            return (numberOfElements / size) + (numberOfElements % size) != 0 ? 1 : 0;
+            return (numberOfElements / size) + ((numberOfElements % size) != 0 ? 1 : 0);
         }
         return MIN;
     }

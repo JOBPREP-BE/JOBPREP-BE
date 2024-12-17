@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 public class OffsetPaginationReq {
 
+    @Min(1)
     private final Integer page;
 
     @Min(1)
