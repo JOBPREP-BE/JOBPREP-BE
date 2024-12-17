@@ -8,14 +8,18 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.JWT;
 
+import io.dev.jobprep.security.oauth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -82,39 +86,21 @@ public class JwtService {
         return expired;
     }
 
-    // Extract username (subject) from token
-    public String extractUserId(String token) {
-        try {
-            return verifyToken(token).getSubject();
-        } catch (JWTDecodeException e) {
-            log.info("Error decoding JWT: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    //Exract UserRole from token
-    public String extractUserEmail(String token) {
-        try {
-            return verifyToken(token).getClaim("email").asString();
-        } catch (JWTDecodeException e) {
-            log.info("Error decoding JWT: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    public String extractUserRole (String token) {
-        try {
-            return verifyToken(token).getClaim("auth").toString();
-        } catch (JWTDecodeException e) {
-            log.info("Error decoding JWT: {}", e.getMessage());
-            return null;
-        }
-    }
-
     // Verify and decode a JWT
     private DecodedJWT verifyToken(String token) {
         JWTVerifier verifier = JWT.require(getAlgorithm()).build();
         return verifier.verify(token);
     }
 
+    // Extract username (subject) from token
+    public String extractUserId(String token) {return verifyToken(token).getSubject();}
+
+    //Exract UserRole from token
+    public String extractUserEmail(String token) {
+        return verifyToken(token).getClaim("email").asString();
+    }
+
+    public String extractUserRole (String token) {
+        return verifyToken(token).getClaim("auth").toString();
+    }
 }
