@@ -1,5 +1,7 @@
 package io.dev.jobprep.domain.applicationstatus.presentation;
 
+import io.dev.jobprep.common.base.CursorPaginationReq;
+import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.swagger.template.ApplicationStatusSwagger;
 import io.dev.jobprep.domain.applicationstatus.application.ApplicationStatusService;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusCreateRequest;
@@ -8,11 +10,13 @@ import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationS
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusIdResponse;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusInfoResponse;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusUpdateResponse;
-import java.util.List;
+import io.dev.jobprep.util.LongParsingProvider;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,10 +59,18 @@ public class ApplicationStatusController implements ApplicationStatusSwagger {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<ApplicationStatusCommonResponse>> getAll(@RequestParam Long userId) {
-        return ResponseEntity.ok(applicationStatusService.getAll(userId).stream()
-            .map(ApplicationStatusCommonResponse::from)
-            .toList());
+    public ResponseEntity<CursorPaginationResult<ApplicationStatusCommonResponse>> getAll(
+        @RequestParam Long userId,
+        @Valid @ModelAttribute CursorPaginationReq pageable) {
+
+        Long cursorId = LongParsingProvider.provide(pageable.getCursorId());
+        return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
+            applicationStatusService.getAll(userId, cursorId, pageable.getPageSize())
+                .stream()
+                .map(ApplicationStatusCommonResponse::from)
+                .toList(),
+            pageable.getPageSize()
+        ));
     }
 
     @PatchMapping("/{id}/{field}")
