@@ -9,7 +9,6 @@ import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewR
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
 import io.dev.jobprep.domain.users.domain.User;
-import io.dev.jobprep.domain.users.infrastructure.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +18,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_DELETED_INTERVIEW;
+import static io.dev.jobprep.exception.code.ErrorCode400.IS_DEFAULT_INTERVIEW;
 import static io.dev.jobprep.exception.code.ErrorCode403.INTERVIEW_FORBIDDEN_OPERATION;
 import static io.dev.jobprep.exception.code.ErrorCode404.INTERVIEW_NOT_FOUND;
 
@@ -35,6 +35,7 @@ public class JobInterviewService {
                 .category(JobInterviewCategory.PERSONALITY)
                 .answer("")
                 .creator(user)
+                .isDefault(false)
                 .build();
 
         jobInterviewRepository.save(jobInterview);
@@ -46,6 +47,7 @@ public class JobInterviewService {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
 
+        validateIsDefault(savedEntity, request);
         validateUser(user.getId(), savedEntity.getCreator().getId());
         savedEntity.update(request);
 
@@ -57,6 +59,7 @@ public class JobInterviewService {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(ALREADY_DELETED_INTERVIEW));
 
+        validateIsDefault(savedEntity);
         validateUser(user.getId(), savedEntity.getCreator().getId());
 
         jobInterviewRepository.delete(savedEntity);
@@ -80,6 +83,7 @@ public class JobInterviewService {
                     .category(interviewList.getCategory())
                     .answer("")
                     .creator(user)
+                    .isDefault(true)
                     .build();
 
             jobInterviewRepository.save(jobInterview);
@@ -89,6 +93,17 @@ public class JobInterviewService {
     private void validateUser(Long userId, Long jobInterviewId) {
         if (!Objects.equals(userId, jobInterviewId)) {
             throw new JobInterviewException(INTERVIEW_FORBIDDEN_OPERATION);
+        }
+    }
+    private void validateIsDefault(JobInterview savedEntity, PutJobInterviewRequest request) {
+        if (savedEntity.getIsDefault() && (request.getField().equals("question") || request.getField().equals("category"))) {
+            throw new JobInterviewException(IS_DEFAULT_INTERVIEW);
+        }
+    }
+
+    private void validateIsDefault(JobInterview savedEntity) {
+        if (savedEntity.getIsDefault()) {
+            throw new JobInterviewException(IS_DEFAULT_INTERVIEW);
         }
     }
 }

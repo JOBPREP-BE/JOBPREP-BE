@@ -7,11 +7,9 @@ import io.dev.jobprep.domain.experience_master_cl.exception.ExpMasterClException
 import io.dev.jobprep.domain.experience_master_cl.infrastructure.ExpMasterClRepository;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMasterClPatchRequest;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.ExpMasterClIdResponse;
-import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindAllExpMasterClResponse;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
 import io.dev.jobprep.domain.job_interview.exception.JobInterviewException;
 import io.dev.jobprep.domain.users.domain.User;
-import io.dev.jobprep.domain.users.infrastructure.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -59,19 +57,12 @@ public class ExpMasterClService {
         expMasterCl.disable();
     }
 
-    public List<FindAllExpMasterClResponse> findAll (User user) {
+    public List<FindExpMasterClResponse> findAll (User user) {
         List<ExpMasterCl> expMasterClList = expMasterClRepository.findAllByActiveTrueAndCreatorId(user.getId());
 
         return expMasterClList.stream()
-                .map(FindAllExpMasterClResponse::toDto)
+                .map(FindExpMasterClResponse::toDto)
                 .collect(Collectors.toList());
-    }
-
-    public FindExpMasterClResponse find (Long id, User user) {
-        ExpMasterCl expMasterCl = findById(id);
-
-        validateUser(user.getId(), expMasterCl.getCreator().getId());
-        return FindExpMasterClResponse.toDto(expMasterCl);
     }
 
     @Transactional

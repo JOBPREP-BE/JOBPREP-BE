@@ -39,10 +39,14 @@ public interface JobInterviewSwagger {
     @Operation(summary = "면접 삭제", description = "면접 데이터를 삭제합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "면접 삭제 성공"),
-            @ApiResponse(responseCode = "400", description = "해당 면접 데이터는 이미 삭제되었습니다.", content = @Content(
+            @ApiResponse(responseCode = "400", description = "요청이 유효하지 않습니다.",
+                    content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(name = "E01-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.ALREADY_DELETED_INTERVIEW)
+                            examples = {
+                                    @ExampleObject(name = "E01-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.ALREADY_DELETED_INTERVIEW),
+                                    @ExampleObject(name = "E01-JOB-INTERVIEW-003", value = SwaggerJobInterviewErrorExamples.IS_DEFAULT_INTERVIEW)
+                            }
                     )),
             @ApiResponse(responseCode = "403", description = "해당 작업은 작성자 권한이 필요합니다.",
                     content = @Content(
@@ -84,11 +88,14 @@ public interface JobInterviewSwagger {
     @ApiResponses (value = {
             @ApiResponse(responseCode = "200", description = "면접 수정 성공",
                     content = @Content(schema = @Schema(implementation = FindJobInterviewResponse.class))),
-            @ApiResponse(responseCode = "400", description = "해당 면접 데이터는 이미 삭제되었습니다.",
+            @ApiResponse(responseCode = "400", description = "요청이 유효하지 않습니다.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(name = "E01-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.ALREADY_DELETED_INTERVIEW)
+                            examples = {
+                                    @ExampleObject(name = "E01-JOB-INTERVIEW-001", value = SwaggerJobInterviewErrorExamples.ALREADY_DELETED_INTERVIEW),
+                                    @ExampleObject(name = "E01-JOB-INTERVIEW-003", value = SwaggerJobInterviewErrorExamples.IS_DEFAULT_INTERVIEW)
+                            }
                     )),
             @ApiResponse(responseCode = "400", description = "해당 면접 카테고리가 잘못되었습니다.",
                     content = @Content(
