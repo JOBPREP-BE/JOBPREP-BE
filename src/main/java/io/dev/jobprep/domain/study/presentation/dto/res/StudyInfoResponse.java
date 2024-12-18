@@ -12,7 +12,7 @@ import lombok.Getter;
 public class StudyInfoResponse {
 
     @Schema(description = "스터디 ID", example = "2")
-    private final Long id;
+    private final Long roomId;
 
     @Schema(description = "스터디 스케줄 정보")
     private final List<StudyScheduleInfoResponse> startDates;
@@ -28,13 +28,13 @@ public class StudyInfoResponse {
 
     @Builder
     private StudyInfoResponse(
-        Long id,
+        Long roomId,
         List<StudyScheduleInfoResponse> startDates,
         String googleLink,
         String discordLink,
         String kakaoLink
     ) {
-        this.id = id;
+        this.roomId = roomId;
         this.startDates = startDates;
         this.googleLink = googleLink;
         this.discordLink = discordLink;
@@ -48,7 +48,7 @@ public class StudyInfoResponse {
             .toList();
 
         return StudyInfoResponse.builder()
-            .id(study.getId())
+            .roomId(study.getId())
             .startDates(startDates)
             .googleLink(study.getGoogle_link())
             .discordLink(study.getDiscord_link())
