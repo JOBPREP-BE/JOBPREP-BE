@@ -20,10 +20,10 @@ public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRep
     @Query("select std from Study std where std.name = :name")
     Optional<Study> findStudyByName(String name);
 
-    @Query("""
-        select std from Study std join UserStudy us on std.id = us.study.id
-        where us.user.id = :userId and not std.status in ('FINISHED') or std.deletedAt = null
-    """)
+    @Query(value = """
+        select * from study as s inner join user_study us on s.id = us.study_id
+        where us.user_id = :userId and (not s.study_status = 'FINISHED' or s.deleted_at is not null)
+    """, nativeQuery = true)
     Optional<Study> findGatheredStudyByUserId(Long userId);
 
     @Query(value = """
