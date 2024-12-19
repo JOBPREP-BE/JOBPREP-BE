@@ -1,4 +1,4 @@
-package io.dev.jobprep.security.oauth;
+package io.dev.jobprep.domain.auth.jwt.dao;
 
 import io.dev.jobprep.domain.users.domain.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,10 +10,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public record PrincipalDetails (
-        User user,
-        Map<String, Object> attributes,
-        String attributeKey ) implements OAuth2User, UserDetails {
+public record PrincipalDetails (User user, Map<String, Object> attributes, String attributeKey)
+    implements OAuth2User, UserDetails {
+
     @Override
     public String getPassword() {
         return null;
@@ -52,7 +51,8 @@ public record PrincipalDetails (
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(
-                new SimpleGrantedAuthority(user.getUserRole().toString()));
+                new SimpleGrantedAuthority(user.getUserRole().toString())
+        );
     }
 
     @Override

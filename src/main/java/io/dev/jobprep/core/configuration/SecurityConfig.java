@@ -1,10 +1,9 @@
 package io.dev.jobprep.core.configuration;
 
-import io.dev.jobprep.security.filter.JwtFilter;
-import io.dev.jobprep.security.oauth.application.JwtService;
-import io.dev.jobprep.security.oauth.application.CustomOAuth2UserService;
-import io.dev.jobprep.security.oauth.OAuth2SuccessHandler;
-import io.dev.jobprep.security.oauth.application.PrincipalDetailsService;
+import io.dev.jobprep.domain.auth.jwt.filter.JwtAuthenticationFilter;
+import io.dev.jobprep.domain.auth.application.CustomOAuth2UserService;
+import io.dev.jobprep.domain.auth.jwt.handler.JwtAccessDeniedHandler;
+import io.dev.jobprep.domain.auth.jwt.handler.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,39 +23,37 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService oAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
-    private final JwtService jwtService;
-    private final PrincipalDetailsService principalDetailsService;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationEntryPoint entryPoint;
+
     @Bean
     public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
         configureCommonSecuritySettings(http);
-        http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/v1/oauth2/login-urls",    // URL 목록을 위한 엔드포인트
-                                "/api/v1/oauth2/authorize/**",   // OAuth 인증 시작점
-                                "/login/oauth2/code/**",         // OAuth 리다이렉트 URL
-                                "/oauth2/**"
-                        )
-                        .permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(
-                        new JwtFilter(jwtService, principalDetailsService),
-                        UsernamePasswordAuthenticationFilter.class
-                )
-                .oauth2Login(oauth -> oauth
-                        .authorizationEndpoint(authorization ->
-                                authorization.baseUri("/api/v1/oauth2/authorize")  // OAuth 시작점 변경
-                        )
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(oAuth2UserService))
-                        .successHandler(oAuth2SuccessHandler)
-                )
-                .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint))
-                ;
-
-        return http.build();
+        return http
+            .securityMatchers(matchers -> matchers.requestMatchers("/api/**"))
+            .authorizeHttpRequests(
+                requests -> {
+                    requests.requestMatchers(("/api/v1/oauth2/login-urls")).permitAll(); // URL 목록을 위한 엔드포인트
+                    requests.requestMatchers("/api/v1/oauth/authorize/**").permitAll(); // OAuth 인증 시작점
+                    requests.requestMatchers(("/login/oauth2/code/**")).permitAll(); // OAuth 리다이렉트 URL
+                    requests.requestMatchers("/oauth2/**").permitAll(); // ?
+                    requests.requestMatchers(("/api-docs/**")).permitAll();
+                    requests.requestMatchers("/swagger-ui/**").permitAll();
+                    requests.anyRequest().authenticated();
+                }
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .oauth2Login(oauth -> oauth
+                .authorizationEndpoint(
+                    auth -> auth.baseUri("/api/v1/oauth2/authorize"))  // OAuth 시작점 변경
+                .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
+                .successHandler(oAuth2SuccessHandler)
+            )
+            .exceptionHandling(handling -> handling
+                .accessDeniedHandler(jwtAccessDeniedHandler)
+                .authenticationEntryPoint(entryPoint))
+            .build();
     }
 
     private void configureCommonSecuritySettings(HttpSecurity httpSecurity) throws Exception {

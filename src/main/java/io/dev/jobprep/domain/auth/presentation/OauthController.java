@@ -1,30 +1,28 @@
-package io.dev.jobprep.security.oauth.presentation;
+package io.dev.jobprep.domain.auth.presentation;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import io.dev.jobprep.security.jwt.dto.TokenInfo;
-import io.dev.jobprep.security.oauth.PrincipalDetails;
-import io.dev.jobprep.security.oauth.application.JwtService;
-import io.dev.jobprep.security.oauth.application.PrincipalDetailsService;
-import jakarta.servlet.http.HttpServletResponse;
+import io.dev.jobprep.domain.auth.application.dto.res.ReissueResponse;
+import io.dev.jobprep.domain.auth.application.AuthService;
+import io.dev.jobprep.domain.auth.presentation.dto.req.AuthReissueRequest;
+import io.dev.jobprep.domain.auth.presentation.dto.res.AuthTokenResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/oauth2")
 @RequiredArgsConstructor
 public class OauthController {
-    private final JwtService jwtService;
-    private final PrincipalDetailsService principalDetailsService;
+
+    private static final String TOKEN_HEADER = "Authorization";
+    private static final String REFRESH_HEADER = "x-refresh-token";
+
+    private final AuthService authService;
 
     @GetMapping("/login-urls")
     public ResponseEntity<Map<String, String>> getOAuthUrls() {
@@ -65,26 +63,20 @@ public class OauthController {
         }
     }
 
+    @PostMapping("/reissue")
+    public ResponseEntity<AuthTokenResponse> reissue(
+        @RequestHeader(AUTHORIZATION) String accessToken,
+        @RequestBody @NonNull AuthReissueRequest request) {
 
-    // 토큰 재발급
-    @PostMapping("/refresh")
-    public ResponseEntity<Void> refreshToken(@RequestHeader(value = "x-refresh-token") String refreshToken) {
-        jwtService.isTokenValid(refreshToken);
-        DecodedJWT decodeJWT = jwtService.verifyToken(refreshToken);
-        String userId = jwtService.extractUserId(decodeJWT);
-        PrincipalDetails principalDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
-        String userEmail = principalDetails.getEmail();
-        String userRoles = principalDetails
-                .getAuthorities()
-                .stream().map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+        // TODO: refreshToken 재발급 시에,
+        //       1. 만료된 accessToken + refreshToken을 같이 검증하도록 할지?
+        //       2. refreshToken만 검증할지?
+        ReissueResponse response = authService.reissue(accessToken, request.getRefreshToken());
 
-            //새로운 토큰 페어 생성
-        TokenInfo tokenInfo = jwtService.generateTokenInfo(userId, userEmail, userRoles);
-        return ResponseEntity.ok()
-                .header("Authorization", tokenInfo.getGrantType() + " " + tokenInfo.getAccessToken())
-                .header("X-Refresh-Token", tokenInfo.getRefreshToken())
-                .build();
+        // TODO: refreshToken을 reissue하는 과정에서 어떻게 전달해줘야 하는지 고민!
+        return ResponseEntity.ok(AuthTokenResponse.of(
+            response.getAccessToken(), request.getRefreshToken()
+        ));
     }
 
 
