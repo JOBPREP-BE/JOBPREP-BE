@@ -22,7 +22,7 @@ public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRep
 
     @Query("""
         select std from Study std join UserStudy us on std.id = us.study.id
-        where us.user.id = :userId and not std.status in ('FINISHED') and std.deletedAt = null
+        where us.user.id = :userId and not std.status in ('FINISHED') or std.deletedAt = null
     """)
     Optional<Study> findGatheredStudyByUserId(Long userId);
 
