@@ -31,30 +31,33 @@ public class SecurityConfig {
     public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
         configureCommonSecuritySettings(http);
         http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/v1/oauth2/login-urls",    // URL 목록을 위한 엔드포인트
-                                "/api/v1/oauth2/authorize/**",   // OAuth 인증 시작점
-                                "/login/oauth2/code/**",         // OAuth 리다이렉트 URL
-                                "/oauth2/**"
-                        )
-                        .permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(
-                        new JwtFilter(jwtService, principalDetailsService),
-                        UsernamePasswordAuthenticationFilter.class
-                )
-                .oauth2Login(oauth -> oauth
-                        .authorizationEndpoint(authorization ->
-                                authorization.baseUri("/api/v1/oauth2/authorize")  // OAuth 시작점 변경
-                        )
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(oAuth2UserService))
-                        .successHandler(oAuth2SuccessHandler)
-                )
-                .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint))
-                ;
+            .securityMatchers(matchers -> matchers.requestMatchers("/api/**"))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(
+                            "/api/v1/oauth2/login-urls",    // URL 목록을 위한 엔드포인트
+                            "/api/v1/oauth2/authorize/**",   // OAuth 인증 시작점
+                            "/login/oauth2/code/**",         // OAuth 리다이렉트 URL
+                            "/oauth2/**",
+                            "/api-docs/**",
+                            "/swagger-ui/**"
+                    )
+                    .permitAll()
+                    .anyRequest().authenticated()
+            )
+            .addFilterBefore(
+                    new JwtFilter(jwtService, principalDetailsService),
+                    UsernamePasswordAuthenticationFilter.class
+            )
+            .oauth2Login(oauth -> oauth
+                    .authorizationEndpoint(authorization ->
+                            authorization.baseUri("/api/v1/oauth2/authorize")  // OAuth 시작점 변경
+                    )
+                    .userInfoEndpoint(userInfo -> userInfo
+                            .userService(oAuth2UserService))
+                    .successHandler(oAuth2SuccessHandler)
+            )
+            .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint))
+            ;
 
         return http.build();
     }
