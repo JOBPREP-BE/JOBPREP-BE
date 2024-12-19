@@ -2,7 +2,7 @@ package io.dev.jobprep.security.filter;
 
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import io.dev.jobprep.security.jwt.JwtService;
+import io.dev.jobprep.security.oauth.application.JwtService;
 import io.dev.jobprep.security.jwt.dto.TokenInfo;
 import io.dev.jobprep.security.oauth.PrincipalDetails;
 import io.dev.jobprep.security.oauth.application.PrincipalDetailsService;
@@ -10,14 +10,17 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -29,74 +32,62 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String REFRESH_HEADER = "x-refresh-token";
 
+    private static final List<String> PERMIT_ALL_PATHS = Arrays.asList(
+            "/login",
+            "/api/v1/oauth2/login-urls",
+            "/api/v1/oauth2/authorize",
+            "/oauth2/authorization",
+            "/login/oauth2/code/"
+    );
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        // 인증이 필요없는 경로인 경우 필터를 적용하지 않음
+        return PERMIT_ALL_PATHS.stream()
+                .anyMatch(permitPath -> path.startsWith(permitPath));
+    }
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-
-        //로그인 관련 path이면 다음 필터로 이동
-        String requestURI = request.getRequestURI();
-        if (requestURI.startsWith("/login")) {
-            filterChain.doFilter(request, response); // 다음 필터로 이동
-            return;
-        }
-
-        String accessToken = resolveAccessToken(request);
-        //액세스 토큰 존재하면
-        if(accessToken != null && !accessToken.isEmpty()) {
-            try{
-            if(jwtService.isTokenValid(accessToken)){//토큰 valid
-                PrincipalDetails principalDetails =  getPrincipalDetailsFromToken(accessToken);
+        try {
+            String accessToken = resolveAccessToken(request);
+            //액세스 토큰 존재하면
+            if (StringUtils.hasText(accessToken)) {
+                jwtService.isTokenValid(accessToken);//토큰 valid
                 setAuthentication(accessToken);
+            } else{
+                request.setAttribute( "exception", new JWTVerificationException("NO TOKEN FOUND"));
             }
-            }catch(JWTVerificationException e){
-                request.setAttribute("exception", e);
-            }
-            filterChain.doFilter(request, response);
-            return;
+        }catch (JWTVerificationException e) {
+            request.setAttribute("exception", e);
+        } catch (Exception e) {
+            request.setAttribute("exception", e);
         }
-
-        //액세스 토큰이 없을 시
-        String refreshToken = resolveRefreshToken(request);
-        if (refreshToken != null && !refreshToken.isEmpty()) {
-            try{
-            if(jwtService.isTokenValid(refreshToken)){
-                //새로운 리프레쉬, 액세스 토큰 만들기 위해 principalDetails 가져옴.
-                PrincipalDetails principalDetails = getPrincipalDetailsFromToken(refreshToken);
-
-                String userId = principalDetails.getUsername();
-                String userEmail = principalDetails.getEmail();
-                String userRoles = principalDetails
-                        .getAuthorities()
-                        .stream().map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.joining(","));
-
-                //새로운 토큰 페어 생성
-                TokenInfo tokenInfo= jwtService.generateTokenInfo(userId, userEmail, userRoles);
-                // 쿠키 설정 - HttpOnly, Secure 설정 권장 (HTTPS 환경 필수)
-                response.setHeader("Authorization", tokenInfo.getGrantType() + " " + tokenInfo.getAccessToken());
-                response.setHeader("X-Refresh-Token", tokenInfo.getRefreshToken());
-
-                response.setStatus(HttpServletResponse.SC_OK); // HTTP 200 응답
-                return;
-            }
-            }catch(JWTVerificationException e){
-                request.setAttribute("exception", e);
-            }
-            filterChain.doFilter(request, response);
-            return;
-        }
-        request.setAttribute( "exception", new JWTVerificationException("NO TOKEN FOUND"));
+        filterChain.doFilter(request, response);
     }
 
     // 토큰에서 principalDetails 추출하는 메소드
     private PrincipalDetails getPrincipalDetailsFromToken(String Token){
-        String userId = jwtService.extractUserId(Token);
-        return (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
+        try {
+            DecodedJWT decodeJWT = jwtService.verifyToken(Token);
+            String userId = jwtService.extractUserId(decodeJWT);
+            return (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
+        } catch (Exception e) {
+            throw new JWTVerificationException("Failed to get user details");
+        }
     }
     private void setAuthentication(String accessToken) {
-        PrincipalDetails principalDetails = getPrincipalDetailsFromToken(accessToken);
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            PrincipalDetails principalDetails = getPrincipalDetailsFromToken(accessToken);
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            principalDetails,
+                            null,
+                            principalDetails.getAuthorities()
+                    );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (Exception e) {
+            throw new JWTVerificationException("Authentication failed");
+        }
     }
 
     private String resolveAccessToken(HttpServletRequest request){

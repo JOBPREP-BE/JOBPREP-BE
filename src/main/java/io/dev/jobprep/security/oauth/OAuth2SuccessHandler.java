@@ -1,9 +1,8 @@
 package io.dev.jobprep.security.oauth;
 
-import io.dev.jobprep.security.jwt.JwtService;
+import io.dev.jobprep.security.oauth.application.JwtService;
 import io.dev.jobprep.security.jwt.dto.TokenInfo;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +33,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         TokenInfo tokenInfo = jwtService.generateTokenInfo(userId, userEmail, userAuthority);
 
-        // 쿠키 설정 - HttpOnly, Secure 설정 권장 (HTTPS 환경 필수)
+        // 헤더설정
         response.setHeader("Authorization", tokenInfo.getGrantType() + " " + tokenInfo.getAccessToken());
         response.setHeader("X-Refresh-Token", tokenInfo.getRefreshToken());
 
-        response.sendRedirect("/api/v1/applicationstatus/?userId="+userId);
+        // 성공 메시지 JSON 작성
+        String jsonResponse = "{\"message\": \"Login successful\"}";
+        response.getWriter().write(jsonResponse);
     }
 }

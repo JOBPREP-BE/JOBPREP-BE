@@ -1,6 +1,7 @@
-package io.dev.jobprep.security.jwt;
+package io.dev.jobprep.security.oauth.application;
 
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import io.dev.jobprep.security.jwt.dto.TokenInfo;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 
@@ -65,42 +67,75 @@ public class JwtService {
     }
 
     private String generateRefreshToken(String userId) {
-        return JWT.create()
-                .withSubject(userId)
-                .withExpiresAt(new Date(System.currentTimeMillis() + refreshTokenValidityTime))
-                .sign(getAlgorithm());
+        try {
+            return JWT.create()
+                    .withSubject(userId)
+                    .withExpiresAt(new Date(System.currentTimeMillis() + refreshTokenValidityTime))
+                    .sign(getAlgorithm());
+        }catch (Exception e) {
+                log.error("Failed to generate token info: {}", e.getMessage());
+                throw new JWTVerificationException("Failed to generate tokens");
+            }
     }
 
-    public Boolean isTokenValid(String token) {
-        DecodedJWT decodedJWT = verifyToken(token);
-        return !isTokenExpired(decodedJWT);
+    public void isTokenValid(String token) {
+        try {
+            DecodedJWT decodedJWT = verifyToken(token);
+            isTokenExpired(decodedJWT);
+        } catch (TokenExpiredException e) {
+            throw e;
+        } catch (Exception e) {
+            // 다른 예외들은 JWTVerificationException으로 감싸기
+            log.error("Unexpected error during token validation: {}", e.getMessage());
+            throw new JWTVerificationException("Token validation failed");
+        }
     }
 
     //토큰 만료 확인
-    private boolean isTokenExpired(DecodedJWT decodedJWT) {
+    private void isTokenExpired(DecodedJWT decodedJWT) {
         boolean expired = decodedJWT.getExpiresAt().before(new Date());
         if(expired) {
             Instant expirationTime = decodedJWT.getExpiresAt().toInstant();
             throw new TokenExpiredException("Token expired on ", expirationTime);
         }
-        return expired;
     }
 
     // Verify and decode a JWT
-    private DecodedJWT verifyToken(String token) {
-        JWTVerifier verifier = JWT.require(getAlgorithm()).build();
-        return verifier.verify(token);
+    public DecodedJWT verifyToken(String token) {
+        try {
+            JWTVerifier verifier = JWT.require(getAlgorithm()).build();
+            return verifier.verify(token);
+        } catch (Exception e) {
+            throw new JWTVerificationException("Failed to verify token");
+        }
     }
 
     // Extract username (subject) from token
-    public String extractUserId(String token) {return verifyToken(token).getSubject();}
-
-    //Exract UserRole from token
-    public String extractUserEmail(String token) {
-        return verifyToken(token).getClaim("email").asString();
+    public String extractUserId(DecodedJWT decodedJWT) {
+        try {
+            return decodedJWT.getSubject();
+        } catch (Exception e) {
+            log.error("Failed to extract user ID from token: {}", e.getMessage());
+            throw new JWTVerificationException("Failed to extract user ID");
+        }
     }
 
-    public String extractUserRole (String token) {
-        return verifyToken(token).getClaim("auth").toString();
+    //Exract UserRole from token
+    public String extractUserEmail(DecodedJWT decodedJWT) {
+        try {
+            return decodedJWT.getClaim("email").asString();
+        } catch (Exception e) {
+            log.error("Failed to extract email from token: {}", e.getMessage());
+            throw new JWTVerificationException("Failed to extract email");
+        }
+    }
+
+    public String extractUserRole (DecodedJWT decodedJWT) {
+        try {
+            return decodedJWT.getClaim("auth").toString();
+        } catch (Exception e) {
+            log.error("Failed to extract user role from token: {}", e.getMessage());
+            throw new JWTVerificationException("Failed to extract user role");
+        }
     }
 }

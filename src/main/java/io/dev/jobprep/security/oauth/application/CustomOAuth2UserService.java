@@ -1,7 +1,9 @@
-package io.dev.jobprep.security.oauth;
+package io.dev.jobprep.security.oauth.application;
 
 import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.domain.users.infrastructure.UserRepository;
+import io.dev.jobprep.security.oauth.OAuthAttributes;
+import io.dev.jobprep.security.oauth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
