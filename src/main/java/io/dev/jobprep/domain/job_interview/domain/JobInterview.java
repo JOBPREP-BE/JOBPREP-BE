@@ -28,21 +28,27 @@ public class JobInterview {
     @Column(length = 1500)
     private String answer;
 
+    @Column(nullable = false)
+    private Boolean isDefault;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", updatable = false)
     private User creator;
 
-    public void update(PutJobInterviewRequest request, JobInterviewCategory reqCategory) {
-        question = request.getQuestion();
-        category = reqCategory;
-        answer = request.getAnswer();
+    public void update(PutJobInterviewRequest request) {
+        switch (request.getField()) {
+            case "question" -> question = request.getContent();
+            case "category" -> category = JobInterviewCategory.from(request.getContent());
+            case "answer" -> answer = request.getContent();
+        }
     }
 
-    private JobInterview(Long id, String question, JobInterviewCategory category, String answer, User creator) {
+    private JobInterview(Long id, String question, JobInterviewCategory category, String answer, Boolean isDefault, User creator) {
         this.id = id;
         this.question = question;
         this.category = category;
         this.answer = answer;
+        this.isDefault = isDefault;
         this.creator = creator;
     }
 }

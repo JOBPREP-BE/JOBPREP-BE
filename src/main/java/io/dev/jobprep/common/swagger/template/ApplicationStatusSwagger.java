@@ -1,5 +1,7 @@
 package io.dev.jobprep.common.swagger.template;
 
+import io.dev.jobprep.common.base.CursorPaginationReq;
+import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerApplicationStatusErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusCreateRequest;
@@ -16,8 +18,9 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import java.util.List;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
 public interface ApplicationStatusSwagger {
@@ -97,8 +100,9 @@ public interface ApplicationStatusSwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             ))
     })
-    ResponseEntity<List<ApplicationStatusCommonResponse>> getAll(
-        @Parameter(description = "유저 ID", required = true) Long userId
+    ResponseEntity<CursorPaginationResult<ApplicationStatusCommonResponse>> getAll(
+        @Parameter(description = "유저 ID", required = true) Long userId,
+        @Valid @ModelAttribute CursorPaginationReq pageable
     );
 
     @Operation(summary = "지원 현황 수정", description = "사용자가 자신의 지원 현황을 수정할 때 사용하는 API")

@@ -1,6 +1,5 @@
 package io.dev.jobprep.domain.experience_master_cl.domain;
 
-import io.dev.jobprep.common.base.BaseTimeEntity;
 import io.dev.jobprep.domain.experience_master_cl.domain.enums.ExpAnalProcess;
 import io.dev.jobprep.domain.experience_master_cl.domain.enums.MasterClProcess;
 import io.dev.jobprep.domain.experience_master_cl.exception.ExpMasterClException;
@@ -19,7 +18,7 @@ import static io.dev.jobprep.exception.code.ErrorCode400.*;
 @Table(name = "experience_master_cl")
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ExpMasterCl extends BaseTimeEntity {
+public class ExpMasterCl {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

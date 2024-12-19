@@ -1,6 +1,7 @@
 package io.dev.jobprep.domain.study.domain.entity;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_DELETED_STUDY;
+import static io.dev.jobprep.exception.code.ErrorCode400.NON_GATHERED_USER;
 import static io.dev.jobprep.exception.code.ErrorCode400.STUDY_GATHERED_USER_EXCEED;
 
 import io.dev.jobprep.common.base.BaseTimeEntity;
@@ -107,6 +108,10 @@ public class Study extends BaseTimeEntity  {
         userStudies.add(userStudy);
     }
 
+    public void kickOut(UserStudy userStudy) {
+        userStudies.remove(userStudy);
+    }
+
     public void close() {
         status.validateAvailableRecruitment();
         this.status = StudyStatus.RECRUITMENT_CLOSED;
@@ -154,6 +159,12 @@ public class Study extends BaseTimeEntity  {
     private void validateAvailableJoin() {
         status.validateAvailableRecruitment();
         validateHeadCount();
+    }
+
+    private void validateAvailableKickOut(UserStudy userStudy) {
+        if (!userStudies.contains(userStudy)) {
+            throw new StudyException(NON_GATHERED_USER);
+        }
     }
 
     private void validateHeadCount() {

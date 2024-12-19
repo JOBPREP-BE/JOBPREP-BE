@@ -27,6 +27,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ApplicationStatus {
 
+    private static final int INIT = 1;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -101,5 +103,30 @@ public class ApplicationStatus {
         }
     }
 
+    private static LocalDateTime calculateDueDate(LocalDateTime applicationDate) {
+        return applicationDate.plusDays(INIT);
+    }
 
+    public static ApplicationStatus of(
+        User creator,
+        String company,
+        String position,
+        ApplicationProgress progress,
+        ApplicationProcess process,
+        String url,
+        String coverLetter
+    ) {
+        LocalDateTime today = LocalDateTime.now();
+        return ApplicationStatus.builder()
+            .creator(creator)
+            .company(company)
+            .position(position)
+            .progress(progress)
+            .process(process)
+            .applicationDate(today)
+            .dueDate(calculateDueDate(today))
+            .url(url)
+            .coverLetter(coverLetter)
+            .build();
+    }
 }

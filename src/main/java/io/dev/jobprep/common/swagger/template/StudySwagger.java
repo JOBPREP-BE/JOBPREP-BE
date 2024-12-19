@@ -1,5 +1,9 @@
 package io.dev.jobprep.common.swagger.template;
 
+import io.dev.jobprep.common.base.CursorPaginationReq;
+import io.dev.jobprep.common.base.CursorPaginationResult;
+import io.dev.jobprep.common.base.OffsetPaginationReq;
+import io.dev.jobprep.common.base.OffsetPaginationResult;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerStudyErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyCreateRequest;
@@ -20,8 +24,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Study", description = "스터디 관련 API")
@@ -40,6 +45,12 @@ public interface StudySwagger {
                     @ExampleObject(name = "E00-STUDY-001", value = SwaggerStudyErrorExamples.DUPLICATE_STUDY_NAME),
                     @ExampleObject(name = "E01-STUDY-001", value = SwaggerStudyErrorExamples.ALREADY_CREATED_STUDY)
                 }
+            )),
+        @ApiResponse(responseCode = "403", description = "스터디를 생성할 권한이 없음",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(name = "E02-USER-003", value = SwaggerUserErrorExamples.USER_PERMISSION_SUSPENDED)
             )),
         @ApiResponse(responseCode = "404", description = "요청한 사용자가 존재하지 않음",
             content = @Content(
@@ -70,6 +81,12 @@ public interface StudySwagger {
                     @ExampleObject(name = "E01-STUDY-007", value = SwaggerStudyErrorExamples.ALREADY_GATHERED_STUDY),
                     @ExampleObject(name = "E01-STUDY-008", value = SwaggerStudyErrorExamples.ALREADY_PASSED_DUE_DATE)
                 }
+            )),
+        @ApiResponse(responseCode = "403", description = "스터디를 참여할 권한이 없음",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(name = "E02-USER-003", value = SwaggerUserErrorExamples.USER_PERMISSION_SUSPENDED)
             )),
         @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
             content = @Content(
@@ -131,8 +148,9 @@ public interface StudySwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             )),
     })
-    ResponseEntity<List<StudyInfoAdminResponse>> getAllForAdmin(
-        @Parameter(description = "유저 ID", required = true) Long userId
+    ResponseEntity<CursorPaginationResult<StudyInfoAdminResponse>> getAllForAdmin(
+        @Parameter(description = "유저 ID", required = true) Long userId,
+        @Valid @ModelAttribute CursorPaginationReq pageable
     );
 
     @Operation(summary = "스터디 수정", description = "관리자가 스터디를 수정할 때 사용하는 API")
@@ -212,7 +230,10 @@ public interface StudySwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             ))
     })
-    ResponseEntity<List<StudyCommonResponse>> getRecruitingStudy(Long userId);
+    ResponseEntity<OffsetPaginationResult<StudyCommonResponse>> getRecruitingStudy(
+        @Parameter(required = true) Long userId,
+        @Valid @ModelAttribute OffsetPaginationReq pageable
+    );
 
     @Operation(summary = "참여 중인 스터디 조회", description = "사용자가 자신이 참여 중인 스터디를 조회할 때 사용하는 API")
     @ApiResponses(value = {

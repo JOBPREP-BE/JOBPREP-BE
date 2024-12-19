@@ -1,5 +1,9 @@
 package io.dev.jobprep.domain.study.presentation;
 
+import io.dev.jobprep.common.base.CursorPaginationReq;
+import io.dev.jobprep.common.base.CursorPaginationResult;
+import io.dev.jobprep.common.base.OffsetPaginationReq;
+import io.dev.jobprep.common.base.OffsetPaginationResult;
 import io.dev.jobprep.common.swagger.template.StudySwagger;
 import io.dev.jobprep.domain.study.application.StudyScheduleService;
 import io.dev.jobprep.domain.study.application.StudyService;
@@ -13,7 +17,8 @@ import io.dev.jobprep.domain.study.presentation.dto.res.StudyInfoAdminResponse;
 import io.dev.jobprep.domain.study.presentation.dto.res.StudyInfoResponse;
 import io.dev.jobprep.domain.study.presentation.dto.res.StudyUpdateAdminResponse;
 import io.dev.jobprep.domain.study.presentation.dto.res.StudyUpdateResponse;
-import java.util.List;
+import io.dev.jobprep.util.LongParsingProvider;
+import jakarta.validation.Valid;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,10 +63,20 @@ public class StudyController implements StudySwagger {
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<List<StudyInfoAdminResponse>> getAllForAdmin(@RequestParam Long userId) {
-        return ResponseEntity.ok(studyService.getAll(userId).stream()
-            .map(StudyInfoAdminResponse::of)
-            .collect(Collectors.toList()));
+    public ResponseEntity<CursorPaginationResult<StudyInfoAdminResponse>> getAllForAdmin(
+        @RequestParam Long userId,
+        @Valid @ModelAttribute CursorPaginationReq pageable
+    ) {
+        Long cursorId = LongParsingProvider.provide(pageable.getCursorId());
+        return ResponseEntity.ok(
+            CursorPaginationResult.fromDataWithExtraItemForNextCheck(
+                studyService.getAll(userId, cursorId, pageable.getPageSize())
+                    .stream()
+                    .map(StudyInfoAdminResponse::of)
+                    .collect(Collectors.toList()),
+                pageable.getPageSize()
+            )
+        );
     }
 
     @PatchMapping("/{id}/{field}/admin")
@@ -84,9 +100,20 @@ public class StudyController implements StudySwagger {
     }
 
     @GetMapping
-    public ResponseEntity<List<StudyCommonResponse>> getRecruitingStudy(@RequestParam Long userId) {
-        return ResponseEntity.ok(studyService.getRecruitingStudy(userId)
-            .stream().map(StudyCommonResponse::from).collect(Collectors.toList()));
+    public ResponseEntity<OffsetPaginationResult<StudyCommonResponse>> getRecruitingStudy(
+        @RequestParam Long userId,
+        @Valid @ModelAttribute OffsetPaginationReq pageable
+    ) {
+        return ResponseEntity.ok(
+            OffsetPaginationResult.fromDataWithOffsetPageInfo(
+                studyService.getRecruitingStudy(userId, pageable.getPage(),
+                pageable.getPageGroupSize(), pageable.getPageSize())
+                    .stream().map(StudyCommonResponse::from).collect(Collectors.toList()),
+                pageable.getPageSize(),
+                pageable.getPage(),
+                studyService.getTotalAmountsOfData()
+            )
+        );
     }
 
     @GetMapping("/my")

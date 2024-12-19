@@ -27,11 +27,11 @@ public class ApplicationStatusCommonResponse {
 
     @Schema(description = "진행 상황", example = "진행 전", implementation = String.class)
     @Nullable
-    private final ApplicationProgress progress;
+    private final String progress;
 
     @Schema(description = "전형 단계", example = "서류 전형", implementation = String.class)
     @Nullable
-    private final ApplicationProcess process;
+    private final String process;
 
     @Schema(description = "지원 일자", example = "2024-12-04T12:00:00", implementation = LocalDateTime.class)
     @Nullable
@@ -64,8 +64,8 @@ public class ApplicationStatusCommonResponse {
         this.id = id;
         this.company = company;
         this.position = position;
-        this.progress = progress;
-        this.process = process;
+        this.progress = progress != null ? progress.getDescription() : null;
+        this.process = process != null ? process.getDescription() : null;
         this.applicationDate = applicationDate;
         this.dueDate = dueDate;
         this.url = url;

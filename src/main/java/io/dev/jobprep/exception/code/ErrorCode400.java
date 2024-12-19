@@ -19,13 +19,16 @@ public enum ErrorCode400 implements ErrorCode {
     ALREADY_PASSED_DUE_DATE("E01-STUDY-008", "스터디의 모집 기간이 지났습니다."),
     INVALID_POSITION_ARG("E01-STUDY-009", "스터디 직무 입력이 잘못되었습니다."),
     INVALID_STATUS_ARG("E01-STUDY-010", "스터디 상태가 잘못되었습니다."),
+    NON_GATHERED_USER("E01-STUDY-011", "해당 스터디에 유저가 존재하지 않습니다."),
     DUPLICATE_STUDY_NAME("E00-STUDY-01", "해당 스터디 이름이 이미 존재합니다."),
-
+    INVALID_START_DATE("E00-STUDY-002", "스터디 시작 시간은 미래 시간이어야 합니다."),
 
     USER_ACCOUNT_ALREADY_EXISTS("E01-USER-001", "해당 이메일로 가입된 계정이 이미 존재합니다."),
+    ALREADY_PENALIZED_USER("E01-USER-002", "이미 페널티가 부여된 유저입니다."),
 
     ALREADY_DELETED_INTERVIEW("E01-JOB-INTERVIEW-001", "해당 면접 데이터는 이미 삭제되었습니다."),
     INVALID_INTERVIEW_STATUS("E01-JOB-INTERVIEW-002", "해당 면접 카테고리가 잘못되었습니다."),
+    IS_DEFAULT_INTERVIEW("E01-JOB-INTERVIEW-003", "해당 면접은 유저가 변경할 수 없습니다."),
 
     INVALID_APPLICATION_PROGRESS_ARG("E01-APPLICATIONSTATUS-001", "지원 상황 입력이 잘못되었습니다."),
     INVALID_APPLICATION_PROCESS_ARG("E01-APPLICATIONSTATUS-002", "전형 단계 입력이 잘못되었습니다."),
@@ -34,6 +37,9 @@ public enum ErrorCode400 implements ErrorCode {
     INVALID_PROCESS_MASTER_CL("E01-EXP-MASTER-002", "해당 자소서는 알맞은 과정이 아닙니다."),
     INVALID_FIELD_MASTER_CL("E01-EXP-MASTER-003", "해당 필드는 마스터 자소서에 없습니다."),
 
+    CHAT_ROOM_DISABLED("E01-CHATROOM-001", "해당 채팅방은 비활성화되었습니다."),
+    NON_GATHERED_CHAT_USER("E01-CHATROOM-002", "해당 채팅방의 참여자가 아닙니다."),
+    CHAT_ROOM_ALREADY_EXIST("E01-CHATROOM-003", "이미 생성된 채팅방이 있습니다."),
     ;
 
     private final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;

@@ -12,7 +12,7 @@ import lombok.Getter;
 public class StudyCommonResponse {
 
     @Schema(description = "스터디 ID", example = "2")
-    private final Long id;
+    private final Long roomId;
 
     @Schema(description = "스터디 이름", example = "3주만에 박살내는 kotlin 정복기")
     private final String name;
@@ -31,14 +31,14 @@ public class StudyCommonResponse {
 
     @Builder
     private StudyCommonResponse(
-        Long id,
+        Long roomId,
         String name,
         LocalDateTime startDate,
         int headCount,
         Position position,
         LocalDateTime dueDate
     ) {
-        this.id = id;
+        this.roomId = roomId;
         this.name = name;
         this.startDate = startDate;
         this.headCount = headCount;
@@ -48,7 +48,7 @@ public class StudyCommonResponse {
 
     public static StudyCommonResponse from(StudyInfoDto dto) {
         return StudyCommonResponse.builder()
-            .id(dto.getId())
+            .roomId(dto.getId())
             .name(dto.getName())
             .startDate(dto.getStartDate())
             .headCount(dto.getHeadCount())

@@ -11,7 +11,7 @@ import lombok.Getter;
 public class StudyScheduleInfoResponse {
 
     @Schema(description = "스터디 스케줄 ID", example = "1")
-    private final Long id;
+    private final Long scheduleId;
 
     @Schema(description = "시작일자", example = "2024-02-18T:14:00:00")
     private final LocalDateTime startDate;
@@ -20,15 +20,15 @@ public class StudyScheduleInfoResponse {
     private final int weekNumber;
 
     @Builder
-    private StudyScheduleInfoResponse(Long id, LocalDateTime startDate, int weekNumber) {
-        this.id = id;
+    private StudyScheduleInfoResponse(Long scheduleId, LocalDateTime startDate, int weekNumber) {
+        this.scheduleId = scheduleId;
         this.startDate = startDate;
         this.weekNumber = weekNumber;
     }
 
     public static StudyScheduleInfoResponse of(StudySchedule studySchedule) {
         return StudyScheduleInfoResponse.builder()
-            .id(studySchedule.getId())
+            .scheduleId(studySchedule.getId())
             .startDate(studySchedule.getStart_date())
             .weekNumber(studySchedule.getWeek_number())
             .build();

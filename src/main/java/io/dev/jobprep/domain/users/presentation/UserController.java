@@ -2,7 +2,10 @@ package io.dev.jobprep.domain.users.presentation;
 
 
 import io.dev.jobprep.common.swagger.template.UsersSwagger;
+import io.dev.jobprep.domain.study.presentation.dto.res.StudyIdResponse;
+import io.dev.jobprep.domain.users.application.AdminCommonService;
 import io.dev.jobprep.domain.users.application.dto.res.SignUpResponse;
+import io.dev.jobprep.domain.users.presentation.dto.req.UserPenalizeRequest;
 import io.dev.jobprep.domain.users.presentation.dto.res.SignUpAPIResponse;
 import io.dev.jobprep.domain.users.application.UserService;
 import io.dev.jobprep.domain.users.application.dto.req.SignUpRequest;
@@ -21,7 +24,9 @@ import java.net.URI;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController implements UsersSwagger {
+
     private final UserService userService;
+    private final AdminCommonService adminCommonService;
 
     @PostMapping(value ="/signup")
     public ResponseEntity<SignUpAPIResponse> signUp(@RequestBody SignUpAPIRequest signUpRequest/*,
@@ -43,6 +48,16 @@ public class UserController implements UsersSwagger {
         DeleteUserAccountResponse response = userService.deleteUser(userId);
         return ResponseEntity.ok(DeleteUserAPIResponse.from(response));
 
+    }
+
+    @PostMapping("/penalty")
+    public ResponseEntity<StudyIdResponse> penalize(
+        @RequestParam Long userId,
+        @RequestBody UserPenalizeRequest request
+    ) {
+        return ResponseEntity.status(201).body(
+            StudyIdResponse.from(adminCommonService.penalize(userId, request))
+        );
     }
 
 }
