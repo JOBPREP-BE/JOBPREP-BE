@@ -1,5 +1,6 @@
 package io.dev.jobprep.domain.study.domain.entity;
 
+import static io.dev.jobprep.exception.code.ErrorCode400.IMPOSSIBLE_TO_MODIFY_FIRST_DATE;
 import static io.dev.jobprep.exception.code.ErrorCode400.STUDY_WEEK_NUMBER_EXCEED;
 import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
 
@@ -58,7 +59,7 @@ public class StudySchedule {
     }
 
     public void modify(LocalDateTime startDate) {
-        validateDate(startDate, week_number);
+        validateDate();
         this.start_date = startDate;
     }
 
@@ -83,8 +84,11 @@ public class StudySchedule {
         return false;
     }
 
-    private void validateDate(LocalDateTime startDate, int weekNumber) {
+    private void validateDate() {
         // TODO: 이전 주차보다 큰 값인지, 다음 주차보다 작은 값인지 검증
         // 비즈니스 로직 vs 어노테이션 고민
+        if (week_number == MIN_WEEK_NUMBER) {
+            throw new StudyException(IMPOSSIBLE_TO_MODIFY_FIRST_DATE);
+        }
     }
 }

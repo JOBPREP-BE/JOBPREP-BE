@@ -1,19 +1,18 @@
 package io.dev.jobprep.domain.study.application;
 
+import static io.dev.jobprep.exception.code.ErrorCode400.IMPOSSIBLE_TO_MODIFY_DATE;
+import static io.dev.jobprep.exception.code.ErrorCode400.IMPOSSIBLE_TO_MODIFY_FIRST_DATE;
 import static io.dev.jobprep.exception.code.ErrorCode403.STUDY_FORBIDDEN_OPERATION;
-import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
-import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
 import io.dev.jobprep.domain.study.domain.entity.Study;
 import io.dev.jobprep.domain.study.domain.entity.StudySchedule;
 import io.dev.jobprep.domain.study.exception.StudyException;
-import io.dev.jobprep.domain.study.infrastructure.StudyJpaRepository;
 import io.dev.jobprep.domain.study.infrastructure.StudyScheduleJpaRepository;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyScheduleCreateRequest;
 import io.dev.jobprep.domain.study.presentation.dto.req.StudyUpdateRequest;
+import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.domain.users.domain.User;
-import io.dev.jobprep.domain.users.exception.UserException;
-import io.dev.jobprep.domain.users.infrastructure.UserRepository;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StudyScheduleService {
 
+    private static final int FIRST_WEEK = 1;
     private static final int WEEK = 7;
 
-    private final UserRepository userRepository;
-    private final StudyJpaRepository studyRepository;
-    private final StudyScheduleJpaRepository studyScheduleRepository;
+    private final UserCommonService userCommonService;
     private final StudyCommonService studyCommonService;
+    private final StudyScheduleJpaRepository studyScheduleRepository;
 
     @Transactional
     public Long create(Long id, StudyScheduleCreateRequest req) {
@@ -56,9 +55,10 @@ public class StudyScheduleService {
         User user = getUser(id);
 
         StudySchedule studySchedule = getStudySchedule(studyId, req.getWeekNumber());
-        Study study = studySchedule.getStudy();
 
-        validateCreatorOrParticipator(study, id);
+        validateCreatorOrParticipator(studySchedule.getStudy(), id);
+        validateDate(studyId, req);
+
         studySchedule.modify(req.getStartDate());
     }
 
@@ -67,13 +67,27 @@ public class StudyScheduleService {
     }
 
     private Study getStudy(Long studyId) {
-        return studyRepository.findById(studyId)
-            .orElseThrow(() -> new StudyException(STUDY_NOT_FOUND));
+        return studyCommonService.getStudyWithId(studyId);
     }
 
     private void validateCreatorOrParticipator(Study study, Long userId) {
         if (!study.isCreator(userId) && !studyCommonService.isParticipator(study.getId(), userId)) {
             throw new StudyException(STUDY_FORBIDDEN_OPERATION);
+        }
+    }
+
+    private void validateDate(Long studyId, StudyUpdateRequest req) {
+
+        if (req.getWeekNumber() == FIRST_WEEK) {
+            throw new StudyException(IMPOSSIBLE_TO_MODIFY_FIRST_DATE);
+        } else {
+            StudySchedule previous = getStudySchedule(studyId, req.getWeekNumber() - 1);
+            LocalDate previousDate = previous.getStart_date().toLocalDate();
+            LocalDate modifiedDate = req.getStartDate().toLocalDate();
+
+            if (modifiedDate.isBefore(previousDate) || modifiedDate.isEqual(previousDate)) {
+                throw new StudyException(IMPOSSIBLE_TO_MODIFY_DATE);
+            }
         }
     }
 
@@ -105,8 +119,7 @@ public class StudyScheduleService {
     }
 
     private User getUser(Long id) {
-        return userRepository.findUserById(id)
-            .orElseThrow(() -> new UserException(USER_NOT_FOUND));
+        return userCommonService.getUserWithId(id);
     }
 
     private LocalDateTime calcuateNextStartDate(LocalDateTime startDate, int weekNum) {
