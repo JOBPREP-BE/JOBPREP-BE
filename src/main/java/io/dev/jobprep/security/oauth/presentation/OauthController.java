@@ -4,6 +4,7 @@ package io.dev.jobprep.security.oauth.presentation;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.dev.jobprep.security.jwt.dto.TokenInfo;
+import io.dev.jobprep.common.swagger.template.OauthSwagger;
 import io.dev.jobprep.security.oauth.PrincipalDetails;
 import io.dev.jobprep.security.oauth.application.JwtService;
 import io.dev.jobprep.security.oauth.application.PrincipalDetailsService;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/oauth2")
 @RequiredArgsConstructor
-public class OauthController {
+public class OauthController implements OauthSwagger{
     private final JwtService jwtService;
     private final PrincipalDetailsService principalDetailsService;
 
