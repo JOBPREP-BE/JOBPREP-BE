@@ -23,15 +23,19 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.Map;
 
-@Tag(name = "OAuth", description = "" +
-        "[소셜 로그인 진행 과정]\n" +
-        "1. GET /api/v1/oauth2/login-urls 를 호출하여 소셜 로그인 URL을 얻습니다.\n" +
-        "2. 얻은 URL로 리다이렉트하면 해당 소셜 로그인 페이지로 이동합니다.\n" +
-        "3. 소셜 로그인 성공 시 자동으로 토큰이 발급되어 클라이언트로 전달됩니다.\n" +
-        "4. 발급된 토큰으로 서비스 API를 호출할 수 있습니다.")
+@Tag(name = "OAuth", description = "OAuth로그인용 path 조회")
 public interface OauthSwagger {
 
-    @Operation(summary = "OAuth 로그인 URL 조회", description = "각 소셜 로그인(Google, Kakao, Naver)에 대한 인증 URL을 반환하는 API")
+    @Operation(summary = "OAuth 로그인 URL 조회", description =
+            "각 소셜 로그인(Google, Kakao, Naver)에 대한 인증 URL을 반환하는 API\n" +
+            "[소셜 로그인 진행 과정]\n" +
+            "1. GET /api/v1/oauth2/login-urls 를 호출하여 소셜 로그인 URL을 얻습니다.\\n\" +\n" +
+            "2. 얻은 URL로 리다이렉트하면 해당 소셜 로그인 페이지로 이동합니다.\n" +
+            "3. 소셜 로그인 성공 시 자동으로 토큰이 발급되어 클라이언트로 전달됩니다.\n" +
+            "4. 토큰은 헤더에서 찾을 수 있고, 액세스 토큰은 Authorization에 Bearer {accesstoken}, 리프레쉬 토큰은 X-Refresh-Token에 {refreshtoken}형식으로 있습니다" +
+            "예시: 액세스 토큰: Berer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiYXV0aCI6Ik5PUk1BTCIsImVtYWlsIjoic2VvY2QxMjM0NTZAbmF2ZXIuY29tIiwiaWF0IjoxNzM0MTkxNDk4LCJleHAiOjE3MzQyOTk0OTh9.PYvvHL3Ito6r-ls_8Rn1s4exhEt1TEPoBGzpXoF0ENA" +
+            "리프레쉬 토큰: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzM2NzgzNDk4fQ.EcWwUnuJ2_Csfb5MEX1isTI_v3P5SCLKvkUt_-zbLtg" +
+            "5. 발급된 토큰으로 인증이 필요한 API를 호출할 수 있습니다." )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OAuth URL 조회 성공",
                     content = @Content(
