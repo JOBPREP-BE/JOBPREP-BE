@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_DELETED_INTERVIEW;
 import static io.dev.jobprep.exception.code.ErrorCode400.IS_DEFAULT_INTERVIEW;
@@ -65,18 +64,12 @@ public class JobInterviewService {
         jobInterviewRepository.delete(savedEntity);
     }
 
-    public List<FindJobInterviewResponse> find(User user) {
-        List<JobInterview> jobInterviewList = jobInterviewRepository.findAllByCreator(user);
-
-        return jobInterviewList
-                .stream()
-                .map(FindJobInterviewResponse::from)
-                .collect(Collectors.toList());
+    public List<JobInterview> find(User user, Long cursorId, int pageSize) {
+        return jobInterviewRepository.findByConditionWithPagination(user.getId(), cursorId, pageSize);
     }
 
     @Transactional
     public void initJobInterview(User user) {
-
         for (DefaultJobInterview interviewList : DefaultJobInterview.values()) {
             JobInterview jobInterview = JobInterview.builder()
                     .question(interviewList.getQuestion())

@@ -1,5 +1,7 @@
 package io.dev.jobprep.domain.job_interview.presentation;
 
+import io.dev.jobprep.common.base.CursorPaginationReq;
+import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.swagger.template.JobInterviewSwagger;
 import io.dev.jobprep.domain.job_interview.application.JobInterviewService;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
@@ -7,13 +9,13 @@ import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterview
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.domain.users.domain.User;
+import io.dev.jobprep.util.LongParsingProvider;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/${springdoc.version}/interview")
@@ -53,10 +55,18 @@ public class JobInterviewController implements JobInterviewSwagger {
     }
 
     @GetMapping
-    public ResponseEntity<List<FindJobInterviewResponse>> find (
-            @RequestParam Long userId
-    ) {
+    public ResponseEntity<CursorPaginationResult<FindJobInterviewResponse>> find (
+            @RequestParam Long userId,
+            @Valid @ModelAttribute CursorPaginationReq pageable
+            ) {
         User user = userCommonService.getUserWithId(userId);
-        return ResponseEntity.ok(jobInterviewService.find(user));
+        Long cursorId = LongParsingProvider.provide(pageable.getCursorId());
+        return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
+                jobInterviewService.find(user, cursorId, pageable.getPageSize())
+                        .stream()
+                        .map(FindJobInterviewResponse::from)
+                        .toList(),
+                pageable.getPageSize())
+        );
     }
 }
