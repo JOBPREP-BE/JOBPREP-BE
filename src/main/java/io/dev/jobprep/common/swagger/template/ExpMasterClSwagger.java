@@ -1,5 +1,7 @@
 package io.dev.jobprep.common.swagger.template;
 
+import io.dev.jobprep.common.base.CursorPaginationReq;
+import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerExpMasterClErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMasterClPatchRequest;
@@ -13,7 +15,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -78,7 +82,7 @@ public interface ExpMasterClSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<List<FindExpMasterClResponse>> findAll (@RequestParam Long userId);
+    ResponseEntity<CursorPaginationResult<FindExpMasterClResponse>> findAll (@RequestParam Long userId, @Valid @ModelAttribute CursorPaginationReq pageable);
 
     @Operation(summary = "마스터 자소서 수정", description = "마스터 자소서 데이터를 수정합니다.")
     @ApiResponses (value = {
