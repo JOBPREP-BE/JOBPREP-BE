@@ -1,7 +1,7 @@
 package io.dev.jobprep.common.swagger.template;
 
-import io.dev.jobprep.common.base.CursorPaginationReq;
 import io.dev.jobprep.common.base.CursorPaginationResult;
+import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.base.OffsetPaginationReq;
 import io.dev.jobprep.common.base.OffsetPaginationResult;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerStudyErrorExamples;
@@ -150,7 +150,7 @@ public interface StudySwagger {
     })
     ResponseEntity<CursorPaginationResult<StudyInfoAdminResponse>> getAllForAdmin(
         @Parameter(description = "유저 ID", required = true) Long userId,
-        @Valid @ModelAttribute CursorPaginationReq pageable
+        @Valid @ModelAttribute LongCursorPaginationReq pageable
     );
 
     @Operation(summary = "스터디 수정", description = "관리자가 스터디를 수정할 때 사용하는 API")

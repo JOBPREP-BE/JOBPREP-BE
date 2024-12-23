@@ -1,7 +1,7 @@
 package io.dev.jobprep.domain.study.presentation;
 
-import io.dev.jobprep.common.base.CursorPaginationReq;
 import io.dev.jobprep.common.base.CursorPaginationResult;
+import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.base.OffsetPaginationReq;
 import io.dev.jobprep.common.base.OffsetPaginationResult;
 import io.dev.jobprep.common.swagger.template.StudySwagger;
@@ -17,7 +17,6 @@ import io.dev.jobprep.domain.study.presentation.dto.res.StudyInfoAdminResponse;
 import io.dev.jobprep.domain.study.presentation.dto.res.StudyInfoResponse;
 import io.dev.jobprep.domain.study.presentation.dto.res.StudyUpdateAdminResponse;
 import io.dev.jobprep.domain.study.presentation.dto.res.StudyUpdateResponse;
-import io.dev.jobprep.util.LongParsingProvider;
 import jakarta.validation.Valid;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -65,12 +64,12 @@ public class StudyController implements StudySwagger {
     @GetMapping("/admin")
     public ResponseEntity<CursorPaginationResult<StudyInfoAdminResponse>> getAllForAdmin(
         @RequestParam Long userId,
-        @Valid @ModelAttribute CursorPaginationReq pageable
+        @Valid @ModelAttribute LongCursorPaginationReq pageable
     ) {
-        Long cursorId = LongParsingProvider.provide(pageable.getCursorId());
+
         return ResponseEntity.ok(
             CursorPaginationResult.fromDataWithExtraItemForNextCheck(
-                studyService.getAll(userId, cursorId, pageable.getPageSize())
+                studyService.getAll(userId, pageable.getCursorId(), pageable.getPageSize())
                     .stream()
                     .map(StudyInfoAdminResponse::of)
                     .collect(Collectors.toList()),

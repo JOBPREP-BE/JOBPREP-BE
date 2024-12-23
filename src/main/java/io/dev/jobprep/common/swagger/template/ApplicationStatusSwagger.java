@@ -1,7 +1,7 @@
 package io.dev.jobprep.common.swagger.template;
 
-import io.dev.jobprep.common.base.CursorPaginationReq;
 import io.dev.jobprep.common.base.CursorPaginationResult;
+import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerApplicationStatusErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusCreateRequest;
@@ -102,7 +102,7 @@ public interface ApplicationStatusSwagger {
     })
     ResponseEntity<CursorPaginationResult<ApplicationStatusCommonResponse>> getAll(
         @Parameter(description = "유저 ID", required = true) Long userId,
-        @Valid @ModelAttribute CursorPaginationReq pageable
+        @Valid @ModelAttribute LongCursorPaginationReq pageable
     );
 
     @Operation(summary = "지원 현황 수정", description = "사용자가 자신의 지원 현황을 수정할 때 사용하는 API")

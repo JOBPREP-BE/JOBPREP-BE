@@ -1,5 +1,6 @@
 package io.dev.jobprep.util;
 
+@Deprecated
 public class LongParsingProvider {
 
     public static Long provide(String source) {
