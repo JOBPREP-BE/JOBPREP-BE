@@ -1,4 +1,4 @@
-package io.dev.jobprep.security.jwt.dto;
+package io.dev.jobprep.domain.security.jwt.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

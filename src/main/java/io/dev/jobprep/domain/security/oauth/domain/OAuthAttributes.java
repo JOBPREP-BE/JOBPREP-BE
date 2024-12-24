@@ -1,4 +1,4 @@
-package io.dev.jobprep.security.oauth;
+package io.dev.jobprep.domain.security.oauth.domain;
 
 import io.dev.jobprep.domain.users.domain.User;
 import lombok.Builder;

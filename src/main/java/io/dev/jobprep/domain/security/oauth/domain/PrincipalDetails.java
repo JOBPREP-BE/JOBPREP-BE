@@ -1,4 +1,4 @@
-package io.dev.jobprep.security.oauth;
+package io.dev.jobprep.domain.security.oauth.domain;
 
 import io.dev.jobprep.domain.users.domain.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public record PrincipalDetails (
         User user,
@@ -63,4 +64,10 @@ public record PrincipalDetails (
     public String getEmail(){
         return user.getEmail();
     }
+
+    public String getUserRoles(){ return this
+            .getAuthorities()
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","));}
 }

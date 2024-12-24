@@ -1,27 +1,21 @@
-package io.dev.jobprep.security.oauth.application;
+package io.dev.jobprep.domain.security.jwt.application;
 
-import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import io.dev.jobprep.security.jwt.dto.TokenInfo;
+import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.JWT;
 
-import io.dev.jobprep.security.oauth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,8 +55,8 @@ public class JwtService {
                 .withSubject(userId)
                 .withClaim("auth", userRoles)
                 .withClaim("email", userEmail)
-                .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenValidityTime))
+                .withIssuedAt(getCurrentDate())
+                .withExpiresAt(getCurrentDate(System.currentTimeMillis() + accessTokenValidityTime))
                 .sign(getAlgorithm());
     }
 
@@ -70,7 +64,7 @@ public class JwtService {
         try {
             return JWT.create()
                     .withSubject(userId)
-                    .withExpiresAt(new Date(System.currentTimeMillis() + refreshTokenValidityTime))
+                    .withExpiresAt(getCurrentDate(System.currentTimeMillis() + refreshTokenValidityTime))
                     .sign(getAlgorithm());
         }catch (Exception e) {
                 log.error("Failed to generate token info: {}", e.getMessage());
@@ -137,5 +131,11 @@ public class JwtService {
             log.error("Failed to extract user role from token: {}", e.getMessage());
             throw new JWTVerificationException("Failed to extract user role");
         }
+    }
+    private Date getCurrentDate(Long time){
+        return new Date(time);
+    }
+    private Date getCurrentDate(){
+        return new Date();
     }
 }

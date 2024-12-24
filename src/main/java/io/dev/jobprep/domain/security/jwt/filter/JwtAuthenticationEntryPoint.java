@@ -1,4 +1,4 @@
-package io.dev.jobprep.security.filter;
+package io.dev.jobprep.domain.security.jwt.filter;
 
 
 import jakarta.servlet.http.HttpServletRequest;

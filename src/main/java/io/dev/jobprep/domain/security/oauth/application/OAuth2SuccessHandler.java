@@ -1,7 +1,10 @@
-package io.dev.jobprep.security.oauth;
+package io.dev.jobprep.domain.security.oauth.application;
 
-import io.dev.jobprep.security.oauth.application.JwtService;
-import io.dev.jobprep.security.jwt.dto.TokenInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
+import io.dev.jobprep.domain.security.jwt.application.JwtService;
+import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
+import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,13 +35,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .collect(Collectors.joining(","));
 
         TokenInfo tokenInfo = jwtService.generateTokenInfo(userId, userEmail, userAuthority);
-
-        // 헤더설정
-        response.setHeader("Authorization", tokenInfo.getGrantType() + " " + tokenInfo.getAccessToken());
-        response.setHeader("X-Refresh-Token", tokenInfo.getRefreshToken());
+        TokenResponse tokenResponse = TokenResponse.from(tokenInfo);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writeValueAsString(tokenResponse);
 
         // 성공 메시지 JSON 작성
-        String jsonResponse = "{\"message\": \"Login successful\"}";
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse);
     }
 }
