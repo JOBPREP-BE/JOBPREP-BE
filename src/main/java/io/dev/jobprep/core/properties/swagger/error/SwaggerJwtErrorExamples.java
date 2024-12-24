@@ -2,6 +2,6 @@ package io.dev.jobprep.core.properties.swagger.error;
 
 public class SwaggerJwtErrorExamples {
     public static final String AUTH_MISSING_CREDENTIALS = "{\"timestamp\":\"2024-12-02T10:07:31.404Z\",\"statusCode\":401,\"code\":\"E02-AUTH-001\",\"message\":\"사용자의 인증 정보를 찾을 수 없습니다\"}";
-    public static final String AUTH_TOKEN_EXPIRED = "{\"timestamp\":\"2024-12-02T10:07:31.404Z\",\"statusCode\":401,\"code\":\"E02-AUTH-002\",\"message\":\"토큰이 만료되었습니다.\"}";
-    public static final String AUTH_ACCESS_DENIED = "{\"timestamp\":\"2024-12-02T10:07:31.404Z\",\"statusCode\":403,\"code\":\"E02-AUTH-001\",\"message\":\"접근 권한이 없습니다.\"}";
+    public static final String AUTH_ACCESS_DENIED = "{\"timestamp\":\"2024-12-02T10:07:31.404Z\",\"statusCode\":403,\"code\":\"E02-AUTH-002\",\"message\":\"접근 권한이 없습니다.\"}";
+    public static final String AUTH_TOKEN_EXPIRED = "{\"timestamp\":\"2024-12-02T10:07:31.404Z\",\"statusCode\":401,\"code\":\"E02-AUTH-003\",\"message\":\"토큰이 만료되었습니다.\"}";
 }
