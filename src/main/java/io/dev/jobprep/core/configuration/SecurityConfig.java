@@ -1,10 +1,10 @@
 package io.dev.jobprep.core.configuration;
 
-import io.dev.jobprep.security.filter.JwtFilter;
-import io.dev.jobprep.security.oauth.application.JwtService;
-import io.dev.jobprep.security.oauth.application.CustomOAuth2UserService;
-import io.dev.jobprep.security.oauth.OAuth2SuccessHandler;
-import io.dev.jobprep.security.oauth.application.PrincipalDetailsService;
+import io.dev.jobprep.domain.security.jwt.filter.JwtAuthenticationFilter;
+import io.dev.jobprep.domain.security.jwt.application.JwtService;
+import io.dev.jobprep.domain.security.oauth.application.CustomOAuth2UserService;
+import io.dev.jobprep.domain.security.oauth.application.OAuth2SuccessHandler;
+import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -27,6 +28,7 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final PrincipalDetailsService principalDetailsService;
     private final AuthenticationEntryPoint entryPoint;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     @Bean
     public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
         configureCommonSecuritySettings(http);
@@ -34,9 +36,8 @@ public class SecurityConfig {
             .securityMatchers(matchers -> matchers.requestMatchers("/api/**"))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
-                            "/api/v1/oauth2/login-urls",    // URL 목록을 위한 엔드포인트
-                            "/api/v1/oauth2/authorize/**",   // OAuth 인증 시작점
-                            "/login/oauth2/code/**",         // OAuth 리다이렉트 URL
+                            "/api/v1/oauth2/reissue",   // OAuth 인증 시작점
+                            "/login/**",         // OAuth 리다이렉트 URL
                             "/oauth2/**",
                             "/api-docs/**",
                             "/swagger-ui/**"
@@ -44,19 +45,16 @@ public class SecurityConfig {
                     .permitAll()
                     .anyRequest().authenticated()
             )
-            .addFilterBefore(
-                    new JwtFilter(jwtService, principalDetailsService),
-                    UsernamePasswordAuthenticationFilter.class
-            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .oauth2Login(oauth -> oauth
-                    .authorizationEndpoint(authorization ->
-                            authorization.baseUri("/api/v1/oauth2/authorize")  // OAuth 시작점 변경
-                    )
                     .userInfoEndpoint(userInfo -> userInfo
                             .userService(oAuth2UserService))
                     .successHandler(oAuth2SuccessHandler)
             )
             .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint))
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // JWT를 사용하므로 세션은 불필요
+            );
             ;
 
         return http.build();
