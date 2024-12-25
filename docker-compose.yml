@@ -6,17 +6,17 @@ services:
     container_name: jobprep_mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-jobprep-mysql-dev}
-      MYSQL_USER: ${MYSQL_USER:-user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-1234}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
-      - "${DB_PORT:-3308}:3306"
+      - "${DB_PORT}:3306"
     volumes:
       - db_data:/var/lib/mysql
       - db_log:/var/log/mysql
       - db_cnf:/etc/mysql/conf.d
-      - ${DB_CNF:-./docker/mysql/conf.d/my.cnf}:/etc/mysql/conf.d/my.cnf
+      - ${DB_CNF}:/etc/mysql/conf.d/my.cnf
     networks:
       - app-network
 
@@ -25,10 +25,10 @@ services:
     container_name: jobprep_mongo
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin #${MONGO_USER:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: 1234 #${MONGO_PASSWORD:-1234}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     ports:
-      - "${MONGO_PORT:-27017}:27017"
+      - "${MONGO_PORT}:27017"
     volumes:
       - mongodb_data:/data/db
       - ${MONGO_INIT}:/docker-entrypoint-initdb.d/mongo-init.js:ro
@@ -40,27 +40,27 @@ services:
     container_name: jobprep_redis
     restart: always
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis_data:/data
-      - ${REDIS_DEFAULT_CONFIG:-./docker/redis/redis.conf}:/usr/local/etc/redis/redis.conf
+      - ${REDIS_DEFAULT_CONFIG}:/usr/local/etc/redis/redis.conf
     networks:
       - app-network
 
   app:
     container_name: jobprep-app
-    image: jobpreb/jobprep:26.0
+    image: jobpreb/jobprep:33.0
     restart: always
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://jobprep_mysql:3306/${MYSQL_DATABASE:-jobprep-mysql-dev}
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-user}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-1234}
+      SPRING_DATASOURCE_URL: jdbc:mysql://jobprep_mysql:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
       SPRING_DATA_MONGODB_DATABASE: ${MONGO_DATABASE}
       SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@jobprep_mongo:27017/?authSource=${MONGO_DATABASE}
       SPRING_DATA_REDIS_HOST: jobprep_redis
       SPRING_DATA_REDIS_PORT: 6379
     ports:
-      - "${APP_PORT:-8080}:8080"
+      - "${APP_PORT}:8080"
     depends_on:
       - jobprep_mysql
       - jobprep_mongo
