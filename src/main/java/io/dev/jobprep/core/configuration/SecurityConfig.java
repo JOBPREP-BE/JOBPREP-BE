@@ -33,14 +33,15 @@ public class SecurityConfig {
     public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
         configureCommonSecuritySettings(http);
         http
-            .securityMatchers(matchers -> matchers.requestMatchers("/api/**"))
+            //.securityMatchers(matchers -> matchers.requestMatchers("/api/**", "/oauth2/**"))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
                             "/api/v1/oauth2/reissue",   // OAuth 인증 시작점
-                            "/login/**",         // OAuth 리다이렉트 URL
-                            "/oauth2/**",
+                            "/login/oauth2/code/**",         // OAuth 리다이렉트 URL
+                            "/oauth2/authorization/**",
                             "/api-docs/**",
-                            "/swagger-ui/**"
+                            "/swagger-ui/**",
+                            "/actuator/**"
                     )
                     .permitAll()
                     .anyRequest().authenticated()
