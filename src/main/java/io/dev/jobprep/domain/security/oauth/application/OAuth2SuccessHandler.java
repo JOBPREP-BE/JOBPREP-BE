@@ -50,7 +50,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writeValueAsString(tokenResponse);
 
-        Cookie accessTokenCookie = new Cookie("accessToken", tokenInfo.getGrantType() +' '+ tokenInfo.getAccessToken());
+        Cookie accessTokenCookie = new Cookie("accessToken", tokenInfo.getAccessToken());
         accessTokenCookie.setHttpOnly(true);  // JavaScript에서 접근 불가
         accessTokenCookie.setSecure(true);    // HTTPS에서만 전송
         accessTokenCookie.setPath("/");
