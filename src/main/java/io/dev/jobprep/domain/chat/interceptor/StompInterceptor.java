@@ -1,6 +1,6 @@
 package io.dev.jobprep.domain.chat.interceptor;
 
-import io.dev.jobprep.common.stomp.StompTokenProvider;
+import io.dev.jobprep.common.stomp.StompTokenProcessor;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StompInterceptor implements ChannelInterceptor {
 
-    private final StompTokenProvider stompTokenProvider;
+    private final StompTokenProcessor stompTokenProcessor;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -33,17 +33,17 @@ public class StompInterceptor implements ChannelInterceptor {
         switch (Objects.requireNonNull(accessor.getCommand())) {
 
             case CONNECT:
-                log.info("CONNECT REQUEST {} at: {}", accessor.getSessionId(), LocalDateTime.now());
-                // TODO: verify Access Token
-                stompTokenProvider.verifyHeader(accessor);
+                log.info("Connect request for session Id: {} at: {}", accessor.getSessionId(), LocalDateTime.now());
+                stompTokenProcessor.connect(accessor);
                 break;
             case SUBSCRIBE:
             case SEND:
+                stompTokenProcessor.recoverMetaData(accessor);
                 break;
             case DISCONNECT:
-                // 클라이언트가 명시적으로 DISCONNECT 요청을 보낸 경우, 세션 삭제
-                log.info("DISCONNECT REQUEST for sessionId: {}", accessor.getSessionId());
-                stompTokenProvider.disconnectToChatRoom(accessor.getSessionId());
+                // 클라이언트가 명시적으로 DISCONNECT 요청 전송
+                log.info("Disconnect request for sessionId: {}", accessor.getSessionId());
+                stompTokenProcessor.disconnect(accessor.getSessionId());
         }
     }
 }
