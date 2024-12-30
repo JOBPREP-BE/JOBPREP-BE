@@ -1,6 +1,6 @@
 package io.dev.jobprep.common.event;
 
-import io.dev.jobprep.common.stomp.StompTokenProvider;
+import io.dev.jobprep.common.stomp.StompTokenProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -13,7 +13,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @RequiredArgsConstructor
 public class WebSocketMonitoringEventListener {
 
-    private final StompTokenProvider stompTokenProvider;
+    private final StompTokenProcessor stompTokenProcessor;
 
     @EventListener
     public void handleSessionDisconnected(SessionDisconnectEvent event) {
@@ -21,7 +21,7 @@ public class WebSocketMonitoringEventListener {
         String sessionId = accessor.getSessionId();
         log.info("Disconnected: Session Id {}", sessionId);
 
-        stompTokenProvider.disconnectToChatRoom(sessionId);
+        stompTokenProcessor.disconnect(sessionId);
     }
 
 }
