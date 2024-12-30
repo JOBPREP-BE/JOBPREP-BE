@@ -60,16 +60,18 @@ public class StompTokenProcessor {
     }
 
     private UUID verifyDestinationFromSubscription(StompHeaderAccessor stompHeaderAccessor) {
-        String subscription = stompHeaderAccessor.getSubscriptionId();
+        String subscription = stompHeaderAccessor.getDestination();
         if (subscription == null || !subscription.startsWith(DESTINATION_PREFIX)) {
             throw new ChatException(CHAT_MISSING_DESTINATION);
         }
         subscription = subscription.substring(DESTINATION_PREFIX.length());
+        log.info("Received a subscription from {}", subscription);
         return UUID.fromString(subscription);
     }
 
     private Long verifyHeaderTemporary(StompHeaderAccessor stompHeaderAccessor) {
         String token = getTokenFromHeader(stompHeaderAccessor, TEMP_AUTHORIZATION, AUTH_MISSING_CREDENTIALS);
+        log.info("Received a temporary token from {}", token);
         Long userId = Long.valueOf(token);
         userCommonService.getUserWithId(userId);
         return userId;
