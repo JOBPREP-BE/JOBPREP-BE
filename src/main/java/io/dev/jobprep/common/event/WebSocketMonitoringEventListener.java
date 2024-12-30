@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Slf4j
@@ -15,16 +14,6 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 public class WebSocketMonitoringEventListener {
 
     private final StompTokenProvider stompTokenProvider;
-
-    @EventListener
-    public void handleSessionConnected(SessionConnectedEvent event) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        String sessionId = accessor.getSessionId();
-        log.info("Connected: Session Id {}", sessionId);
-
-        // TODO: Redis 또는 DB에 세션 정보 저장
-        stompTokenProvider.verifyHeader(accessor);
-    }
 
     @EventListener
     public void handleSessionDisconnected(SessionDisconnectEvent event) {
