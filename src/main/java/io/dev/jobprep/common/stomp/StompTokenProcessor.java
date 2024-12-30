@@ -32,7 +32,7 @@ public class StompTokenProcessor {
     public void connect(StompHeaderAccessor accessor) {
         UUID roomId = verifyDestination(accessor);
         Long userId = verifyHeaderTemporary(accessor);
-        chatService.connectChatRoom(roomId, userId, accessor.getSessionId());
+        chatService.access(roomId, userId, accessor.getSessionId());
     }
 
     public void disconnect(String sessionId) {
