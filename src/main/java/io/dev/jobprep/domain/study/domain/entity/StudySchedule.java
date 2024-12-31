@@ -1,6 +1,6 @@
 package io.dev.jobprep.domain.study.domain.entity;
 
-import static io.dev.jobprep.exception.code.ErrorCode400.IMPOSSIBLE_TO_MODIFY_FIRST_DATE;
+import static io.dev.jobprep.exception.code.ErrorCode400.IMPOSSIBLE_TO_MODIFY_FIRST_WEEK;
 import static io.dev.jobprep.exception.code.ErrorCode400.STUDY_WEEK_NUMBER_EXCEED;
 import static io.dev.jobprep.exception.code.ErrorCode404.STUDY_NOT_FOUND;
 
@@ -51,7 +51,6 @@ public class StudySchedule {
     private StudySchedule(Long id, Study study, LocalDateTime start_date, int week_number) {
         this.id = id;
         this.study = study;
-        // TODO: 주차별 시작 일자가 순차적으로 커지는지를 검증해야 할까?
         this.start_date = start_date;
         this.week_number = week_number;
         validateStudy(study);
@@ -88,7 +87,7 @@ public class StudySchedule {
         // TODO: 이전 주차보다 큰 값인지, 다음 주차보다 작은 값인지 검증
         // 비즈니스 로직 vs 어노테이션 고민
         if (week_number == MIN_WEEK_NUMBER) {
-            throw new StudyException(IMPOSSIBLE_TO_MODIFY_FIRST_DATE);
+            throw new StudyException(IMPOSSIBLE_TO_MODIFY_FIRST_WEEK);
         }
     }
 }

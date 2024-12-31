@@ -43,7 +43,8 @@ public interface StudySwagger {
                 schema = @Schema(implementation = ErrorResponse.class),
                 examples = {
                     @ExampleObject(name = "E00-STUDY-001", value = SwaggerStudyErrorExamples.DUPLICATE_STUDY_NAME),
-                    @ExampleObject(name = "E01-STUDY-001", value = SwaggerStudyErrorExamples.ALREADY_CREATED_STUDY)
+                    @ExampleObject(name = "E01-STUDY-001", value = SwaggerStudyErrorExamples.ALREADY_CREATED_STUDY),
+                    @ExampleObject(name = "E00-STUDY-002", value = SwaggerStudyErrorExamples.INVALID_START_DATE)
                 }
             )),
         @ApiResponse(responseCode = "403", description = "스터디를 생성할 권한이 없음",
@@ -162,6 +163,8 @@ public interface StudySwagger {
                 mediaType = "application/json",
                 schema = @Schema(implementation = ErrorResponse.class),
                 examples = {
+                    @ExampleObject(name = "E00-STUDY-002", value = SwaggerStudyErrorExamples.IMPOSSIBLE_TO_MODIFY_DATE_EARLIER),
+                    @ExampleObject(name = "E00-STUDY-003", value = SwaggerStudyErrorExamples.IMPOSSIBLE_TO_MODIFY_FIRST_WEEK),
                     @ExampleObject(name = "E01-STUDY-004", value = SwaggerStudyErrorExamples.ALREADY_FINISHED_STUDY),
                     @ExampleObject(name = "E01-STUDY-005", value = SwaggerStudyErrorExamples.ALREADY_DELETED_STUDY)
                 }
