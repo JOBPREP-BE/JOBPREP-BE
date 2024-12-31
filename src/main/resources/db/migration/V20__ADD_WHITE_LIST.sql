@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS white_list (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    access_ip VARCHAR(20) NOT NULL,
+    active TINYINT NOT NULL DEFAULT 0,
+    updated_at TIMESTAMP NULL
+);
