@@ -57,12 +57,8 @@ public class ExpMasterClService {
         expMasterCl.disable();
     }
 
-    public List<FindExpMasterClResponse> findAll (User user) {
-        List<ExpMasterCl> expMasterClList = expMasterClRepository.findAllByActiveTrueAndCreatorId(user.getId());
-
-        return expMasterClList.stream()
-                .map(FindExpMasterClResponse::toDto)
-                .collect(Collectors.toList());
+    public List<ExpMasterCl> findAll (User user, Long cursorId, int pageSize) {
+        return expMasterClRepository.findByConditionWithPagination(user.getId(), cursorId, pageSize);
     }
 
     @Transactional
