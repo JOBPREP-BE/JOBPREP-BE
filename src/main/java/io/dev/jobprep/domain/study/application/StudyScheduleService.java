@@ -1,7 +1,7 @@
 package io.dev.jobprep.domain.study.application;
 
-import static io.dev.jobprep.exception.code.ErrorCode400.IMPOSSIBLE_TO_MODIFY_DATE;
-import static io.dev.jobprep.exception.code.ErrorCode400.IMPOSSIBLE_TO_MODIFY_FIRST_DATE;
+import static io.dev.jobprep.exception.code.ErrorCode400.IMPOSSIBLE_TO_MODIFY_DATE_EARLIER;
+import static io.dev.jobprep.exception.code.ErrorCode400.IMPOSSIBLE_TO_MODIFY_FIRST_WEEK;
 import static io.dev.jobprep.exception.code.ErrorCode403.STUDY_FORBIDDEN_OPERATION;
 
 import io.dev.jobprep.domain.study.domain.entity.Study;
@@ -79,14 +79,14 @@ public class StudyScheduleService {
     private void validateDate(Long studyId, StudyUpdateRequest req) {
 
         if (req.getWeekNumber() == FIRST_WEEK) {
-            throw new StudyException(IMPOSSIBLE_TO_MODIFY_FIRST_DATE);
+            throw new StudyException(IMPOSSIBLE_TO_MODIFY_FIRST_WEEK);
         } else {
             StudySchedule previous = getStudySchedule(studyId, req.getWeekNumber() - 1);
             LocalDate previousDate = previous.getStart_date().toLocalDate();
             LocalDate modifiedDate = req.getStartDate().toLocalDate();
 
             if (modifiedDate.isBefore(previousDate) || modifiedDate.isEqual(previousDate)) {
-                throw new StudyException(IMPOSSIBLE_TO_MODIFY_DATE);
+                throw new StudyException(IMPOSSIBLE_TO_MODIFY_DATE_EARLIER);
             }
         }
     }
