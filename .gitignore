@@ -42,3 +42,6 @@ application*.yml
 
 ### docker-compose.yml ###
 docker/
+
+### back-up for database ###
+scripts/backup/
