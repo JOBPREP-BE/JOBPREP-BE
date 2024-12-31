@@ -45,3 +45,4 @@ docker/
 
 ### back-up for database ###
 scripts/backup/
+scripts/*_host.sh
