@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ExpMasterClRepository extends JpaRepository<ExpMasterCl, Long> {
-    List<ExpMasterCl> findAllByActiveTrueAndCreatorId(Long id);
+public interface ExpMasterClRepository extends JpaRepository<ExpMasterCl, Long> ,
+        ExpMasterClRepositoryCustom {
+
 }

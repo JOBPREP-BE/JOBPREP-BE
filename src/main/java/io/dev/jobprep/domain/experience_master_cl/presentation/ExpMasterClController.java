@@ -1,5 +1,7 @@
 package io.dev.jobprep.domain.experience_master_cl.presentation;
 
+import io.dev.jobprep.common.base.CursorPaginationReq;
+import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.swagger.template.ExpMasterClSwagger;
 import io.dev.jobprep.domain.experience_master_cl.application.ExpMasterClService;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMasterClPatchRequest;
@@ -7,12 +9,13 @@ import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.ExpMaster
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.domain.users.domain.User;
+import io.dev.jobprep.util.LongParsingProvider;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/${springdoc.version}/master")
@@ -49,9 +52,17 @@ public class ExpMasterClController implements ExpMasterClSwagger {
     }
 
     @GetMapping
-    public ResponseEntity<List<FindExpMasterClResponse>> findAll (@RequestParam Long userId) {
+    public ResponseEntity<CursorPaginationResult<FindExpMasterClResponse>> findAll (
+            @RequestParam Long userId, @Valid @ModelAttribute CursorPaginationReq pageable) {
         User user = userCommonService.getUserWithId(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(expMasterClService.findAll(user));
+        Long cursorId = LongParsingProvider.provide(pageable.getCursorId());
+        return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
+                expMasterClService.findAll(user, cursorId, pageable.getPageSize())
+                        .stream()
+                        .map(FindExpMasterClResponse::toDto)
+                        .toList(),
+                pageable.getPageSize()
+        ));
     }
 
 }
