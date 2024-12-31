@@ -23,7 +23,7 @@ public class IpWhiteListInterceptor implements HandlerInterceptor {
         Object handler) throws Exception {
 
         String clientIp = IpAddressHelper.getClientIp(request);
-        log.info("Call internal API fron client with accessIp {}", clientIp);
+        log.info("Call internal API from client with accessIp {}", clientIp);
 
         if (clientIp.equals(LOCAL)) {
             return true;
