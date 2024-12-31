@@ -41,7 +41,8 @@ public class StompTokenProcessor {
 
     public void recoverMetaData(StompHeaderAccessor accessor) {
         UUID roomId = verifyDestinationFromSubscription(accessor);
-        Long userId = verifyAccessToken(accessor);
+        // TODO: 소셜 로그인 합친 후 accessToken 활용하도록 변경
+        Long userId = verifyHeaderTemporary(accessor);
         chatService.recaching(roomId, userId, accessor.getSessionId());
     }
 
