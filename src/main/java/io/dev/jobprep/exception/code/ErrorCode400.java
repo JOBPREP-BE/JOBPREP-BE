@@ -9,6 +9,9 @@ public enum ErrorCode400 implements ErrorCode {
     INVALID_INPUT_VALUE("E00-COMMON-002", "기본 유효성 검사에 실패하였습니다."),
     ILLEGAL_INPUT_ARG("E00-COMMON-03", "유효하지 않은 입력 값입니다."),
 
+    DUPLICATE_STUDY_NAME("E00-STUDY-01", "해당 스터디 이름이 이미 존재합니다."),
+    INVALID_START_DATE("E00-STUDY-002", "스터디 시작 시간은 미래 시간이어야 합니다."),
+    IMPOSSIBLE_TO_MODIFY_FIRST_WEEK("E00-STUDY-003", "스터디의 첫 주차는 변경할 수 없습니다."),
     INVALID_STUDY_STATUS_TO_RECRUIT("E01-STUDY-001", "스터디가 현재 모집중이 아닙니다."),
     STUDY_WEEK_NUMBER_EXCEED("E01-STUDY-002", "스터디는 3주 이상 진행할 수 없습니다."),
     ALREADY_CREATED_STUDY("E01-STUDY-003", "스터디는 한 번에 하나만 생성할 수 있습니다."),
@@ -20,8 +23,7 @@ public enum ErrorCode400 implements ErrorCode {
     INVALID_POSITION_ARG("E01-STUDY-009", "스터디 직무 입력이 잘못되었습니다."),
     INVALID_STATUS_ARG("E01-STUDY-010", "스터디 상태가 잘못되었습니다."),
     NON_GATHERED_USER("E01-STUDY-011", "해당 스터디에 유저가 존재하지 않습니다."),
-    DUPLICATE_STUDY_NAME("E00-STUDY-01", "해당 스터디 이름이 이미 존재합니다."),
-    INVALID_START_DATE("E00-STUDY-002", "스터디 시작 시간은 미래 시간이어야 합니다."),
+    IMPOSSIBLE_TO_MODIFY_DATE_EARLIER("E01-STUDY-012", "스터디는 이전 주차보다 빠를 수 없습니다."),
 
     USER_ACCOUNT_ALREADY_EXISTS("E01-USER-001", "해당 이메일로 가입된 계정이 이미 존재합니다."),
     ALREADY_PENALIZED_USER("E01-USER-002", "이미 페널티가 부여된 유저입니다."),
@@ -41,6 +43,8 @@ public enum ErrorCode400 implements ErrorCode {
     NON_GATHERED_CHAT_USER("E01-CHATROOM-002", "해당 채팅방의 참여자가 아닙니다."),
     CHAT_ROOM_ALREADY_EXIST("E01-CHATROOM-003", "이미 생성된 채팅방이 있습니다."),
     CHAT_MISSING_DESTINATION("E01-CHATROOM-004", "채팅방 구독을 위한 목적지 정보가 잘못된 값입니다."),
+
+    SLACK_ALERT_FAILURE("E00-ALERT-001", "슬랙 채널로 메시지 전송에 실패했습니다."),
     ;
 
     private final HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
