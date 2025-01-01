@@ -8,6 +8,7 @@ import lombok.Getter;
 @Data
 @AllArgsConstructor
 @Builder
+@Getter
 public class TokenInfo {
     private String grantType; //JWT에 대한 인증 타입
     private String accessToken;// 클라이언트는 전달받은 액세스 토큰을 헤더에 담아 사용
