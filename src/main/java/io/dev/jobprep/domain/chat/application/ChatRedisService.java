@@ -20,66 +20,86 @@ public class ChatRedisService {
     private final StringRedisTemplate redisTemplate;
 
     public void joinChatRoom(UUID roomId, Long userId, String sessionId) {
-        redisTemplate.opsForValue().set(sessionId, generateSessionValue(userId, roomId));
-        redisTemplate.expire(sessionId, 1, TimeUnit.DAYS);
-        redisTemplate.opsForSet().add(generateKey(roomId), generateValue(userId, sessionId));
+        String roomKey = generateAdaptiveKey(roomId);
+        String sessionKey = generateAdaptiveKey(sessionId);
+
+        redisTemplate.opsForValue().set(sessionKey, generateAdaptiveMetaData(userId, roomId));
+        redisTemplate.expire(sessionKey, 1, TimeUnit.DAYS);
+
+        redisTemplate.opsForSet().add(roomKey, generateAdaptiveMetaData(userId, sessionId));
+        redisTemplate.expire(roomKey, 1, TimeUnit.DAYS);
     }
 
     public void leaveChatRoom(String sessionId) {
-        String sessionVal = redisTemplate.opsForValue().get(sessionId);
-        if (sessionVal != null && !sessionVal.isBlank()) {
-            Long userId = parseUserIdToSessionId(sessionVal);
-            UUID roomId = parseRoomIdToSessionId(sessionVal);
-            redisTemplate.opsForSet().remove(generateKey(roomId), generateValue(userId, sessionId));
+        String sessionMetaData = redisTemplate.opsForValue().get(sessionId);
+        if (sessionMetaData != null && !sessionMetaData.isBlank()) {
+            Long userId = parseUserIdToSessionMetaData(sessionMetaData);
+            UUID roomId = parseRoomIdToSessionMetaData(sessionMetaData);
+            redisTemplate.opsForSet().remove(generateAdaptiveKey(roomId), generateAdaptiveMetaData(userId, sessionId));
         }
     }
 
-    public Set<String> getUsersInChatRoom(UUID roomId) {
-        String roomKey = generateKey(roomId);
-        return redisTemplate.opsForSet().members(roomKey);
-    }
-
-    public int getAmountsOfUsersInChatROom(UUID roomId) {
-        return getUsersInChatRoom(roomId).size();
-    }
-
     public boolean isUserInChatRoom(UUID roomId, Long userId) {
-        String roomKey = generateKey(roomId);
+        String roomKey = generateAdaptiveKey(roomId);
         Set<String> values = redisTemplate.opsForSet().members(roomKey);
 
         return values != null && values
-            .stream().anyMatch(value -> userId.equals(parseUserId(value)));
+            .stream().anyMatch(value -> userId.equals(parseUserIdToRoomMetaData(value)));
     }
 
-    private String generateKey(UUID roomId) {
-        return CHAT_ROOM_PREFIX + roomId.toString();
+    public void recover(String sessionId, Long userId, UUID roomId) {
+
+        // if caching data for roomKey is missing, re-caching data for recover to checking readBy!
+        String sessionKey = generateAdaptiveKey(sessionId);
+        if (!redisTemplate.hasKey(sessionKey)) {
+            log.info("Session-MetaData {} not found, so, recovering...", sessionId);
+            redisTemplate.opsForValue().set(sessionKey, generateAdaptiveMetaData(userId, roomId));
+            redisTemplate.expire(sessionKey, 1, TimeUnit.DAYS);
+        }
+        // in else case, redis caching is healthy! ··· (1)
+
+        String roomKey = generateAdaptiveKey(roomId);
+        String roomMetaData = generateAdaptiveMetaData(userId, sessionId);
+        if (Boolean.FALSE.equals(redisTemplate.opsForSet().isMember(roomKey, roomMetaData))) {
+            log.info("Room-MetaData {} not found, so, recovering...", sessionId);
+            redisTemplate.opsForSet().add(roomKey, roomMetaData);
+            redisTemplate.expire(roomKey, 1, TimeUnit.DAYS);
+        }
+        // in else case, redis caching is healthy! ··· (2)
     }
 
-    private String generateValue(Long userId, String sessionId) {
-        return userId.toString() + SEPERATOR + sessionId;
+    private String generateAdaptiveKey(Object key) {
+        if (key instanceof UUID) {
+            return CHAT_ROOM_PREFIX + ((UUID) key).toString();
+        } else if (key instanceof String) {
+            return SESSION_PREFIX + (String) key;
+        } else {
+            throw new UnsupportedOperationException(key.getClass().getName());
+        }
     }
 
-    private String generateSessionValue(Long userId, UUID roomId) {
-        return userId.toString() + SEPERATOR + roomId.toString();
+    private String generateAdaptiveMetaData(Long userId, Object id) {
+        if (id instanceof UUID) {
+            return userId.toString() + SEPERATOR + ((UUID) id).toString();
+        } else if (id instanceof String) {
+            return userId.toString() + SEPERATOR + (String) id;
+        } else {
+            throw new UnsupportedOperationException(id.getClass().getName());
+        }
     }
 
-    private Long parseUserId(String value) {
-        String[] token = value.split(SEPERATOR);
+    private Long parseUserIdToRoomMetaData(String metaData) {
+        String[] token = metaData.split(SEPERATOR);
         return Long.parseLong(token[0]);
     }
 
-    private String parseSessionId(String value) {
-        String[] token = value.split(SEPERATOR);
-        return token[1];
-    }
-
-    private UUID parseRoomIdToSessionId(String sessionValue) {
-        String[] token = sessionValue.split(SEPERATOR);
+    private UUID parseRoomIdToSessionMetaData(String metaData) {
+        String[] token = metaData.split(SEPERATOR);
         return UUID.fromString(token[1]);
     }
 
-    private Long parseUserIdToSessionId(String sessionValue) {
-        String[] token = sessionValue.split(SEPERATOR);
+    private Long parseUserIdToSessionMetaData(String metaData) {
+        String[] token = metaData.split(SEPERATOR);
         return Long.parseLong(token[0]);
     }
 

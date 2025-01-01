@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 
 @Getter
 public class ChatRoomCommonInfo {
@@ -32,7 +33,7 @@ public class ChatRoomCommonInfo {
     private ChatRoomCommonInfo(
         UUID id,
         UserCommonInfo userInfo,
-        LocalDateTime updatedAt,
+        @NonNull LocalDateTime updatedAt,
         boolean isRead
     ) {
         this.id = id;
@@ -44,6 +45,7 @@ public class ChatRoomCommonInfo {
     public static ChatRoomCommonInfo from(ChatRoom chatRoom, Long adminId, boolean isRead) {
         ChatUser opposite = getUserIdx(chatRoom, adminId);
 
+        // TODO: 채팅방은 생성된 후에 첫 메시지 송신까지 하나의 프로세스로 묶여야 함
         return ChatRoomCommonInfo.builder()
             .id(chatRoom.getId())
             .userInfo(UserCommonInfo.from(opposite))

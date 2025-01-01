@@ -18,6 +18,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -29,6 +30,8 @@ public class ChatService {
     private final UserCommonService userCommonService;
     private final ChatRedisService redisService;
 
+    // TODO: 채팅방 생성과 첫 메시지 전송을 통한 lastMessages 업데이트는 하나의 프로세스로 묶여야 함!
+    @Transactional("mongoTransactionManager")
     public ChatRoom create(Long userId) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
@@ -51,15 +54,14 @@ public class ChatService {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User admin = getUser(userId);
-
-        if (!validateisAdmin(userId)) {
+        if (isNonAdmin(admin)) {
             throw new ChatException(CHAT_ROOM_FORBIDDEN_OPERATION);
         }
 
         // TODO: 마지막 업데이트날짜를 기준으로 내림차순 정렬 (feat. 인덱스 적용)
         return getAllActiveRoomsWithPagination(userId, cursorId, pageSize)
             .stream().map(
-                (chatRoom) -> ChatRoomCommonInfo.from(
+                chatRoom -> ChatRoomCommonInfo.from(
                     chatRoom,
                     userId,
                     stillReadMore(chatRoom, userId)
@@ -86,8 +88,7 @@ public class ChatService {
     ) {
 
         User admin = getUser(userId);
-
-        if (!validateisAdmin(userId)) {
+        if (isNonAdmin(admin)) {
             throw new ChatException(CHAT_ROOM_FORBIDDEN_OPERATION);
         }
 
@@ -95,17 +96,18 @@ public class ChatService {
         return getMessageHistoryForChatRoom(chatRoom, cursorId, pageSize);
     }
 
-    private List<ChatMessageCommonInfo> getMessageHistoryForChatRoom(
-        ChatRoom chatRoom, Long cursorId, int pageSize
-    ) {
-        return getMessagesHistoryWithPagination(chatRoom.getId(), cursorId, pageSize)
-            .stream().map(
-                chatMessage -> ChatMessageCommonInfo.of(
-                    chatRoom,
-                    chatMessage
-                )
-            )
-        .toList();
+    public void access(UUID roomId, Long userId, String sessionId) {
+        redisService.joinChatRoom(roomId, userId, sessionId);
+        ChatRoom chatRoom = getChatRoom(roomId);
+        markAsRead(chatRoom.getId(), userId);
+    }
+
+    public void cleanUp(String sessionId) {
+        redisService.leaveChatRoom(sessionId);
+    }
+
+    public void recaching(UUID roomId, Long userId, String sessionId) {
+        redisService.recover(sessionId, userId, roomId);
     }
 
     public void disable(UUID roomId) {
@@ -113,18 +115,20 @@ public class ChatService {
         chatRoom.disable();
     }
 
-    public void connectChatRoom(UUID roomId, Long userId, String sessionId) {
-
-        redisService.joinChatRoom(roomId, userId, sessionId);
-        ChatRoom chatRoom = getChatRoom(roomId);
-        markAsRead(chatRoom.getId(), userId);
+    private List<ChatMessageCommonInfo> getMessageHistoryForChatRoom(
+        ChatRoom chatRoom, Long cursorId, int pageSize
+    ) {
+        return getMessagesHistoryWithPagination(chatRoom.getId(), cursorId, pageSize)
+                .stream().map(
+                        chatMessage -> ChatMessageCommonInfo.of(
+                                chatRoom,
+                                chatMessage
+                        )
+                )
+                .toList();
     }
 
-    public void disconnectChatRoom(String sessionId) {
-        redisService.leaveChatRoom(sessionId);
-    }
-
-    public void markAsRead(UUID roomId, Long userId) {
+    private void markAsRead(UUID roomId, Long userId) {
         chatRepository.markMessageAsRead(roomId, userId);
         chatRepository.markLastMessageAsRead(roomId, userId);
     }
@@ -164,8 +168,8 @@ public class ChatService {
         return userCommonService.getUserWithRole(UserRole.ADMIN);
     }
 
-    private boolean validateisAdmin(Long userId) {
-        return userCommonService.getUserWithId(userId).getUserRole().equals(UserRole.ADMIN);
+    private boolean isNonAdmin(User user) {
+        return !user.getUserRole().equals(UserRole.ADMIN);
     }
 
 }

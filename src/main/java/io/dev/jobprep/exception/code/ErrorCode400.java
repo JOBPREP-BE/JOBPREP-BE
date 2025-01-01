@@ -42,6 +42,7 @@ public enum ErrorCode400 implements ErrorCode {
     CHAT_ROOM_DISABLED("E01-CHATROOM-001", "해당 채팅방은 비활성화되었습니다."),
     NON_GATHERED_CHAT_USER("E01-CHATROOM-002", "해당 채팅방의 참여자가 아닙니다."),
     CHAT_ROOM_ALREADY_EXIST("E01-CHATROOM-003", "이미 생성된 채팅방이 있습니다."),
+    CHAT_MISSING_DESTINATION("E01-CHATROOM-004", "채팅방 구독을 위한 목적지 정보가 잘못된 값입니다."),
 
     SLACK_ALERT_FAILURE("E00-ALERT-001", "슬랙 채널로 메시지 전송에 실패했습니다."),
     ;
