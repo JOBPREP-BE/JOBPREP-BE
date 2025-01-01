@@ -1,6 +1,7 @@
 package io.dev.jobprep.domain.security.oauth.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.dev.jobprep.domain.security.jwt.application.JwtRedisService;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     final JwtService jwtService;
-
+    final JwtRedisService jwtRedisService;
     @Value("${spring.security.oauth2.frontend-redirect.url}") // application.yml에 설정한 리다이렉트 URL
     private String redirectUrl;
 
@@ -46,9 +47,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .collect(Collectors.joining(","));
 
         TokenInfo tokenInfo = jwtService.generateTokenInfo(userId, userEmail, userAuthority);
-        TokenResponse tokenResponse = TokenResponse.from(tokenInfo);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writeValueAsString(tokenResponse);
+
+        jwtRedisService.saveRefreshToken(userId, tokenInfo);
 
         Cookie accessTokenCookie = new Cookie("accessToken", tokenInfo.getAccessToken());
         accessTokenCookie.setHttpOnly(true);  // JavaScript에서 접근 불가
@@ -67,11 +67,5 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 프론트엔드로 리다이렉트
         response.sendRedirect(redirectUrl);
-
-        // 성공 메시지 JSON 작성
-//        response.setStatus(HttpServletResponse.SC_OK);
-//        response.setContentType("application/json");
-//        response.setCharacterEncoding("UTF-8");
-//        response.getWriter().write(jsonResponse);
     }
 }
