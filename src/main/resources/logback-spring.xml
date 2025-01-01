@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+logger: <logger> tag
+    1. name 속성을 통해 class별 지역 설정이 가능함.
+    2. additivity 속성을 통해 log-level의 상속 유무 설정이 가능함
+    3. <appender-ref> 요소를 통해 참조된 Appender를 해당 logger에 추가함
+-->
+
+<!--
+root: <root> tag, 전역 logger
+    1. 전역 설정이기 때문에 name 속성이 없음.
+    2. level 속성을 통해 log-level 지정
+-->
+
+<!--
+appender: <appender> tag, log 메시지가 출력될 대상을 결정
+    1. ch.qos.logback.core.ConsoleAppender: console에 로그를 찍음, 로그를 OutputStream에 작성해 콘솔에 출력되도록 함
+    2. ch.qos.logback.core.FileAppender: file에 로그를 찍음, 최대 보관일 수 등을 지정할 수 있음
+    3. ch.qos.logback.core.rolling.RollingFileAppender: 여러 개의 파일을 rolling, 순회하면서 로그를 찍음
+       * FileAppender를 상속 받음
+       * 지정 용량이 넘어간 log file을 넘버링하여 나눠 저장할 수 있음
+    4. ch.qos.logback.classic.net.SMTPAppender: 로그를 메일에 찍어서 보냄
+    5. ch.qos.logback.classic.db.DBAppender: DB에 로그를 찍음
+-->
+
+<configuration>
+
+  <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+
+    <!-- It likes config에서 사용할 상수 변수 -->
+    <property name="DEV_LOG_PATH" value="./logs" />
+    <property name="PROD_LOG_PATH" value="/var/logs/jobprep" />
+    <property name="DEV_LOG_FILE_PREFIX" value="jobprep-dev" />
+    <property name="PROD_LOG_FILE_PREFIX" value="jobprep-prod" />
+
+    <property name="CONSOLE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%-5level) %clr(${PID:- }){magenta} %clr(---){faint} [%thread] %cyan(%logger{45}:%L) - %msg %n" />
+    <property name="FILE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{45}:%L - %msg %n" />
+
+    <timestamp key="LocalDate" datePattern="yyyy-MM-dd" />
+
+    <!-- Console Appender 설정 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+        <pattern>${CONSOLE_PATTERN}</pattern>
+      </encoder>
+    </appender>
+
+    <!-- Rolling File Appender 설정 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <filter class="ch.qos.logback.classic.filter.LevelFilter">
+        <level>error</level>
+        <onMatch>ACCEPT</onMatch>
+        <onMisMatch>DENY</onMisMatch>
+      </filter>
+    </appender>
+
+    <file>${PROD_LOG_PATH}/${LocalDate}/${PROD_LOG_FILE_NAME}.log</file>
+    <rolliingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>
+        ${LOG_PATH}/%d{yyyy-MM-dd}/${LOG_FILE_NAME}_%i.log
+      </fileNamePattern>
+      <maxFileSize>10MB</maxFileSize>
+      <maxHistory>30</maxHistory>
+    </rolliingPolicy>
+    <encoder>
+      <charset>UTF-8</charset>
+      <Pattern>${FILE_PATTERN}</Pattern>
+    </encoder>
+
+    <!-- Development Profile -->
+    <springProfile name="dev">
+      <root level="INFO">
+        <appender-ref ref="STDOUT" />
+      </root>
+    </springProfile>
+
+    <!-- Proudction Profile -->
+    <springProfile name="prod">
+      <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+      </root>
+    </springProfile>
+
+</configuration>
