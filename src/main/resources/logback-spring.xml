@@ -40,7 +40,7 @@ appender: <appender> tag, log 메시지가 출력될 대상을 결정
     <property name="WARN_DIR_PREFIX" value="warn" />
     <property name="ERROR_DIR_PREFIX" value="error" />
 
-    <property name="CONSOLE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%-5level) %clr(${PID:- }){magenta} %clr(---){faint} [%thread] %cyan(%logger{45}:%L) - %msg %n" />
+    <property name="CONSOLE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%-5level) [%X{request_id:-startup}] %clr(${PID:- }){magenta} %clr(---){faint} [%thread] %cyan(%logger{45}:%L) - %msg %n" />
     <property name="FILE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{45}:%L - %msg %n" />
     <property name="SLACK_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{45}:%L - %msg %n" />
 
