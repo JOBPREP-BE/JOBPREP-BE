@@ -25,7 +25,7 @@ public class LoggingInterceptor extends WebRequestHandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
         Object handler) throws Exception {
-        log.info("url : {}", request.getRequestURI());
+        log.info("incoming {} request-url : {} {}", request.getRemoteAddr(), request.getMethod(), request.getRequestURI());
         return super.preHandle(request, response, handler);
     }
 
@@ -39,6 +39,9 @@ public class LoggingInterceptor extends WebRequestHandlerInterceptorAdapter {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
         Object handler, Exception ex) throws Exception {
+        if (ex != null) {
+            log.error("exception occurded in API call - url: {}, ex: {}", request.getRequestURI(), ex.getMessage());
+        }
         log.info("request Complete!");
         super.afterCompletion(request, response, handler, ex);
     }
