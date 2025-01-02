@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MDCRequestLoggingFilter implements Filter {
 
+    // TODO: Filter vs OncePerRequestFilter, 어떤 부분에 대한 로깅을 적용할지
+
     private static final String REQUEST_HEADER = "X-RequestID";
     private static final String ID = "request_id";
     private static final String DASH = "-";
@@ -34,4 +36,5 @@ public class MDCRequestLoggingFilter implements Filter {
         MDC.clear();
 
     }
+
 }
