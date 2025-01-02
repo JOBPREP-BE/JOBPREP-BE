@@ -32,8 +32,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.1.8'
   	// Spring Actuator
   	implementation 'org.springframework.boot:spring-boot-starter-actuator:3.1.8'
-	//slf4j
-	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
 	// Lombok
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
