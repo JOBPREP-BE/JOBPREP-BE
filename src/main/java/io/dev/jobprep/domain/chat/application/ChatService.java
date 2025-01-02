@@ -18,7 +18,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -31,7 +30,6 @@ public class ChatService {
     private final ChatRedisService redisService;
 
     // TODO: 채팅방 생성과 첫 메시지 전송을 통한 lastMessages 업데이트는 하나의 프로세스로 묶여야 함!
-    @Transactional("mongoTransactionManager")
     public ChatRoom create(Long userId) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
