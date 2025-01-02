@@ -115,7 +115,7 @@ public class StudyAutoDeletionScheduler {
     }
 
     @Deprecated
-    @Transactional("transactionManager")
+    @Transactional("jdbcTransactionManager")
     public void deleteStudyForShortOnMember() {
         jdbcTemplate.execute(
             """
@@ -132,7 +132,7 @@ public class StudyAutoDeletionScheduler {
     }
 
     @Deprecated
-    @Transactional
+    @Transactional("jdbcTransactionManager")
     public void deleteStudyForCompletion() {
         jdbcTemplate.execute(
             """
