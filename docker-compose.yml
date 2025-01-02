@@ -6,17 +6,22 @@ services:
     container_name: jobprep_mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-jobprep-mysql-dev}
-      MYSQL_USER: ${MYSQL_USER:-user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-1234}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
-      - "${DB_PORT:-3308}:3306"
+      - "${DB_PORT}:3306"
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     volumes:
       - db_data:/var/lib/mysql
       - db_log:/var/log/mysql
       - db_cnf:/etc/mysql/conf.d
-      - ${DB_CNF:-./docker/mysql/conf.d/my.cnf}:/etc/mysql/conf.d/my.cnf
+      - ${DB_CNF}:/etc/mysql/conf.d/my.cnf
     networks:
       - app-network
 
@@ -25,13 +30,73 @@ services:
     container_name: jobprep_mongo
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-1234}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWD}
     ports:
-      - "${MONGO_PORT:-27017}:27017"
+      - "${MONGO_PORT}:27017"
+    command:  >
+        /bin/bash -c "chmod 400 /etc/mongodb.key &&
+        mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all"
+    healthcheck:
+      test: >
+        test $$(mongosh --port 27017 --quiet --eval "try {
+           var status = rs.status();
+           status.ok
+         } catch (e) {
+           if (e.codeName == 'NotYetInitialized') {
+             rs.initiate({
+               _id: \"rs0\",
+              members: [
+                { _id: 0, host: \"jobprep_mongo:27017\" },
+                { _id: 1, host: \"mongo_secondary_01:27017\" },
+                { _id: 2, host: \"mongo_secondary_02:27017\" }
+              ]
+             }).ok
+           }
+         }" -u ${MONGO_ROOT_USER} -p ${MONGO_ROOT_PASSWD} --authenticationDatabase admin) -eq 1
+      interval: 20s
+      timeout: 10s
+      retries: 6
     volumes:
       - mongodb_data:/data/db
-      - ${MONGO_INIT:-./docker/mongo/initdb.d}:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ${MONGO_KEY_FILE_PATH}:/etc/mongodb.key
+      - ${MONGO_INIT}:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - app-network
+
+  mongo_secondary_01:
+    image: mongo:6.0
+    container_name: mongo_secondary_01
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWD}
+    ports:
+      - "${MONGO_SECONDARY_01_PORT}:27017"
+    command: >
+      /bin/bash -c "chmod 400 /etc/mongodb.key &&
+      mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all"
+    volumes:
+      - mongodb_secondary_01_data:/data/db
+      - ${MONGO_KEY_FILE_PATH}:/etc/mongodb.key
+    networks:
+      - app-network
+
+  mongo_secondary_02:
+    image: mongo:6.0
+    container_name: mongo_secondary_02
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWD}
+    ports:
+      - "${MONGO_SECONDARY_02_PORT}:27017"
+    command: >
+      /bin/bash -c "chmod 400 /etc/mongodb.key &&
+      mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all"
+    volumes:
+      - mongodb_secondary_02_data:/data/db
+      - ${MONGO_KEY_FILE_PATH}:/etc/mongodb.key
     networks:
       - app-network
 
@@ -40,31 +105,38 @@ services:
     container_name: jobprep_redis
     restart: always
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis_data:/data
-      - ${REDIS_DEFAULT_CONFIG:-./docker/redis/redis.conf}:/usr/local/etc/redis/redis.conf
+      - ${REDIS_DEFAULT_CONFIG}:/usr/local/etc/redis/redis.conf
     networks:
       - app-network
 
   app:
     container_name: jobprep-app
-    image: jobpreb/jobprep:26.0
+    image: jobpreb/jobprep:38.0
     restart: always
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://jobprep_mysql:3306/${MYSQL_DATABASE:-jobprep-mysql-dev}
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-user}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-1234}
-      SPRING_DATA_MONGODB_DATABASE: ${MONGO_DATABASE:-jobprep-mongo-dev}
-      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-1234}@jobprep_mongo:27017/?authSource=${MONGO_DATABASE:-jobprep-mongo-dev}
+      SPRING_DATASOURCE_URL: jdbc:mysql://jobprep_mysql:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATA_MONGODB_DATABASE: ${MONGO_DATABASE}
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@jobprep_mongo:27017/?authSource=${MONGO_DATABASE}
       SPRING_DATA_REDIS_HOST: jobprep_redis
       SPRING_DATA_REDIS_PORT: 6379
     ports:
-      - "${APP_PORT:-8080}:8080"
+      - "${APP_PORT}:8080"
     depends_on:
-      - jobprep_mysql
-      - jobprep_mongo
-      - jobprep_redis
+      jobprep_mysql:
+        condition: service_healthy
+      jobprep_mongo:
+        condition: service_healthy
+      mongo_secondary_01:
+        condition: service_started
+      mongo_secondary_02:
+        condition: service_started
+      jobprep_redis:
+        condition: service_started
     networks:
       - app-network
 
@@ -73,6 +145,8 @@ volumes:
   db_log: {}
   db_cnf: {}
   mongodb_data: {}
+  mongodb_secondary_01_data: {}
+  mongodb_secondary_02_data: {}
   redis_data: {}
 
 networks:
