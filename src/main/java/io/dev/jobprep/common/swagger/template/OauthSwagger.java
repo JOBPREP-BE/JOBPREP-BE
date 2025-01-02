@@ -47,7 +47,7 @@ public interface OauthSwagger {
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject(name = "E02-AUTH-002", value = SwaggerJwtErrorExamples.AUTH_ACCESS_DENIED))),
     })
-    ResponseEntity<TokenResponse> refreshToken(
+    ResponseEntity<TokenResponse> reissueRefreshToken(
             @Parameter(description = "갱신용 리프레시 토큰", required = true)
             @RequestHeader(value = "XRefreshToken") String refreshToken);
 }
