@@ -4,7 +4,6 @@ import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.swagger.template.ApplicationStatusSwagger;
 import io.dev.jobprep.domain.applicationstatus.application.ApplicationStatusService;
-import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusCreateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusUpdateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusCommonResponse;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusIdResponse;
@@ -33,11 +32,10 @@ public class ApplicationStatusController implements ApplicationStatusSwagger {
 
     @PostMapping
     public ResponseEntity<ApplicationStatusIdResponse> create(
-        @RequestParam Long userId,
-        @RequestBody ApplicationStatusCreateRequest request
+        @RequestParam Long userId
     ) {
         return ResponseEntity.status(201).body(
-            ApplicationStatusIdResponse.of(applicationStatusService.create(userId, request))
+            ApplicationStatusIdResponse.of(applicationStatusService.create(userId))
         );
     }
 

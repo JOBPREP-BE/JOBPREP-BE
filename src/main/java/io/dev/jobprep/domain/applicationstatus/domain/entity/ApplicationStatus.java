@@ -129,4 +129,10 @@ public class ApplicationStatus {
             .coverLetter(coverLetter)
             .build();
     }
+
+    public static ApplicationStatus ofEmpty(User creator) {
+        return ApplicationStatus.builder()
+                .creator(creator)
+                .build();
+    }
 }

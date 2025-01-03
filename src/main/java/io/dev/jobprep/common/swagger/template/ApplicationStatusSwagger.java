@@ -4,7 +4,6 @@ import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerApplicationStatusErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
-import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusCreateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusUpdateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusCommonResponse;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusIdResponse;
@@ -37,8 +36,7 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<ApplicationStatusIdResponse> create(
-        @Parameter(description = "유저 ID", required = true) Long userId,
-        ApplicationStatusCreateRequest request
+        @Parameter(description = "유저 ID", required = true) Long userId
     );
 
     @Operation(summary = "지원 현황 삭제", description = "사용자가 지원현황을 삭제할 때 사용하는 API")
