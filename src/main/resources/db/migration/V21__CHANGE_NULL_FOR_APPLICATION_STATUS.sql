@@ -1,0 +1,5 @@
+ALTER TABLE application_status
+MODIFY application_progress ENUM ('NOT_STARTED', 'IN_PROGRESS', 'SUCCEED', 'FAILED') NULL;
+
+ALTER TABLE application_status
+MODIFY application_process ENUM ('DOCUMENT_SCREENING', 'APTITUDE_CODING_TEST', 'FIRST_INTERVIEW', 'FINAL_INTERVIEW') NULL;
