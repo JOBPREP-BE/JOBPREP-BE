@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.JWT;
 
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -131,6 +132,19 @@ public class JwtService {
             log.error("Failed to extract user role from token: {}", e.getMessage());
             throw new JWTVerificationException("Failed to extract user role");
         }
+    }
+
+    public Cookie bake(String key, String value, Long tokenExpiry) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(convert(tokenExpiry));
+        return cookie;
+    }
+
+    private int convert(Long tokenExpiry) {
+        return (int) (tokenExpiry / 1000);
     }
     private Date getCurrentDate(Long time){
         return new Date(time);

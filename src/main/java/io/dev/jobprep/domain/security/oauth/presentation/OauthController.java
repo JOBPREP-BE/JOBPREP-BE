@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.dev.jobprep.domain.security.jwt.application.JwtRedisService;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
+import io.dev.jobprep.domain.security.jwt.exception.TokenCachingException;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
@@ -30,7 +31,7 @@ public class OauthController implements OauthSwagger{
 
     // 토큰 재발급
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponse> reissueRefreshToken(@RequestHeader(value = "xRefreshToken") String refreshToken) {
+    public ResponseEntity<TokenResponse> reissue(@RequestHeader(value = "xRefreshToken") String refreshToken) {
         jwtService.isTokenValid(refreshToken);
 
         //토큰 검증
@@ -59,28 +60,22 @@ public class OauthController implements OauthSwagger{
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                       HttpServletRequest request,
                                        HttpServletResponse response) {
 
         String userId = principalDetails.getUsername();
 
         //리프레쉬 토큰 삭제
-        jwtRedisService.deleteRefreshToken(userId);
+        try {
+            jwtRedisService.deleteRefreshToken(userId);
+        }catch(TokenCachingException e) {
+        }
 
         // Access Token 쿠키 삭제
-        Cookie accessTokenCookie = new Cookie("accessToken", "");
-        accessTokenCookie.setMaxAge(0);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(false);  //TODO/daniel: HTTPS 설정 후 true 설정
+        Cookie accessTokenCookie = jwtService.bake("accessToken", "", 0L);
         response.addCookie(accessTokenCookie);
 
         // Refresh Token 쿠키 삭제
-        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
-        refreshTokenCookie.setMaxAge(0);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false);  //TODO/daniel: HTTPS 설정 후 true 설정
+        Cookie refreshTokenCookie =  jwtService.bake("refreshToken", "", 0L);
         response.addCookie(refreshTokenCookie);
 
         // Security Context 클리어
