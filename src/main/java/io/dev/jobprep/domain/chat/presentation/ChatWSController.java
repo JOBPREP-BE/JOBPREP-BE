@@ -21,7 +21,6 @@ public class ChatWSController {
 
     private final ChatWSService chatWSService;
 
-    // TODO: 첫 메시지를 보냄으로써 roomId가 아직 생성되어 있지 않은 경우, destination 어떻게 처리할지?
     @MessageMapping("/{roomId}")
     @SendTo("/topic/{roomId}")
     public ChatMessageCommonResponse send(
@@ -37,7 +36,5 @@ public class ChatWSController {
         );
         return ChatMessageCommonResponse.from(commonInfo);
     }
-
-    // TODO: 클라이언트의 DISCONNET 요청을 어떻게 처리할 것인지 고민
 
 }

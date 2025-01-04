@@ -110,6 +110,14 @@ public class GlobalExceptionHandler {
         return ErrorResponse.from(ILLEGAL_INPUT_ARG);
     }
 
+    @ExceptionHandler(value = {UnsupportedOperationException.class})
+    protected ResponseEntity<ErrorResponse> handleUnsupportedOperationException(
+        UnsupportedOperationException e, HttpServletRequest request
+    ) {
+        log.info("UnsupportedOperation Exception: {}, Path: {}", e.getMessage(), request.getPathInfo());
+        return ErrorResponse.from(INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(value = Exception.class)
     protected ResponseEntity<ErrorResponse> handleException(
         Exception e, HttpServletRequest request

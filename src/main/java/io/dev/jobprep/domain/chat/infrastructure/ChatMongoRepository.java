@@ -21,6 +21,8 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ChatMongoRepository {
 
+    private static final Integer SINGLE_RECORD = 1;
+
     private final MongoTemplate mongoTemplate;
 
     public ChatRoom save(ChatRoom chatRoom) {
@@ -29,13 +31,6 @@ public class ChatMongoRepository {
 
     public ChatMessage save(ChatMessage chatMessage) {
         return mongoTemplate.save(chatMessage);
-    }
-
-    public Optional<ChatRoom> findByRoomIdAndUserId(@NonNull UUID roomId, @NonNull Long userId) {
-        Query query = new Query();
-        query.addCriteria(verifyId(roomId))
-             .addCriteria(verifyUserId(userId));
-        return Optional.ofNullable(mongoTemplate.findOne(query, ChatRoom.class));
     }
 
     public Optional<ChatRoom> findByRoomId(@NonNull UUID roomId) {
@@ -64,7 +59,6 @@ public class ChatMongoRepository {
         return mongoTemplate.find(query, ChatRoom.class);
     }
 
-
     public List<ChatMessage> findAllMessageHistory(UUID roomId, Long cursorId, int pageSize) {
         Query query = new Query();
         query.limit(pageSize + 1)
@@ -89,9 +83,9 @@ public class ChatMongoRepository {
              .with(Sort.by(Sort.Order.desc("timestamp")));
         int count = mongoTemplate.find(query, ChatMessage.class).size();
         Update update = new Update().addToSet("read_by", userId);
-        if (count == 1) {
+        if (count == SINGLE_RECORD) {
             mongoTemplate.findAndModify(query, update, ChatMessage.class);
-        } else if (count > 1){
+        } else if (count > SINGLE_RECORD){
             mongoTemplate.updateMulti(query, update, ChatMessage.class);
         }
     }
