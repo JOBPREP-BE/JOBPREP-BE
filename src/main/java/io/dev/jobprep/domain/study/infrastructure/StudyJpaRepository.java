@@ -31,10 +31,8 @@ public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRep
             JOIN (
                     SELECT id FROM study
                     WHERE study_status = 'RECRUITING' AND deleted_at IS NULL
-                    ORDER BY id DESC
                     LIMIT :offset, :limit
             ) AS temp USING (id)
-        ORDER BY std.id DESC
     """, nativeQuery = true)
     List<Study> findRecruitingStudyWithPagination(int offset, int limit);
 
