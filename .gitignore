@@ -45,3 +45,6 @@ docker/
 
 ### SSL
 /src/main/resources/ssl/keystore.p12
+### back-up for database ###
+scripts/backup/
+scripts/*_host.sh

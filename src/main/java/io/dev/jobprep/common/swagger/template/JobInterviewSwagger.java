@@ -1,7 +1,7 @@
 package io.dev.jobprep.common.swagger.template;
 
-import io.dev.jobprep.common.base.CursorPaginationReq;
 import io.dev.jobprep.common.base.CursorPaginationResult;
+import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerJobInterviewErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
@@ -84,7 +84,7 @@ public interface JobInterviewSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<CursorPaginationResult<FindJobInterviewResponse>> find (@RequestParam Long userId, @Valid @ModelAttribute CursorPaginationReq pageable);
+    ResponseEntity<CursorPaginationResult<FindJobInterviewResponse>> find (@RequestParam Long userId, @Valid @ModelAttribute LongCursorPaginationReq pageable);
 
     @Operation(summary = "면접 수정", description = "면접 데이터를 수정합니다.")
     @ApiResponses (value = {

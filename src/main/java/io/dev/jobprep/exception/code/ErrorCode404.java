@@ -8,7 +8,6 @@ public enum ErrorCode404 implements ErrorCode {
 
     STUDY_NOT_FOUND("E03-STUDY-001", "존재하지 않는 스터디입니다."),
 
-
     USER_NOT_FOUND("E03-USER-001", "존재하지 않는 유저입니다."),
     ADMIN_NOT_FOUND("E03-USER-002", "관리자를 찾을 수 없습니다."),
 

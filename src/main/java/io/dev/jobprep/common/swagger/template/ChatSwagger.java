@@ -1,7 +1,8 @@
 package io.dev.jobprep.common.swagger.template;
 
-import io.dev.jobprep.common.base.CursorPaginationReq;
 import io.dev.jobprep.common.base.CursorPaginationResult;
+import io.dev.jobprep.common.base.LongCursorPaginationReq;
+import io.dev.jobprep.common.base.StringCursorPaginationReq;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerChatErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatMessageCommonResponse;
@@ -53,7 +54,7 @@ public interface ChatSwagger {
     })
     ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getMyMessageHistory(
         @Parameter(required = true) Long userId,
-        @Valid @ModelAttribute CursorPaginationReq pageable
+        @Valid @ModelAttribute LongCursorPaginationReq pageable
     );
 
     @Operation(summary = "채팅 메시지 내역 조회", description = "관리자가 유저와의 채팅 메시지 내역을 조회할 때 사용하는 API")
@@ -78,7 +79,7 @@ public interface ChatSwagger {
     ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getUserMessageHistoryForAdmin(
         @Parameter(required = true) Long userId,
         @PathVariable String id,
-        @Valid @ModelAttribute CursorPaginationReq pageable
+        @Valid @ModelAttribute LongCursorPaginationReq pageable
     );
 
     @Operation(summary = "활성화된 채팅방 리스트 조회", description = "관리자가 활성화된 채팅방 목록을 조회할 때 사용하는 API")
@@ -99,7 +100,7 @@ public interface ChatSwagger {
     })
     ResponseEntity<CursorPaginationResult<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
         @Parameter(required = true) Long userId,
-        @Valid @ModelAttribute CursorPaginationReq pageable
+        @Valid @ModelAttribute StringCursorPaginationReq pageable
     );
 
 }

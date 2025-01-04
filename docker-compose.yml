@@ -34,9 +34,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWD}
     ports:
       - "${MONGO_PORT}:27017"
-    command:  >
-        /bin/bash -c "chmod 400 /etc/mongodb.key &&
-        mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all"
+    command: ["--replSet", "rs0", "--keyFile", "/etc/mongodb.key", "--bind_ip_all"]
     healthcheck:
       test: >
         test $$(mongosh --port 27017 --quiet --eval "try {
@@ -73,9 +71,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWD}
     ports:
       - "${MONGO_SECONDARY_01_PORT}:27017"
-    command: >
-      /bin/bash -c "chmod 400 /etc/mongodb.key &&
-      mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all"
+    command: ["--replSet", "rs0", "--keyFile", "/etc/mongodb.key", "--bind_ip_all"]
     volumes:
       - mongodb_secondary_01_data:/data/db
       - ${MONGO_KEY_FILE_PATH}:/etc/mongodb.key
@@ -91,9 +87,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWD}
     ports:
       - "${MONGO_SECONDARY_02_PORT}:27017"
-    command: >
-      /bin/bash -c "chmod 400 /etc/mongodb.key &&
-      mongod --replSet rs0 --keyFile /etc/mongodb.key --bind_ip_all"
+    command: ["--replSet", "rs0", "--keyFile", "/etc/mongodb.key", "--bind_ip_all"]
     volumes:
       - mongodb_secondary_02_data:/data/db
       - ${MONGO_KEY_FILE_PATH}:/etc/mongodb.key
@@ -114,7 +108,7 @@ services:
 
   app:
     container_name: jobprep-app
-    image: jobpreb/jobprep:38.0
+    image: jobpreb/jobprep:33.0
     restart: always
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://jobprep_mysql:3306/${MYSQL_DATABASE}
@@ -126,9 +120,6 @@ services:
       SPRING_DATA_REDIS_PORT: 6379
     ports:
       - "${APP_PORT}:8080"
-    volumes:
-      - ${SSL_FULLCHAIN}:application/ssl/fullchain.pem
-      - ${SSL_PRIVKEY}:application/ssl/privkey.pem
     depends_on:
       jobprep_mysql:
         condition: service_healthy

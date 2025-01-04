@@ -1,7 +1,7 @@
 package io.dev.jobprep.domain.experience_master_cl.presentation;
 
-import io.dev.jobprep.common.base.CursorPaginationReq;
 import io.dev.jobprep.common.base.CursorPaginationResult;
+import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.swagger.template.ExpMasterClSwagger;
 import io.dev.jobprep.domain.experience_master_cl.application.ExpMasterClService;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMasterClPatchRequest;
@@ -9,7 +9,6 @@ import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.ExpMaster
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.domain.users.domain.User;
-import io.dev.jobprep.util.LongParsingProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,11 +52,11 @@ public class ExpMasterClController implements ExpMasterClSwagger {
 
     @GetMapping
     public ResponseEntity<CursorPaginationResult<FindExpMasterClResponse>> findAll (
-            @RequestParam Long userId, @Valid @ModelAttribute CursorPaginationReq pageable) {
+            @RequestParam Long userId, @Valid @ModelAttribute LongCursorPaginationReq pageable) {
         User user = userCommonService.getUserWithId(userId);
-        Long cursorId = LongParsingProvider.provide(pageable.getCursorId());
+
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
-                expMasterClService.findAll(user, cursorId, pageable.getPageSize())
+                expMasterClService.findAll(user, pageable.getCursorId(), pageable.getPageSize())
                         .stream()
                         .map(FindExpMasterClResponse::toDto)
                         .toList(),

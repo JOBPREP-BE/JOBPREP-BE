@@ -1,13 +1,13 @@
 package io.dev.jobprep.domain.chat.presentation;
 
-import io.dev.jobprep.common.base.CursorPaginationReq;
 import io.dev.jobprep.common.base.CursorPaginationResult;
+import io.dev.jobprep.common.base.LongCursorPaginationReq;
+import io.dev.jobprep.common.base.StringCursorPaginationReq;
 import io.dev.jobprep.common.swagger.template.ChatSwagger;
 import io.dev.jobprep.domain.chat.application.ChatService;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatMessageCommonResponse;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomAdminResponse;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomIdResponse;
-import io.dev.jobprep.util.LongParsingProvider;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,13 +39,11 @@ public class ChatRoomController implements ChatSwagger {
     @GetMapping("/my")
     public ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getMyMessageHistory(
         @RequestParam Long userId,
-        @Valid @ModelAttribute CursorPaginationReq pageable
+        @Valid @ModelAttribute LongCursorPaginationReq pageable
     ) {
 
-        Long cursorId = LongParsingProvider.provide(pageable.getCursorId());
-
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
-            chatService.getMessageHistory(userId, cursorId, pageable.getPageSize())
+            chatService.getMessageHistory(userId, pageable.getCursorId(), pageable.getPageSize())
                 .stream()
                 .map(ChatMessageCommonResponse::from)
                 .toList(),
@@ -57,13 +55,12 @@ public class ChatRoomController implements ChatSwagger {
     public ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getUserMessageHistoryForAdmin(
         @RequestParam Long userId,
         @PathVariable String id,
-        @Valid @ModelAttribute CursorPaginationReq pageable
+        @Valid @ModelAttribute LongCursorPaginationReq pageable
     ) {
-        Long cursorId = LongParsingProvider.provide(pageable.getCursorId());
 
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
             chatService.getMessageHistoryForAdmin(
-                userId, UUID.fromString(id), cursorId, pageable.getPageSize())
+                userId, UUID.fromString(id), pageable.getCursorId(), pageable.getPageSize())
                 .stream()
                 .map(ChatMessageCommonResponse::from)
                 .toList(),
@@ -74,7 +71,7 @@ public class ChatRoomController implements ChatSwagger {
     @GetMapping
     public ResponseEntity<CursorPaginationResult<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
         @RequestParam Long userId,
-        @Valid @ModelAttribute CursorPaginationReq pageable
+        @Valid @ModelAttribute StringCursorPaginationReq pageable
     ) {
 
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
