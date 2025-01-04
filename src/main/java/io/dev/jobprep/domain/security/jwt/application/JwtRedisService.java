@@ -1,12 +1,12 @@
 package io.dev.jobprep.domain.security.jwt.application;
 
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
-import io.dev.jobprep.domain.security.jwt.exception.TokenStorageException;
+import io.dev.jobprep.domain.security.jwt.exception.TokenCachingException;
+import io.dev.jobprep.exception.code.ErrorCode400;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class JwtRedisService {
     private static final String REFRESH_TOKEN_PREFIX = "RT:";
-    private static final String SAPERATOR = ":";
+    private static final String SAPARATOR = ":";
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtService jwtService;
 
@@ -25,53 +25,37 @@ public class JwtRedisService {
 
     public void saveRefreshToken(String userId, TokenInfo tokenInfo) /*throws TokenStorageException*/ {
         String key = getKey(userId);
-        //TODO: Exception handling 하기
-//        try {
+        try {
+            // 새 토큰 저장
             redisTemplate.opsForValue().set(
                     key,
                     tokenInfo.getRefreshToken(),
                     refreshTokenValidityTime,
                     TimeUnit.MILLISECONDS
             );
-//        } catch (Exception e) {
-//            throw new TokenStorageException("Failed to save refresh token to redis");
-//        }
+            log.info("Refresh token rotated for user: {}", userId);
+        } catch (Exception e) {
+            log.error("Failed to rotate refresh token for user {}: {}", userId, e.getMessage());
+            throw new TokenCachingException(ErrorCode400.REFRESH_TOKEN_CACHING_FAILED);
+        }
     }
 
 
     public boolean validateRefreshToken(String userId, String refreshToken) {
         String key = getKey(userId);
-        String savedToken = redisTemplate.opsForValue().get(key);
-
-        if (savedToken == null) {
-            log.warn("No refresh token found for user: {}", userId);
-            return false;
-        }
-
-        return savedToken.equals(refreshToken);
-    }
-
-    // Refresh Token 재발급 시 기존 토큰 삭제 및 새 토큰 저장
-    public void rotateRefreshToken(String userId, TokenInfo newTokenInfo) {
-        String key = getKey(userId);
-
         try {
-            // 기존 토큰 삭제
-            redisTemplate.delete(key);
+            String savedToken = redisTemplate.opsForValue().get(key);
 
-            // 새 토큰 저장
-            redisTemplate.opsForValue().set(
-                    key,
-                    newTokenInfo.getRefreshToken(),
-                    refreshTokenValidityTime,
-                    TimeUnit.MILLISECONDS
-            );
+            if (savedToken == null) {
+                log.warn("No refresh token found for user: {}", userId);
+                return false;
+            }
+            return savedToken.equals(refreshToken);
 
-            log.info("Refresh token rotated for user: {}", userId);
         } catch (Exception e) {
-            log.error("Failed to rotate refresh token for user {}: {}", userId, e.getMessage());
-            throw new RuntimeException("Failed to rotate refresh token");
+            throw new TokenCachingException(ErrorCode400.REFRESH_TOKEN_CACHE_VALIDATION_FAILED);
         }
+
     }
 
     //로그아웃 시 Refresh Token 삭제
@@ -85,8 +69,8 @@ public class JwtRedisService {
                 log.warn("No refresh token found to delete for user: {}", userId);
             }
         } catch (Exception e) {
-            log.error("Failed to delete refresh token for user {}: {}", e.getMessage());
-            throw new RuntimeException("Failed to delete refresh token");
+            log.error("Error accured while deleting refresh token for user {}: {}", e.getMessage());
+            throw new TokenCachingException(ErrorCode400.REFRESH_TOKEN_CACHE_DELETION_ERROR);
         }
     }
 
