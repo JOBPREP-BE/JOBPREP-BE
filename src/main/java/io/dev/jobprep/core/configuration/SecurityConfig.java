@@ -3,6 +3,7 @@ package io.dev.jobprep.core.configuration;
 import io.dev.jobprep.domain.security.jwt.filter.JwtAuthenticationFilter;
 import io.dev.jobprep.domain.security.oauth.application.CustomOAuth2UserService;
 import io.dev.jobprep.domain.security.oauth.application.OAuth2SuccessHandler;
+import io.dev.jobprep.exception.CustomAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -30,8 +32,9 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final AuthenticationEntryPoint entryPoint;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     @Bean
-    public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain authenticationFilterChain(HttpSecurity http, AccessDeniedHandler accessDeniedHandler) throws Exception {
         configureCommonSecuritySettings(http);
         http
             //.securityMatchers(matchers -> matchers.requestMatchers("/api/**", "/oauth2/**"))
@@ -55,7 +58,10 @@ public class SecurityConfig {
                             .userService(oAuth2UserService))
                     .successHandler(oAuth2SuccessHandler)
             )
-            .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint))
+            .exceptionHandling(handler -> handler
+                    .authenticationEntryPoint(entryPoint)
+                    .accessDeniedHandler(customAccessDeniedHandler)
+            )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // JWT를 사용하므로 세션은 불필요
             );
