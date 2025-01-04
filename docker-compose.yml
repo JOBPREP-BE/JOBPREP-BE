@@ -120,6 +120,10 @@ services:
       SPRING_DATA_REDIS_PORT: 6379
     ports:
       - "${APP_PORT}:8080"
+      - "443:443"
+    volumes:
+      - ${SSL_FULLCHAIN}:/application/ssl/fullchain.pem
+      - ${SSL_PRIVKEY}:/application/ssl/privkey.pem
     depends_on:
       jobprep_mysql:
         condition: service_healthy
