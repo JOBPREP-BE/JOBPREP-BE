@@ -2,6 +2,7 @@ package io.dev.jobprep.common.swagger.template;
 
 import io.dev.jobprep.core.properties.swagger.error.SwaggerJwtErrorExamples;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
+import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
 import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,7 +13,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 @Tag(name = "OAuth", description = "OAuth로그인용 path 조회")
@@ -46,8 +49,39 @@ public interface OauthSwagger {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject(name = "E02-AUTH-002", value = SwaggerJwtErrorExamples.AUTH_ACCESS_DENIED))),
+            @ApiResponse(responseCode = "400", description = "리프레쉬토큰 캐싱에 실패했을 때",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(name = "E01-JWT-001", value = SwaggerJwtErrorExamples.REFRESH_TOKEN_CACHING_FAILED))),
+            @ApiResponse(responseCode = "400", description = "리프레쉬토큰 캐시 검증에서 문제가 발생했을 때",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(name = "E01-JWT-002", value = SwaggerJwtErrorExamples.REFRESH_TOKEN_CACHE_VALIDATION_FAILED))),
+
     })
-    ResponseEntity<TokenResponse> reissueRefreshToken(
+    ResponseEntity<TokenResponse> reissue(
             @Parameter(description = "갱신용 리프레시 토큰", required = true)
             @RequestHeader(value = "XRefreshToken") String refreshToken);
+
+    @Operation(summary = "로그아웃", description = "사용자 로그아웃을 처리하는 API")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 정보가 올바르지 않음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(name = "E02-AUTH-001", value = SwaggerJwtErrorExamples.AUTH_MISSING_CREDENTIALS))),
+            @ApiResponse(responseCode = "403", description = "유저가 권한에 맞지 않는 요청을 할 때",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(name = "E02-AUTH-002", value = SwaggerJwtErrorExamples.AUTH_ACCESS_DENIED))),
+    })
+    ResponseEntity<Void> logout(
+            @Parameter(description = "인증된 사용자 정보", required = true)
+            @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @Parameter(description = "HTTP 응답 객체", required = true)
+            HttpServletResponse response);
 }
