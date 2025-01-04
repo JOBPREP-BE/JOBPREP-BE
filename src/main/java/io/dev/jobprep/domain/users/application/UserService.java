@@ -18,11 +18,12 @@ import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
 
-
-    @Transactional
+    @Transactional("transactionManager")
     public SignUpResponse SignUpUser(SignUpRequest signUpRequest) {
+
         // 이메일 중복 확인
         //TODO 탈퇴 유저 재가입시 로직 필요
         Optional<User> userData = userRepository.findUserByEmail(signUpRequest.getEmail());
@@ -32,7 +33,7 @@ public class UserService {
 
             try {//탈퇴했던 회원인지 체크
                 existingUser.validateUserDelete();
-            }catch(UserException e){//탈퇴취소 로직
+            } catch(UserException e){//탈퇴취소 로직
                 existingUser.restore();
             }
             throw new UserException(USER_ACCOUNT_ALREADY_EXISTS);
@@ -47,6 +48,7 @@ public class UserService {
         //TODO error exception 처리
         return SignUpResponse.from(userRepository.save(newUser));
     }
+
     //TODO 나중에 JWT 관련 로직으로 처리하기
     //유저 찾는 로직
     public MyPageResponse getUserMyPageInfo(Long userId){
@@ -61,7 +63,7 @@ public class UserService {
     }
 
     //유저 삭제 로직
-    @Transactional
+    @Transactional("transactionManager")
     public DeleteUserAccountResponse deleteUser(Long userId){
         User userData = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
