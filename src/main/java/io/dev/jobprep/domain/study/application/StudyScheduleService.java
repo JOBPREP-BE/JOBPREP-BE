@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional(value = "transactionManager", readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class StudyScheduleService {
@@ -33,7 +33,7 @@ public class StudyScheduleService {
     private final StudyCommonService studyCommonService;
     private final StudyScheduleJpaRepository studyScheduleRepository;
 
-    @Transactional
+    @Transactional("transactionManager")
     public Long create(Long id, StudyScheduleCreateRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
@@ -48,7 +48,7 @@ public class StudyScheduleService {
         return scheduleId;
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void modify(Long id, Long studyId, StudyUpdateRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
