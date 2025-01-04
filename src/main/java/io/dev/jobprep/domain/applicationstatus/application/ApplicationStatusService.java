@@ -21,14 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "transactionManager", readOnly = true)
 @RequiredArgsConstructor
 public class ApplicationStatusService {
 
     private final ApplicationStatusJpaRepository applicationStatusRepository;
     private final UserRepository userRepository;
 
-    @Transactional
+    @Transactional("transactionManager")
     public Long create(Long userId) {
 
         // TODO: 유저 토큰 검증
@@ -40,7 +40,7 @@ public class ApplicationStatusService {
         return applicationStatus.getId();
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public Long delete(Long userId, Long id) {
 
         // TODO: 유저 토큰 검증
@@ -70,7 +70,7 @@ public class ApplicationStatusService {
         );
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void modify(Long userId, Long id, String field, ApplicationStatusUpdateRequest req) {
 
         // TODO: 유저 토큰 검증
@@ -81,7 +81,7 @@ public class ApplicationStatusService {
     }
 
     // TODO: 회원가입 시 user 엔티티와 동시 생성
-    @Transactional
+    @Transactional("transactionManager")
     public void init(Long userId) {
 
         // TODO: 유저 토큰 검증

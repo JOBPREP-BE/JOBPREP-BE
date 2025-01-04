@@ -16,12 +16,12 @@ public class EssentialMaterialService {
 
     private final EssentialMaterialRepository essentialMaterialRepository;
 
-    @Transactional
+    @Transactional("transactionManager")
     public String get(User user) {
         return this.createIfNoContent(user).getEssentialMaterial();
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public String update(User user, String content){
         return this.createIfNoContent(user).update(content);
     }

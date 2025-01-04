@@ -12,7 +12,7 @@ import static io.dev.jobprep.exception.code.ErrorCode404.ADMIN_NOT_FOUND;
 import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "transactionManager", readOnly = true)
 @RequiredArgsConstructor
 public class UserCommonService {
   

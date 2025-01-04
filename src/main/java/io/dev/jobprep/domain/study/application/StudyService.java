@@ -33,7 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional(value = "transactionManager", readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class StudyService {
@@ -46,7 +46,7 @@ public class StudyService {
     private final StudyJpaRepository studyRepository;
     private final StudyScheduleService studyScheduleService;
 
-    @Transactional
+    @Transactional("transactionManager")
     public Long create(Long id, StudyCreateRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
@@ -78,7 +78,7 @@ public class StudyService {
         return study.getId();
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public Long join(Long id, Long studyId) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
@@ -131,7 +131,7 @@ public class StudyService {
         ).toList();
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void delete(Long userId, Long studyId) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
@@ -139,19 +139,6 @@ public class StudyService {
 
         Study study = getStudy(studyId);
         study.delete(user);
-    }
-
-    // TODO: 트랜잭션 쪼개기
-    @Transactional
-    public void deleteForInternal() {
-
-        // TODO: 마감일이 지났는데, 모집인원이 다 차지 않은 스터디 조회
-        List<Study> underStaffedStudy = studyRepository.findUnderstaffedStudy(MAX_HEAD_COUNT);
-        underStaffedStudy.forEach(Study::deleteForInternal);
-
-        // TODO: 3주차 진행이 완료된 스터디 조회
-        List<Study> finishedStudy = studyRepository.findFinishedStudy(MAX_WEEK_NUM);
-        finishedStudy.forEach(Study::deleteForInternal);
     }
 
     public List<Study> getAll(Long userId, Long cursorId, int pageSize) {
@@ -162,7 +149,7 @@ public class StudyService {
         return studyRepository.findNonDeletedStudyWithPagination(cursorId, pageSize);
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void update(Long userId, Long studyId, String field, StudyUpdateAdminRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
