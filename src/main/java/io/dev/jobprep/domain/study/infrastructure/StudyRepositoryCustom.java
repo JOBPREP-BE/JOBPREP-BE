@@ -8,8 +8,5 @@ import java.util.Optional;
 public interface StudyRepositoryCustom {
 
     Optional<StudyWithStartDateDto> getStudyWithStartDate(Long studyId);
-
     List<Study> findNonDeletedStudyWithPagination(Long cursorId, int pageSize);
-
-    List<Study> findRecruitingStudyWithPagination(int page, int pageSize, int pageGroupSize);
 }

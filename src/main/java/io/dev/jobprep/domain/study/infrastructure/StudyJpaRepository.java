@@ -27,6 +27,18 @@ public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRep
     Optional<Study> findGatheredStudyByUserId(Long userId);
 
     @Query(value = """
+        SELECT * FROM study AS std
+            JOIN (
+                    SELECT id FROM study
+                    WHERE study_status = 'RECRUITING' AND deleted_at IS NULL
+                    ORDER BY id DESC
+                    LIMIT :offset, :limit
+            ) AS temp USING (id)
+        ORDER BY std.id DESC
+    """, nativeQuery = true)
+    List<Study> findRecruitingStudyWithPagination(int offset, int limit);
+
+    @Query(value = """
         select * from study as s left join user_study us on s.id = us.study_id
         where s.study_status = 'RECRUITING' group by s.id having count(us.user_id) < :headCount
     """, nativeQuery = true)
