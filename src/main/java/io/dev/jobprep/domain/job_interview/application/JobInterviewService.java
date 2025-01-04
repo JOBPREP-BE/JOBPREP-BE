@@ -6,8 +6,8 @@ import io.dev.jobprep.domain.job_interview.domain.enums.JobInterviewCategory;
 import io.dev.jobprep.domain.job_interview.exception.JobInterviewException;
 import io.dev.jobprep.domain.job_interview.infrastructure.JobInterviewRepository;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
-import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
+import io.dev.jobprep.domain.job_interview.presentation.dto.res.UpdateJobInterviewResponse;
 import io.dev.jobprep.domain.users.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,15 +42,15 @@ public class JobInterviewService {
     }
 
     @Transactional
-    public FindJobInterviewResponse update (PutJobInterviewRequest request, Long id, User user) {
+    public UpdateJobInterviewResponse update (PutJobInterviewRequest request, Long id, String field, User user) {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
 
-        validateIsDefault(savedEntity, request);
+        validateIsDefault(field, savedEntity, request);
         validateUser(user.getId(), savedEntity.getCreator().getId());
-        savedEntity.update(request);
+        savedEntity.update(field, request);
 
-        return FindJobInterviewResponse.from(savedEntity);
+        return UpdateJobInterviewResponse.from(request.getNewVal());
     }
 
     @Transactional
@@ -88,8 +88,8 @@ public class JobInterviewService {
             throw new JobInterviewException(INTERVIEW_FORBIDDEN_OPERATION);
         }
     }
-    private void validateIsDefault(JobInterview savedEntity, PutJobInterviewRequest request) {
-        if (savedEntity.getIsDefault() && (request.getField().equals("question") || request.getField().equals("category"))) {
+    private void validateIsDefault(String field, JobInterview savedEntity, PutJobInterviewRequest request) {
+        if (savedEntity.getIsDefault() && (field.equals("question") || field.equals("category"))) {
             throw new JobInterviewException(IS_DEFAULT_INTERVIEW);
         }
     }
