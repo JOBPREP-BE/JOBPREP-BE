@@ -3,6 +3,7 @@ FROM eclipse-temurin:17-jre AS builder
 WORKDIR application
 ARG JAR_FILE=build/libs/*SNAPSHOT.jar
 COPY ${JAR_FILE} application.jar
+COPY src/main/resources/ssl/keystore.p12 application/ssl/keystore.p12
 RUN java -Djarmode=layertools -jar application.jar extract
 
 # 실제 어플리케이션의 실행 환경
