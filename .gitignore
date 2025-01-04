@@ -42,3 +42,6 @@ application*.yml
 
 ### docker-compose.yml ###
 docker/
+
+### SSL
+/src/main/resources/ssl/keystore.p12
