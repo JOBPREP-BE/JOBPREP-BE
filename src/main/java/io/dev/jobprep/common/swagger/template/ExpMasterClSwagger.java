@@ -7,6 +7,7 @@ import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMasterClPatchRequest;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.ExpMasterClIdResponse;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
+import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.UpdateExpMasterClResponse;
 import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -109,7 +110,7 @@ public interface ExpMasterClSwagger {
                             }
                     ))
     })
-    ResponseEntity<FindExpMasterClResponse> update (
-            @PathVariable("id") Long id, @RequestParam Long userId, @RequestBody ExpMasterClPatchRequest request
+    ResponseEntity<UpdateExpMasterClResponse> update (
+            @PathVariable("id") Long id, @PathVariable String field, @RequestParam Long userId, @RequestBody ExpMasterClPatchRequest request
     );
 }
