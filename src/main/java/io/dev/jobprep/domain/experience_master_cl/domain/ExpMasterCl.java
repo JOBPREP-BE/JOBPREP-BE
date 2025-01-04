@@ -66,14 +66,14 @@ public class ExpMasterCl {
         this.creator = creator;
     }
 
-    public void update(ExpMasterClPatchRequest request) {
-        switch (request.getField()) {
-            case "material" -> this.material = request.getContent();
-            case "emphasis" -> this.emphasis = request.getContent();
-            case "expAnalProcess" -> this.expAnalProcess = ExpAnalProcess.from(request.getContent());
-            case "masterClProcess" -> this.masterClProcess = MasterClProcess.from(request.getContent());
-            case "expAnal" -> this.expAnal = request.getContent();
-            case "masterCl" -> this.masterCl = request.getContent();
+    public void update(String field, ExpMasterClPatchRequest request) {
+        switch (field) {
+            case "material" -> this.material = request.getNewVal();
+            case "emphasis" -> this.emphasis = request.getNewVal();
+            case "expAnalProcess" -> this.expAnalProcess = ExpAnalProcess.from(request.getNewVal());
+            case "masterClProcess" -> this.masterClProcess = MasterClProcess.from(request.getNewVal());
+            case "expAnal" -> this.expAnal = request.getNewVal();
+            case "masterCl" -> this.masterCl = request.getNewVal();
             default -> throw new ExpMasterClException(INVALID_INPUT_VALUE);
         }
     }

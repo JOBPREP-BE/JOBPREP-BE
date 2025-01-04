@@ -7,7 +7,7 @@ import io.dev.jobprep.domain.experience_master_cl.exception.ExpMasterClException
 import io.dev.jobprep.domain.experience_master_cl.infrastructure.ExpMasterClRepository;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMasterClPatchRequest;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.ExpMasterClIdResponse;
-import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
+import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.UpdateExpMasterClResponse;
 import io.dev.jobprep.domain.job_interview.exception.JobInterviewException;
 import io.dev.jobprep.domain.users.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.INVALID_INPUT_VALUE;
 import static io.dev.jobprep.exception.code.ErrorCode403.MASTER_CL_FORBIDDEN_OPERATION;
@@ -39,14 +38,14 @@ public class ExpMasterClService {
     }
 
     @Transactional
-    public FindExpMasterClResponse patch (Long id, User user, ExpMasterClPatchRequest request) {
+    public UpdateExpMasterClResponse patch (Long id, String field, User user, ExpMasterClPatchRequest request) {
         ExpMasterCl expMasterCl = findById(id);
 
         validateUser(user.getId(), expMasterCl.getCreator().getId());
 
-        expMasterCl.update(request);
+        expMasterCl.update(field, request);
 
-        return FindExpMasterClResponse.toDto(expMasterCl);
+        return UpdateExpMasterClResponse.from(request.getNewVal());
     }
 
     @Transactional
