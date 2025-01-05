@@ -81,8 +81,7 @@ public class ChatMongoRepository {
         Query query = new Query();
         query.limit(pageSize + 1)
              .addCriteria(verifyRoomId(roomId))
-             .addCriteria(verifyWaiting(userId))
-             .addCriteria(verifyCompleted(userId))
+             .addCriteria(verifyStatus(userId))
              .addCriteria(cursorIdCondition(cursorId))
              .with(Sort.by(Sort.Order.desc("timestamp")));
         return mongoTemplate.find(query, ChatMessage.class);
@@ -148,6 +147,10 @@ public class ChatMongoRepository {
 
     private Criteria verifyMessageId(Long id) {
         return Criteria.where("_id").is(id);
+    }
+
+    private Criteria verifyStatus(Long userId) {
+        return new Criteria().orOperator(verifyWaiting(userId), verifyCompleted(userId));
     }
 
     private Criteria verifyWaiting(Long userId) {
