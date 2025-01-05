@@ -3,6 +3,7 @@ package io.dev.jobprep.domain.chat.infrastructure;
 import io.dev.jobprep.domain.chat.domain.entity.document.ChatMessage;
 import io.dev.jobprep.domain.chat.domain.entity.document.ChatRoom;
 import io.dev.jobprep.domain.chat.domain.entity.enums.ChatRoomStatus;
+import io.dev.jobprep.domain.chat.domain.entity.enums.Status;
 import io.dev.jobprep.util.LocalDateTimeConverter;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,10 +47,20 @@ public class ChatMongoRepository {
         return Optional.ofNullable(mongoTemplate.findOne(query, ChatRoom.class));
     }
 
+    public Optional<ChatRoom> findValidRoomByByUserId(Long userId) {
+        Query query = new Query();
+        query.addCriteria(verifyUserId(userId))
+             .addCriteria(verifyValid())
+             .addCriteria(verifyActive());
+        return Optional.ofNullable(mongoTemplate.findOne(query, ChatRoom.class));
+    }
+
     public List<ChatRoom> findAllActiveRooms(Long userId, String cursorId, int pageSize) {
         Query query = new Query();
         query.limit(pageSize + 1)
             .addCriteria(verifyUserId(userId))
+            .addCriteria(verifyValid())
+            .addCriteria(verifyActive())
             .with(Sort.by(Sort.Order.desc("last_message.timestamp")));
 
         if (!cursorId.isBlank()) {
@@ -59,10 +70,12 @@ public class ChatMongoRepository {
         return mongoTemplate.find(query, ChatRoom.class);
     }
 
-    public List<ChatMessage> findAllMessageHistory(UUID roomId, Long cursorId, int pageSize) {
+    public List<ChatMessage> findAllMessageHistory(UUID roomId, Long userId, Long cursorId, int pageSize) {
         Query query = new Query();
         query.limit(pageSize + 1)
              .addCriteria(verifyRoomId(roomId))
+             .addCriteria(verifyWaiting(userId))
+             .addCriteria(verifyCompleted(userId))
              .addCriteria(cursorIdCondition(cursorId))
              .with(Sort.by(Sort.Order.desc("timestamp")));
         return mongoTemplate.find(query, ChatMessage.class);
@@ -110,6 +123,10 @@ public class ChatMongoRepository {
         return Criteria.where("users.user_id").in(userId);
     }
 
+    private Criteria verifyValid() {
+        return Criteria.where("last_message").ne(null);
+    }
+
     private Criteria verifyActive() {
         return Criteria.where("chat_status").is(ChatRoomStatus.ACTIVE);
     }
@@ -120,6 +137,16 @@ public class ChatMongoRepository {
 
     private Criteria verifyLastMsgRead(Long userId) {
         return Criteria.where("last_message.read_by").nin(userId);
+    }
+
+    private Criteria verifyWaiting(Long userId) {
+        return Criteria.where("status").in(Status.WAITING, Status.COMPLETE)
+                       .and("sender_id").is(userId);
+    }
+
+    private Criteria verifyCompleted(Long userId) {
+        return Criteria.where("status").is(Status.COMPLETE)
+            .and("sender_id").ne(userId);
     }
 
     private Criteria cursorIdCondition(Long cursorId) {

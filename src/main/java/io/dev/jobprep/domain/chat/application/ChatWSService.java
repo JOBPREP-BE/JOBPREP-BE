@@ -13,6 +13,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -32,6 +33,17 @@ public class ChatWSService {
         chatRoom.isGathered(user);
         chatRoom.validateActive();
 
+        ChatMessage chat = handleChat(chatRoom, userId, message);
+        ChatRoom room = handleChatRoom(chatRoom, chat);
+
+        return ChatMessageCommonInfo.of(room, chat);
+    }
+
+    @Transactional("mongoTransactionManager")
+    public ChatMessage handleChat(ChatRoom chatRoom, Long userId, String message) {
+
+        UUID roomId = chatRoom.getId();
+
         ChatMessage chatMessage = ChatMessage.of(
             generator.getNextSequence(roomId.toString()),
             roomId,
@@ -48,14 +60,26 @@ public class ChatWSService {
             markAsRead(chatMessage, oppositeId);
         }
 
-        chatRoom.updateLastMessage(chatMessage);
-        chatRepository.save(chatRoom);
-        chatRepository.save(chatMessage);
-
-        return ChatMessageCommonInfo.of(chatRoom, chatMessage);
+        return chatRepository.save(chatMessage);
     }
 
-    private void markAsRead(ChatMessage chatMessage, Long readerId) {
+    @Transactional("mongoTransactionManager")
+    public ChatRoom handleChatRoom(ChatRoom chatRoom, ChatMessage chatMessage) {
+        updateComplete(chatMessage);
+        return updateChatRoom(chatRoom, chatMessage);
+    }
+
+    protected void updateComplete(ChatMessage chatMessage) {
+        chatMessage.complete();
+        chatRepository.save(chatMessage);
+    }
+
+    protected ChatRoom updateChatRoom(ChatRoom chatRoom, ChatMessage chatMessage) {
+        chatRoom.updateLastMessage(chatMessage);
+        return chatRepository.save(chatRoom);
+    }
+
+    protected void markAsRead(ChatMessage chatMessage, Long readerId) {
         chatMessage.addReader(readerId);
     }
 
