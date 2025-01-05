@@ -34,6 +34,13 @@ public class ChatMongoRepository {
         return mongoTemplate.save(chatMessage);
     }
 
+    public void update(ChatMessage chatMessage) {
+        Query query = new Query();
+        query.addCriteria(verifyMessageId(chatMessage.getId()));
+        Update update = new Update().set("status", chatMessage.getStatus());
+        mongoTemplate.updateFirst(query, update, ChatMessage.class);
+    }
+
     public Optional<ChatRoom> findByRoomId(@NonNull UUID roomId) {
         Query query = new Query();
         query.addCriteria(verifyId(roomId));
@@ -137,6 +144,10 @@ public class ChatMongoRepository {
 
     private Criteria verifyLastMsgRead(Long userId) {
         return Criteria.where("last_message.read_by").nin(userId);
+    }
+
+    private Criteria verifyMessageId(Long id) {
+        return Criteria.where("_id").is(id);
     }
 
     private Criteria verifyWaiting(Long userId) {
