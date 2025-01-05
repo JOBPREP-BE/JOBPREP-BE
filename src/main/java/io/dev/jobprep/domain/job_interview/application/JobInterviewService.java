@@ -30,9 +30,7 @@ public class JobInterviewService {
     @Transactional
     public JobInterviewIdResponse saveJobInterview (User user) {
         JobInterview jobInterview = JobInterview.builder()
-                .question("")
                 .category(JobInterviewCategory.PERSONALITY)
-                .answer("")
                 .creator(user)
                 .isDefault(false)
                 .build();

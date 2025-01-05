@@ -80,12 +80,8 @@ public class ExpMasterCl {
 
     public static ExpMasterCl createData(User user) {
         return ExpMasterCl.builder()
-                .material(BLANK)
-                .emphasis(BLANK)
                 .expAnalProcess(ExpAnalProcess.PREPARATION)
                 .masterClProcess(MasterClProcess.PREPARATION)
-                .expAnal(BLANK)
-                .masterCl(BLANK)
                 .creator(user)
                 .active(true)
                 .build();
