@@ -3,7 +3,9 @@ package io.dev.jobprep.domain.chat.domain.entity.enums;
 import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_COMPLETED_CHAT;
 
 import io.dev.jobprep.domain.chat.exception.ChatException;
+import lombok.Getter;
 
+@Getter
 public enum Status {
 
     WAITING("대기 상태"),
