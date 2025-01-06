@@ -38,7 +38,7 @@ public class ExpMasterClController implements ExpMasterClSwagger {
             @RequestBody ExpMasterClPatchRequest request
             ) {
         User user = userCommonService.getUserWithId(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(expMasterClService.patch(id, field, user, request));
+        return ResponseEntity.status(HttpStatus.OK).body(UpdateExpMasterClResponse.from(expMasterClService.patch(id, field, user, request)));
     }
 
     @DeleteMapping("/{id}")

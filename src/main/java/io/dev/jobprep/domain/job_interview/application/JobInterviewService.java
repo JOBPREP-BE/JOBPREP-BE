@@ -7,7 +7,6 @@ import io.dev.jobprep.domain.job_interview.exception.JobInterviewException;
 import io.dev.jobprep.domain.job_interview.infrastructure.JobInterviewRepository;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
-import io.dev.jobprep.domain.job_interview.presentation.dto.res.UpdateJobInterviewResponse;
 import io.dev.jobprep.domain.users.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,7 @@ public class JobInterviewService {
     }
 
     @Transactional
-    public UpdateJobInterviewResponse update (PutJobInterviewRequest request, Long id, String field, User user) {
+    public String update (PutJobInterviewRequest request, Long id, String field, User user) {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
 
@@ -48,7 +47,7 @@ public class JobInterviewService {
         validateUser(user.getId(), savedEntity.getCreator().getId());
         savedEntity.update(field, request);
 
-        return UpdateJobInterviewResponse.from(request.getNewVal());
+        return request.getNewVal();
     }
 
     @Transactional
@@ -72,7 +71,6 @@ public class JobInterviewService {
             JobInterview jobInterview = JobInterview.builder()
                     .question(interviewList.getQuestion())
                     .category(interviewList.getCategory())
-                    .answer("")
                     .creator(user)
                     .isDefault(true)
                     .build();

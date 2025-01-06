@@ -38,14 +38,14 @@ public class ExpMasterClService {
     }
 
     @Transactional
-    public UpdateExpMasterClResponse patch (Long id, String field, User user, ExpMasterClPatchRequest request) {
+    public String patch (Long id, String field, User user, ExpMasterClPatchRequest request) {
         ExpMasterCl expMasterCl = findById(id);
 
         validateUser(user.getId(), expMasterCl.getCreator().getId());
 
         expMasterCl.update(field, request);
 
-        return UpdateExpMasterClResponse.from(request.getNewVal());
+        return request.getNewVal();
     }
 
     @Transactional

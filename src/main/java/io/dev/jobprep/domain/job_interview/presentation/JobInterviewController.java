@@ -41,7 +41,7 @@ public class JobInterviewController implements JobInterviewSwagger {
             @RequestParam Long userId
             ) {
         User user = userCommonService.getUserWithId(userId);
-        return ResponseEntity.ok(jobInterviewService.update(dto, id, field, user));
+        return ResponseEntity.ok(UpdateJobInterviewResponse.from(jobInterviewService.update(dto, id, field, user)));
     }
 
     @DeleteMapping("/{interviewId}")
