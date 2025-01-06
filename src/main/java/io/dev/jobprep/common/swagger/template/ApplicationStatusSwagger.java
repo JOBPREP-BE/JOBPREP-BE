@@ -17,11 +17,14 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
+@Tag(name = "Application Status", description = "지원 현황 관련 API")
+@SuppressWarnings("unused")
 public interface ApplicationStatusSwagger {
 
     @Operation(summary = "지원 현황 생성", description = "사용자가 지원현황을 추가할 때 사용하는 API")
