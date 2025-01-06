@@ -16,11 +16,14 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
+@Tag(name = "Chat", description = "채팅 관련 API")
+@SuppressWarnings("unused")
 public interface ChatSwagger {
 
     @Operation(summary = "채팅방 생성", description = "사용자가 첫 메시지를 보내기 전에 채팅방 생성을 위해 사용하는 API")
@@ -41,6 +44,19 @@ public interface ChatSwagger {
             ))
     })
     ResponseEntity<ChatRoomIdResponse> create(@Parameter(required = true) Long userId);
+
+    @Operation(summary = "채팅방 조회", description = "사용자가 메시지를 보내기 위해 채팅방이 존재하는지 확인할 때 사용하는 API")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "채팅방 조회 성공",
+            content = @Content(schema = @Schema(implementation = ChatRoomIdResponse.class))),
+        @ApiResponse(responseCode = "404", description = "요청한 데이터가 존재하지 않음",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
+            ))
+    })
+    ResponseEntity<ChatRoomIdResponse> getExistChatRoom(@Parameter(required = true) Long userId);
 
     @Operation(summary = "채팅 메시지 내역 조회", description = "사용자가 관리자와의 채팅 메시지 내역을 조회할 때 사용하는 API")
     @ApiResponses(value = {

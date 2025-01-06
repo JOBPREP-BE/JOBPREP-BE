@@ -30,8 +30,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation:3.1.8'
 	// Spring Boot Data Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.1.8'
-  	// Spring Actuator
-  	implementation 'org.springframework.boot:spring-boot-starter-actuator:3.1.8'
+  // Spring Actuator
+  implementation 'org.springframework.boot:spring-boot-starter-actuator:3.1.8'
+	// Spring Boot AOP
+	implementation 'org.springframework.boot:spring-boot-starter-aop:3.1.8'
+	// Log4j2
+	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
 	// Lombok
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
@@ -62,6 +66,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail:3.1.8'
 	// OAuth
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:3.1.8'
+	// Logback-Slack-Appender
+	implementation 'com.github.maricn:logback-slack-appender:1.6.1'
   
 	// SpringBoot Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test:3.1.8'

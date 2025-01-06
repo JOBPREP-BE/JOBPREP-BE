@@ -17,19 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.INVALID_INPUT_VALUE;
 import static io.dev.jobprep.exception.code.ErrorCode403.MASTER_CL_FORBIDDEN_OPERATION;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "transactionManager", readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class ExpMasterClService {
     private final ExpMasterClRepository expMasterClRepository;
 
-    @Transactional
+    @Transactional("transactionManager")
     public ExpMasterClIdResponse save (User user) {
 
         ExpMasterCl expMasterCl = ExpMasterCl.createData(user);
@@ -38,7 +37,7 @@ public class ExpMasterClService {
         return ExpMasterClIdResponse.from(expMasterCl.getId());
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public FindExpMasterClResponse patch (Long id, User user, ExpMasterClPatchRequest request) {
         ExpMasterCl expMasterCl = findById(id);
 
@@ -49,7 +48,7 @@ public class ExpMasterClService {
         return FindExpMasterClResponse.toDto(expMasterCl);
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void delete (Long id, User user) {
         ExpMasterCl expMasterCl = findById(id);
 
@@ -61,7 +60,7 @@ public class ExpMasterClService {
         return expMasterClRepository.findByConditionWithPagination(user.getId(), cursorId, pageSize);
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void defaultSave (User user) {
 
         ExpMasterCl expMasterCl = ExpMasterCl.builder()

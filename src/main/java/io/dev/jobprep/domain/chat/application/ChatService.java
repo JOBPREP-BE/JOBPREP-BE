@@ -75,7 +75,7 @@ public class ChatService {
 
         try {
             @Nullable ChatRoom chatRoom = getChatRoom(userId);
-            return getMessageHistoryForChatRoom(chatRoom, cursorId, pageSize);
+            return getMessageHistoryForChatRoom(chatRoom, userId, cursorId, pageSize);
         } catch (NullPointerException e) {
             return List.of(ChatMessageCommonInfo.of(null, null));
         }
@@ -91,7 +91,7 @@ public class ChatService {
         }
 
         ChatRoom chatRoom = getChatRoom(roomId);
-        return getMessageHistoryForChatRoom(chatRoom, cursorId, pageSize);
+        return getMessageHistoryForChatRoom(chatRoom, userId, cursorId, pageSize);
     }
 
     public void access(UUID roomId, Long userId, String sessionId) {
@@ -114,9 +114,9 @@ public class ChatService {
     }
 
     private List<ChatMessageCommonInfo> getMessageHistoryForChatRoom(
-        ChatRoom chatRoom, Long cursorId, int pageSize
+        ChatRoom chatRoom, Long userId, Long cursorId, int pageSize
     ) {
-        return getMessagesHistoryWithPagination(chatRoom.getId(), cursorId, pageSize)
+        return getMessagesHistoryWithPagination(chatRoom.getId(), userId, cursorId, pageSize)
                 .stream().map(
                         chatMessage -> ChatMessageCommonInfo.of(
                                 chatRoom,
@@ -135,8 +135,8 @@ public class ChatService {
         return chatRepository.findAllActiveRooms(userId, cursorId, pageSize);
     }
 
-    private List<ChatMessage> getMessagesHistoryWithPagination(UUID roomId, Long cursorId, int pageSize) {
-        return chatRepository.findAllMessageHistory(roomId, cursorId, pageSize);
+    private List<ChatMessage> getMessagesHistoryWithPagination(UUID roomId, Long userId, Long cursorId, int pageSize) {
+        return chatRepository.findAllMessageHistory(roomId, userId, cursorId, pageSize);
     }
 
     private boolean stillReadMore(ChatRoom chatRoom, Long userId) {

@@ -58,12 +58,25 @@ public class ApplicationStatusInfoResponse {
     ) {
         this.company = company;
         this.position = position;
-        this.progress = progress != null ? progress.getDescription() : null;
-        this.process = process != null ? process.getDescription() : null;
+        this.progress = resolve(progress);
+        this.process = resolve(process);
         this.applicationDate = applicationDate;
         this.dueDate = dueDate;
         this.url = url;
         this.coverLetter = coverLetter;
+    }
+
+    private String resolve(@Nullable final Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof ApplicationProgress) {
+            return ((ApplicationProgress) value).getDescription();
+        } else if (value instanceof ApplicationProcess) {
+            return ((ApplicationProcess) value).getDescription();
+        } else {
+            throw new UnsupportedOperationException("Unsupported value type: " + value.getClass());
+        }
     }
 
     public static ApplicationStatusInfoResponse from(ApplicationStatus applicationStatus) {

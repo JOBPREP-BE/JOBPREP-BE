@@ -8,6 +8,7 @@ public enum ErrorCode400 implements ErrorCode {
     PATH_PARAMETER_BAD_REQUEST("E00-COMMON-001", "잘못된 경로 파라미터입니다."),
     INVALID_INPUT_VALUE("E00-COMMON-002", "기본 유효성 검사에 실패하였습니다."),
     ILLEGAL_INPUT_ARG("E00-COMMON-03", "유효하지 않은 입력 값입니다."),
+    UNSUPPORTED_FIELD_TYPE("E00-COMMON-04", "지원하지 않는 필드 타입입니다."),
 
     DUPLICATE_STUDY_NAME("E00-STUDY-01", "해당 스터디 이름이 이미 존재합니다."),
     INVALID_START_DATE("E00-STUDY-002", "스터디 시작 시간은 미래 시간이어야 합니다."),
@@ -47,6 +48,7 @@ public enum ErrorCode400 implements ErrorCode {
     NON_GATHERED_CHAT_USER("E01-CHATROOM-002", "해당 채팅방의 참여자가 아닙니다."),
     CHAT_ROOM_ALREADY_EXIST("E01-CHATROOM-003", "이미 생성된 채팅방이 있습니다."),
     CHAT_MISSING_DESTINATION("E01-CHATROOM-004", "채팅방 구독을 위한 목적지 정보가 잘못된 값입니다."),
+    ALREADY_COMPLETED_CHAT("E01-CHATROOM-005", "이미 전송이 완료된 채팅입니다."),
 
     SLACK_ALERT_FAILURE("E00-ALERT-001", "슬랙 채널로 메시지 전송에 실패했습니다."),
     ;
