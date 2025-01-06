@@ -46,21 +46,6 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .fetch();
     }
 
-    @Override
-    public List<Study> findRecruitingStudyWithPagination(int page, int pageSize, int pageGroupSize) {
-        int offset = (page - 1) * pageSize;
-
-        return jpaQueryFactory.selectFrom(study)
-            .where(
-                studyStatusEq(StudyStatus.RECRUITING),
-                deletedAtEq()
-            )
-            .offset(offset)
-            .limit((long) pageSize * pageGroupSize)
-            .orderBy(study.id.desc())
-            .fetch();
-    }
-
     private BooleanExpression cursorIdCondition(Long cursorId) {
         return cursorId != null ? study.id.lt(cursorId) : null;
     }

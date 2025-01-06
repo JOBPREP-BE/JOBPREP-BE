@@ -23,6 +23,7 @@ public class StompTokenProcessor {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String DESTINATION_HEADER = "Destination";
     private static final String DESTINATION_PREFIX = "/topic/";
+    private static final String TOPIC_PREFIX = "/app/";
     private static final String TEMP_AUTHORIZATION = "UserId";
 
     private final UserCommonService userCommonService;
@@ -62,10 +63,11 @@ public class StompTokenProcessor {
 
     private UUID verifyDestinationFromSubscription(StompHeaderAccessor stompHeaderAccessor) {
         String subscription = stompHeaderAccessor.getDestination();
-        if (subscription == null || !subscription.startsWith(DESTINATION_PREFIX)) {
+        log.info("Received subscription: {}", subscription);
+        if (subscription == null || !subscription.startsWith(TOPIC_PREFIX)) {
             throw new ChatException(CHAT_MISSING_DESTINATION);
         }
-        subscription = subscription.substring(DESTINATION_PREFIX.length());
+        subscription = subscription.substring(TOPIC_PREFIX.length());
         log.info("Received a subscription from {}", subscription);
         return UUID.fromString(subscription);
     }

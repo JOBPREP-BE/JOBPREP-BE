@@ -22,13 +22,13 @@ import static io.dev.jobprep.exception.code.ErrorCode400.INVALID_INPUT_VALUE;
 import static io.dev.jobprep.exception.code.ErrorCode403.MASTER_CL_FORBIDDEN_OPERATION;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(value = "transactionManager", readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class ExpMasterClService {
     private final ExpMasterClRepository expMasterClRepository;
 
-    @Transactional
+    @Transactional("transactionManager")
     public ExpMasterClIdResponse save (User user) {
 
         ExpMasterCl expMasterCl = ExpMasterCl.createData(user);
@@ -37,8 +37,9 @@ public class ExpMasterClService {
         return ExpMasterClIdResponse.from(expMasterCl.getId());
     }
 
-    @Transactional
-    public String patch (Long id, String field, User user, ExpMasterClPatchRequest request) {
+    @Transactional("transactionManager")
+    public String patch (Long id, User user, ExpMasterClPatchRequest request) {
+
         ExpMasterCl expMasterCl = findById(id);
 
         validateUser(user.getId(), expMasterCl.getCreator().getId());
@@ -48,7 +49,7 @@ public class ExpMasterClService {
         return request.getNewVal();
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void delete (Long id, User user) {
         ExpMasterCl expMasterCl = findById(id);
 
@@ -60,7 +61,7 @@ public class ExpMasterClService {
         return expMasterClRepository.findByConditionWithPagination(user.getId(), cursorId, pageSize);
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void defaultSave (User user) {
 
         ExpMasterCl expMasterCl = ExpMasterCl.builder()
