@@ -1,12 +1,9 @@
 package io.dev.jobprep.domain.security.oauth.application;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dev.jobprep.domain.security.jwt.application.JwtRedisService;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
-import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,9 +34,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private Long refreshTokenValidity;  // 밀리초 단위로 받아옴
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        String userId = principalDetails.getUsername().toString();
+        String userId = principalDetails.getUsername();
         String userEmail = principalDetails.getEmail();
         String userAuthority = principalDetails
                 .getAuthorities()
@@ -50,10 +47,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         jwtRedisService.saveRefreshToken(userId, tokenInfo);
 
-        Cookie accessTokenCookie = jwtService.bake("accessToken", tokenInfo.getAccessToken(), accessTokenValidity);
+        Cookie accessTokenCookie = jwtService.bake("Authorization", tokenInfo.getAccessToken(), accessTokenValidity);
         response.addCookie(accessTokenCookie);
 
-        Cookie refreshTokenCookie = jwtService.bake("refreshToken", tokenInfo.getRefreshToken(), refreshTokenValidity);
+        Cookie refreshTokenCookie = jwtService.bake("XRefreshToken", tokenInfo.getRefreshToken(), refreshTokenValidity);
         response.addCookie(refreshTokenCookie);
 
         // 프론트엔드로 리다이렉트

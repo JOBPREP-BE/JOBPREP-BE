@@ -8,6 +8,7 @@ import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,8 +19,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -27,12 +26,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final PrincipalDetailsService principalDetailsService;
 
-    private static final String AUTHORIZATION_HEADER = "authorization";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final String REFRESH_HEADER = "xRefreshToken";
+    private static final String REFRESH_HEADER = "XRefreshToken";
 
     @Override
-    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilterInternal(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws IOException, ServletException {
         try {
             String accessToken = resolveAccessToken(request);
             //액세스 토큰 존재하면
@@ -102,9 +101,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return bearerToken.substring(BEARER_PREFIX.length()).trim();
         }
         return null;
-    }
-
-    private String resolveRefreshToken(HttpServletRequest request) {
-        return request.getHeader(REFRESH_HEADER);
     }
 }

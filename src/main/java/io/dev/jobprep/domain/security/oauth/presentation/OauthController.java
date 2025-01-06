@@ -12,13 +12,11 @@ import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
 import io.dev.jobprep.common.swagger.template.OauthSwagger;
 import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,7 +29,7 @@ public class OauthController implements OauthSwagger{
 
     // 토큰 재발급
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponse> reissue(@RequestHeader(value = "xRefreshToken") String refreshToken) {
+    public ResponseEntity<TokenResponse> reissue(@RequestHeader(value = "XRefreshToken ") String refreshToken) {
         jwtService.isTokenValid(refreshToken);
 
         //토큰 검증
@@ -68,14 +66,15 @@ public class OauthController implements OauthSwagger{
         try {
             jwtRedisService.deleteRefreshToken(userId);
         }catch(TokenCachingException e) {
+            //do nothing.
         }
 
         // Access Token 쿠키 삭제
-        Cookie accessTokenCookie = jwtService.bake("accessToken", "", 0L);
+        Cookie accessTokenCookie = jwtService.bake("Authorization", "", 0L);
         response.addCookie(accessTokenCookie);
 
         // Refresh Token 쿠키 삭제
-        Cookie refreshTokenCookie =  jwtService.bake("refreshToken", "", 0L);
+        Cookie refreshTokenCookie =  jwtService.bake("XRefreshToken", "", 0L);
         response.addCookie(refreshTokenCookie);
 
         // Security Context 클리어
