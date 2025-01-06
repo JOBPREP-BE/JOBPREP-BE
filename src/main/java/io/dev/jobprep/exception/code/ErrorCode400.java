@@ -8,6 +8,7 @@ public enum ErrorCode400 implements ErrorCode {
     PATH_PARAMETER_BAD_REQUEST("E00-COMMON-001", "잘못된 경로 파라미터입니다."),
     INVALID_INPUT_VALUE("E00-COMMON-002", "기본 유효성 검사에 실패하였습니다."),
     ILLEGAL_INPUT_ARG("E00-COMMON-03", "유효하지 않은 입력 값입니다."),
+    UNSUPPORTED_FIELD_TYPE("E00-COMMON-04", "지원하지 않는 필드 타입입니다."),
 
     DUPLICATE_STUDY_NAME("E00-STUDY-01", "해당 스터디 이름이 이미 존재합니다."),
     INVALID_START_DATE("E00-STUDY-002", "스터디 시작 시간은 미래 시간이어야 합니다."),
