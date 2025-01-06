@@ -8,7 +8,6 @@ import io.dev.jobprep.domain.applicationstatus.domain.entity.ApplicationStatus;
 import io.dev.jobprep.domain.applicationstatus.domain.entity.InitData;
 import io.dev.jobprep.domain.applicationstatus.exception.ApplicationStatusException;
 import io.dev.jobprep.domain.applicationstatus.infrastructure.ApplicationStatusJpaRepository;
-import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusCreateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusUpdateRequest;
 import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.domain.users.exception.UserException;
@@ -30,12 +29,12 @@ public class ApplicationStatusService {
     private final UserRepository userRepository;
 
     @Transactional("transactionManager")
-    public Long create(Long userId, ApplicationStatusCreateRequest req) {
+    public Long create(Long userId) {
 
         // TODO: 유저 토큰 검증
         User user = getUser(userId);
 
-        ApplicationStatus applicationStatus = req.toEntity(user);
+        ApplicationStatus applicationStatus = ApplicationStatus.ofEmpty(user);
         save(applicationStatus);
 
         return applicationStatus.getId();

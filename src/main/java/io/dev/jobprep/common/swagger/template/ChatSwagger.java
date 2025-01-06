@@ -16,11 +16,14 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
+@Tag(name = "Chat", description = "채팅 관련 API")
+@SuppressWarnings("unused")
 public interface ChatSwagger {
 
     @Operation(summary = "채팅방 생성", description = "사용자가 첫 메시지를 보내기 전에 채팅방 생성을 위해 사용하는 API")

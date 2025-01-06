@@ -11,10 +11,13 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+@Tag(name = "Essential Material", description = "필수 자료 관련 API")
+@SuppressWarnings("unused")
 public interface EssentialMaterialSwagger {
     @Operation(summary = "필수 자료 열람", description = "사용자의 필수 자료를 열람할 때 사용하는 API")
     @ApiResponses(value = {
