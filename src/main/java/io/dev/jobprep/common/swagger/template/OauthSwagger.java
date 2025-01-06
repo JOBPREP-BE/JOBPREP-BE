@@ -63,7 +63,9 @@ public interface OauthSwagger {
     })
     ResponseEntity<TokenResponse> reissue(
             @Parameter(description = "갱신용 리프레시 토큰", required = true)
-            @RequestHeader(value = "XRefreshToken") String refreshToken);
+            @RequestHeader(value = "XRefreshToken") String refreshToken,
+            @Parameter(description = "HTTP 응답 객체", required = true)
+                    HttpServletResponse response);
 
     @Operation(summary = "로그아웃", description = "사용자 로그아웃을 처리하는 API")
     @ApiResponses(value = {
