@@ -1,7 +1,10 @@
 package io.dev.jobprep.domain.applicationstatus.domain.entity;
 
+import static io.dev.jobprep.exception.code.ErrorCode400.UNSUPPORTED_FIELD_TYPE;
+
 import io.dev.jobprep.domain.applicationstatus.domain.entity.enums.ApplicationProcess;
 import io.dev.jobprep.domain.applicationstatus.domain.entity.enums.ApplicationProgress;
+import io.dev.jobprep.domain.applicationstatus.exception.ApplicationStatusException;
 import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.util.LocalDateTimeConverter;
 import jakarta.persistence.Column;
@@ -100,6 +103,7 @@ public class ApplicationStatus {
             case "dueDate" -> this.dueDate = LocalDateTimeConverter.convertToUtcLDT(newVal);
             case "url" -> this.url = newVal;
             case "coverLetter" -> this.coverLetter = newVal;
+            default -> throw new ApplicationStatusException(UNSUPPORTED_FIELD_TYPE);
         }
     }
 

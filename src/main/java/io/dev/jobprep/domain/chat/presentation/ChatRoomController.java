@@ -4,6 +4,7 @@ import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.base.StringCursorPaginationReq;
 import io.dev.jobprep.common.swagger.template.ChatSwagger;
+import io.dev.jobprep.domain.chat.application.ChatCommonService;
 import io.dev.jobprep.domain.chat.application.ChatService;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatMessageCommonResponse;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomAdminResponse;
@@ -28,12 +29,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatRoomController implements ChatSwagger {
 
     private final ChatService chatService;
+    private final ChatCommonService chatCommonService;
 
     @PostMapping
     public ResponseEntity<ChatRoomIdResponse> create(@RequestParam Long userId) {
 
         return ResponseEntity.status(201)
             .body(ChatRoomIdResponse.from(chatService.create(userId)));
+    }
+
+    @GetMapping("/my/exist")
+    public ResponseEntity<ChatRoomIdResponse> getExistChatRoom(@RequestParam Long userId) {
+
+        return ResponseEntity.ok()
+            .body(ChatRoomIdResponse.from(chatCommonService.getChatRoom(userId)));
     }
 
     @GetMapping("/my")

@@ -3,6 +3,7 @@ package io.dev.jobprep.common.swagger.template;
 import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerApplicationStatusErrorExamples;
+import io.dev.jobprep.core.properties.swagger.error.SwaggerCommonErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusUpdateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusCommonResponse;
@@ -110,6 +111,12 @@ public interface ApplicationStatusSwagger {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "지원 현황 수정 성공",
             content = @Content(schema = @Schema(implementation = ApplicationStatusUpdateResponse.class))),
+        @ApiResponse(responseCode = "400", description = "데이터가 유효하지 않음",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(name = "E00-COMMON-004", value = SwaggerCommonErrorExamples.UNSUPPORTED_FIELD_TYPE)
+            )),
         @ApiResponse(responseCode = "403", description = "데이터를 삭제할 권한이 없음",
             content = @Content(
                 mediaType = "application/json",
