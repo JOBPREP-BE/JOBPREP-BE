@@ -3,6 +3,7 @@ package io.dev.jobprep.domain.security.oauth.presentation;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import io.dev.jobprep.domain.security.jwt.application.AuthService;
 import io.dev.jobprep.domain.security.jwt.application.JwtRedisService;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
 import io.dev.jobprep.domain.security.jwt.exception.TokenCachingException;
@@ -25,35 +26,16 @@ import org.springframework.web.bind.annotation.*;
 public class OauthController implements OauthSwagger{
     private final JwtService jwtService;
     private final JwtRedisService jwtRedisService;
-    private final PrincipalDetailsService principalDetailsService;
-
+    private final AuthService authService;
     // 토큰 재발급
     @PostMapping("/reissue")
     public ResponseEntity<TokenResponse> reissue(@RequestHeader(value = "XRefreshToken ") String refreshToken) {
         jwtService.isTokenValid(refreshToken);
 
-        //토큰 검증
-        DecodedJWT decodeJWT = jwtService.verifyToken(refreshToken);
-        String userId = jwtService.extractUserId(decodeJWT);
-
-        //캐싱돼있는지 확인
-        if(!jwtRedisService.validateRefreshToken(userId, refreshToken)){
-            throw new JWTVerificationException("refresh token absent from whitelist");
-        }
-
-
-        PrincipalDetails principalDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
-
-        //새로운 토큰 페어 생성
-        TokenInfo tokenInfo = jwtService.generateTokenInfo(userId, principalDetails.getEmail(), principalDetails.getUserRoles());
-
-
-        jwtRedisService.saveRefreshToken(userId, tokenInfo);
-
-        TokenResponse tokenResponse = TokenResponse.from(tokenInfo);
+        TokenInfo tokenInfo = authService.reissue(refreshToken);
 
         return ResponseEntity.ok()
-                .body(tokenResponse);
+                .body(TokenResponse.from(tokenInfo));
     }
 
     @PostMapping("/logout")
