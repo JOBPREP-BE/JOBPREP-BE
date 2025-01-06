@@ -1,5 +1,5 @@
 package io.dev.jobprep.domain.users.domain;
 
 public enum UserRole {
-   ADMIN, NORMAL
+   ROLE_ADMIN, ROLE_NORMAL
 }
