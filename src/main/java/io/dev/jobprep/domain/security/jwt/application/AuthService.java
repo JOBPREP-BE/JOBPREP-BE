@@ -6,10 +6,12 @@ import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
     private final JwtService jwtService;
     private final JwtRedisService jwtRedisService;
@@ -17,7 +19,9 @@ public class AuthService {
 
     public TokenInfo reissue(String refreshToken) {
         String userId= this.verifyRefreshToken(refreshToken);
-        return this.generateTokenPair(userId);
+        TokenInfo tokenInfo = this.generateTokenPair(userId);
+        log.info("Refresh token rotated for user: {}", userId);
+        return tokenInfo;
     }
 
     public String verifyRefreshToken(String refreshToken) {

@@ -33,7 +33,6 @@ public class JwtRedisService {
                     refreshTokenValidityTime,
                     TimeUnit.MILLISECONDS
             );
-            log.info("Refresh token rotated for user: {}", userId);
         } catch (Exception e) {
             log.error("Failed to rotate refresh token for user {}: {}", userId, e.getMessage());
             throw new TokenCachingException(ErrorCode400.REFRESH_TOKEN_CACHING_FAILED);
