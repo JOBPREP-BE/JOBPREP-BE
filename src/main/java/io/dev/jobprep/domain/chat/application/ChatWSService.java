@@ -13,6 +13,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -25,12 +27,29 @@ public class ChatWSService {
     private final ChatRedisService redisService;
     private final SequenceGenerator generator;
 
+    @Transactional(value = "mongoTransactionManager")
     public ChatMessageCommonInfo handle(UUID roomId, Long userId, String message) {
 
         User user = userCommonService.getUserWithId(userId);
         ChatRoom chatRoom = getChatRoom(roomId);
         chatRoom.isGathered(user);
         chatRoom.validateActive();
+
+        ChatMessage chatMessage = handleChat(chatRoom, userId, message);
+        try {
+            handleChatRoom(chatRoom, chatMessage);
+        } catch (RuntimeException e) {
+            // Unchecked Exception 발생 시, 예외의 상위 전파를 막아 트랜잭션 롤백을 방지
+            log.info("Error {} while handling chat message", e.getMessage());
+        }
+
+        return ChatMessageCommonInfo.of(chatRoom, chatMessage);
+    }
+
+    @Transactional(value = "mongoTransactionManager")
+    public ChatMessage handleChat(ChatRoom chatRoom, Long userId, String message) {
+
+        UUID roomId = chatRoom.getId();
 
         ChatMessage chatMessage = ChatMessage.of(
             generator.getNextSequence(roomId.toString()),
@@ -48,14 +67,26 @@ public class ChatWSService {
             markAsRead(chatMessage, oppositeId);
         }
 
-        chatRoom.updateLastMessage(chatMessage);
-        chatRepository.save(chatRoom);
-        chatRepository.save(chatMessage);
-
-        return ChatMessageCommonInfo.of(chatRoom, chatMessage);
+        return chatRepository.save(chatMessage);
     }
 
-    private void markAsRead(ChatMessage chatMessage, Long readerId) {
+    @Transactional(value = "mongoTransactionManager", propagation = Propagation.REQUIRES_NEW)
+    public void handleChatRoom(ChatRoom chatRoom, ChatMessage chatMessage) {
+        updateComplete(chatMessage);
+        updateChatRoom(chatRoom, chatMessage);
+    }
+
+    protected void updateComplete(ChatMessage chatMessage) {
+        chatMessage.complete();
+        chatRepository.update(chatMessage);
+    }
+
+    protected void updateChatRoom(ChatRoom chatRoom, ChatMessage chatMessage) {
+        chatRoom.updateLastMessage(chatMessage);
+        chatRepository.save(chatRoom);
+    }
+
+    protected void markAsRead(ChatMessage chatMessage, Long readerId) {
         chatMessage.addReader(readerId);
     }
 

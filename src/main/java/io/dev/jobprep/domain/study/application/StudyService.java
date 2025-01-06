@@ -122,8 +122,9 @@ public class StudyService {
         User user = getUser(userId);
 
         // TODO: User 엔티티 추가 시, 양뱡향 연관관계 매핑 후 수정
-        List<Study> studies = studyRepository
-            .findRecruitingStudyWithPagination(page, pageGroupSize, pageSize);
+        List<Study> studies = studyRepository.findRecruitingStudyWithPagination(
+            (page - 1) * pageSize, pageSize * pageGroupSize
+        );
         return studies.stream().map(
             (study) -> StudyInfoDto.of(
                     getStudyWithStartDate(study.getId()),

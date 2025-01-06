@@ -1,5 +1,6 @@
 package io.dev.jobprep.domain.chat.domain.entity.document;
 
+import io.dev.jobprep.domain.chat.domain.entity.enums.Status;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,9 @@ public class ChatMessage {
     @Field("content")
     private String message;
 
+    @Field("status")
+    private Status status;
+
     @Field("timestamp")
     private LocalDateTime createdAt;
 
@@ -39,6 +43,7 @@ public class ChatMessage {
         this.roomId = roomId;
         this.senderId = senderId;
         this.message = message;
+        this.status = Status.WAITING;
         this.createdAt = LocalDateTime.now();
         this.readBy = new ArrayList<>();
     }
@@ -51,6 +56,11 @@ public class ChatMessage {
 
     public boolean validateAvailableRead(Long userId) {
         return !readBy.contains(userId);
+    }
+
+    public void complete() {
+        status.validateAvailableReSend();
+        this.status = Status.COMPLETE;
     }
 
     public static ChatMessage of(Long id, UUID roomId, Long senderId, String messasge) {
