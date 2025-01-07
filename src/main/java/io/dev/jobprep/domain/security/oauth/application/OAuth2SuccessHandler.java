@@ -4,6 +4,7 @@ import io.dev.jobprep.domain.security.jwt.application.JwtRedisService;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
+import io.dev.jobprep.domain.security.util.TokenHeaderConstants;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,16 +23,16 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-    final JwtService jwtService;
-    final JwtRedisService jwtRedisService;
+    private final JwtService jwtService;
+    private final JwtRedisService jwtRedisService;
     @Value("${spring.security.oauth2.frontend-redirect.url}") // application.yml에 설정한 리다이렉트 URL
     private String redirectUrl;
 
     @Value("${jwt.access-token-validity}")
-    private Long accessTokenValidity;  // 밀리초 단위로 받아옴
+    private Long accessTokenValidity;
 
     @Value("${jwt.refresh-token-validity}")
-    private Long refreshTokenValidity;  // 밀리초 단위로 받아옴
+    private Long refreshTokenValidity;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -47,10 +48,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         jwtRedisService.saveRefreshToken(userId, tokenInfo);
 
-        Cookie accessTokenCookie = jwtService.bake("Authorization", tokenInfo.getAccessToken(), accessTokenValidity);
+        Cookie accessTokenCookie = jwtService.bake(TokenHeaderConstants.AUTHENTICATION_HEADER, tokenInfo.getAccessToken(), accessTokenValidity);
         response.addCookie(accessTokenCookie);
 
-        Cookie refreshTokenCookie = jwtService.bake("XRefreshToken", tokenInfo.getRefreshToken(), refreshTokenValidity);
+        Cookie refreshTokenCookie = jwtService.bake(TokenHeaderConstants.REFRESH_HEADER, tokenInfo.getRefreshToken(), refreshTokenValidity);
         response.addCookie(refreshTokenCookie);
 
         // 프론트엔드로 리다이렉트
