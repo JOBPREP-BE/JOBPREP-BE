@@ -7,6 +7,7 @@ import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
+import io.dev.jobprep.domain.job_interview.presentation.dto.res.UpdateJobInterviewResponse;
 import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -123,7 +124,7 @@ public interface JobInterviewSwagger {
                             }
                     ))
     })
-    ResponseEntity<FindJobInterviewResponse> update (
-            @PathVariable("interviewId") Long id, @RequestBody PutJobInterviewRequest dto, @RequestParam Long userId
+    ResponseEntity<UpdateJobInterviewResponse> update (
+            @PathVariable("interviewId") Long id, @PathVariable String field, @RequestBody PutJobInterviewRequest dto, @RequestParam Long userId
     );
 }
