@@ -23,11 +23,11 @@ import static io.dev.jobprep.exception.code.ErrorCode404.INTERVIEW_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional(value = "transactionManager", readOnly = true)
 public class JobInterviewService {
     private final JobInterviewRepository jobInterviewRepository;
 
-    @Transactional
+    @Transactional("transactionManager")
     public JobInterviewIdResponse saveJobInterview (User user) {
         JobInterview jobInterview = JobInterview.builder()
                 .question("")
@@ -41,7 +41,7 @@ public class JobInterviewService {
         return JobInterviewIdResponse.from(jobInterview.getId());
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public FindJobInterviewResponse update (PutJobInterviewRequest request, Long id, User user) {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
@@ -53,7 +53,7 @@ public class JobInterviewService {
         return FindJobInterviewResponse.from(savedEntity);
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void delete(Long id, User user) {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(ALREADY_DELETED_INTERVIEW));
@@ -68,7 +68,7 @@ public class JobInterviewService {
         return jobInterviewRepository.findByConditionWithPagination(user.getId(), cursorId, pageSize);
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void initJobInterview(User user) {
         for (DefaultJobInterview interviewList : DefaultJobInterview.values()) {
             JobInterview jobInterview = JobInterview.builder()
