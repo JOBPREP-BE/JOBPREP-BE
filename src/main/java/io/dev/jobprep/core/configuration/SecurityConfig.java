@@ -3,7 +3,6 @@ package io.dev.jobprep.core.configuration;
 import io.dev.jobprep.domain.security.jwt.filter.JwtAuthenticationFilter;
 import io.dev.jobprep.domain.security.oauth.application.CustomOAuth2UserService;
 import io.dev.jobprep.domain.security.oauth.application.OAuth2SuccessHandler;
-import io.dev.jobprep.exception.CustomAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,10 +30,10 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final AuthenticationEntryPoint entryPoint;
+    private final AccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     @Bean
-    public SecurityFilterChain authenticationFilterChain(HttpSecurity http, AccessDeniedHandler accessDeniedHandler) throws Exception {
+    public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
         configureCommonSecuritySettings(http);
         http
             //.securityMatchers(matchers -> matchers.requestMatchers("/api/**", "/oauth2/**"))
@@ -53,14 +52,15 @@ public class SecurityConfig {
 //                      .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(handling -> handling
+                   .authenticationEntryPoint(entryPoint)
+                   .accessDeniedHandler(accessDeniedHandler)
+            )
+
             .oauth2Login(oauth -> oauth
                     .userInfoEndpoint(userInfo -> userInfo
                             .userService(oAuth2UserService))
                     .successHandler(oAuth2SuccessHandler)
-            )
-            .exceptionHandling(handler -> handler
-                    .authenticationEntryPoint(entryPoint)
-                    .accessDeniedHandler(customAccessDeniedHandler)
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
