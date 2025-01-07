@@ -39,7 +39,7 @@ public class JobInterviewService {
     }
 
     @Transactional("transactionManager")
-    public String update (PutJobInterviewRequest request, Long id, User user) {
+    public String update (PutJobInterviewRequest request, Long id, String field, User user) {
 
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
