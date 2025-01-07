@@ -40,8 +40,8 @@ public class SecurityConfig {
             //.securityMatchers(matchers -> matchers.requestMatchers("/api/**", "/oauth2/**"))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
-                            "/api/v1/oauth2/reissue",   // OAuth 인증 시작점
-                            "/login/oauth2/code/**",         // OAuth 리다이렉트 URL
+                            "/api/v1/oauth2/reissue",
+                            "/login/oauth2/code/**",
                             "/oauth2/authorization/**",
                             "/api-docs/**",
                             "/swagger-ui/**",
@@ -63,7 +63,7 @@ public class SecurityConfig {
                     .accessDeniedHandler(customAccessDeniedHandler)
             )
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // JWT를 사용하므로 세션은 불필요
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );
 
         return http.build();
@@ -88,7 +88,8 @@ public class SecurityConfig {
                 "http://127.0.0.1:3000",
                 "https://fe.jobprep.site"
         ));
-        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.setAllowedMethods(
+                Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
 
