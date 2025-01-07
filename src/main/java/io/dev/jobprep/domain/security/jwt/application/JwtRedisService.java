@@ -1,7 +1,7 @@
 package io.dev.jobprep.domain.security.jwt.application;
 
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
-import io.dev.jobprep.domain.security.jwt.exception.TokenCachingException;
+import io.dev.jobprep.domain.security.jwt.exception.TokenException;
 import io.dev.jobprep.exception.code.ErrorCode400;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +16,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class JwtRedisService {
     private static final String REFRESH_TOKEN_PREFIX = "RT:";
-    private static final String SAPARATOR = ":";
+    private static final String SEPARATOR = ":";
     private final RedisTemplate<String, String> redisTemplate;
-    private final JwtService jwtService;
 
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
@@ -35,7 +34,7 @@ public class JwtRedisService {
             );
         } catch (Exception e) {
             log.error("Failed to rotate refresh token for user {}: {}", userId, e.getMessage());
-            throw new TokenCachingException(ErrorCode400.REFRESH_TOKEN_CACHING_FAILED);
+            throw new TokenException(ErrorCode400.RFT_CACHE_FALIURE);
         }
     }
 
@@ -52,7 +51,7 @@ public class JwtRedisService {
             return savedToken.equals(refreshToken);
 
         } catch (Exception e) {
-            throw new TokenCachingException(ErrorCode400.REFRESH_TOKEN_CACHE_VALIDATION_FAILED);
+            throw new TokenException(ErrorCode400.RFT_VALIDATION_FAILURE);
         }
 
     }
@@ -68,8 +67,8 @@ public class JwtRedisService {
                 log.warn("No refresh token found to delete for user: {}", userId);
             }
         } catch (Exception e) {
-            log.error("Error accured while deleting refresh token for user {}: {}", e.getMessage());
-            throw new TokenCachingException(ErrorCode400.REFRESH_TOKEN_CACHE_DELETION_ERROR);
+            log.error("Error occurred while deleting refresh token: {}", e.getMessage());
+            throw new TokenException(ErrorCode400.RFT_VALIDATION_FAILURE);
         }
     }
 
