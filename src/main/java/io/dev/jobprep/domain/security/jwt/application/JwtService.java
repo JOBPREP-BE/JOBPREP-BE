@@ -28,8 +28,8 @@ public class JwtService {
     private Long accessTokenValidityTime;
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
-    //토큰 생성기
-    //리프레쉬토큰, 액세스 토큰 재생성
+    @Value("${cookie.domain}") // application.yml에 설정 필요
+    private String cookieDomain;
 
     private Algorithm getAlgorithm() {
         return Algorithm.HMAC256(secretKey);
@@ -75,7 +75,7 @@ public class JwtService {
 
     public void isTokenValid(String token) {
         try {
-            DecodedJWT decodedJWT = verifyToken(token);
+            DecodedJWT decodedJWT = verifyNDcodeToken(token);
             isTokenExpired(decodedJWT);
         } catch (TokenExpiredException e) {
             throw e;
@@ -96,7 +96,7 @@ public class JwtService {
     }
 
     // Verify and decode a JWT
-    public DecodedJWT verifyToken(String token) {
+    public DecodedJWT verifyNDcodeToken(String token) {
         try {
             JWTVerifier verifier = JWT.require(getAlgorithm()).build();
             return verifier.verify(token);
@@ -138,8 +138,10 @@ public class JwtService {
         Cookie cookie = new Cookie(key, value);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
+        cookie.setDomain(cookieDomain);
         cookie.setPath("/");
         cookie.setMaxAge(convert(tokenExpiry));
+        cookie.setAttribute("SameSite", "None");
         return cookie;
     }
 
