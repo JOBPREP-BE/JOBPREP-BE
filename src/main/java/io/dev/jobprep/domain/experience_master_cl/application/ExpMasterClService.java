@@ -7,7 +7,6 @@ import io.dev.jobprep.domain.experience_master_cl.exception.ExpMasterClException
 import io.dev.jobprep.domain.experience_master_cl.infrastructure.ExpMasterClRepository;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMasterClPatchRequest;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.ExpMasterClIdResponse;
-import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.UpdateExpMasterClResponse;
 import io.dev.jobprep.domain.job_interview.exception.JobInterviewException;
 import io.dev.jobprep.domain.users.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,7 @@ public class ExpMasterClService {
     }
 
     @Transactional("transactionManager")
-    public String patch (Long id, User user, ExpMasterClPatchRequest request) {
+    public String patch (Long id, String field, User user, ExpMasterClPatchRequest request) {
 
         ExpMasterCl expMasterCl = findById(id);
 

@@ -71,7 +71,7 @@ public class ExpMasterCl {
             case "masterClProcess" -> this.masterClProcess = MasterClProcess.from(request.getNewVal());
             case "expAnal" -> this.expAnal = request.getNewVal();
             case "masterCl" -> this.masterCl = request.getNewVal();
-            default -> throw new ExpMasterClException(UNSUPPORTED_FIELD_TYPE);
+            default -> throw new ExpMasterClException(UNSUPPORTED_FIELD_TYPE_MASTER_CL);
         }
     }
 
