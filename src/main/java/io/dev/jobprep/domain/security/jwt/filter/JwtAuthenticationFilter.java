@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
+import io.dev.jobprep.domain.security.util.TokenHeaderConstants;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,10 +26,6 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final PrincipalDetailsService principalDetailsService;
-
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER_PREFIX = "Bearer ";
-    private static final String REFRESH_HEADER = "XRefreshToken";
 
     @Override
     public void doFilterInternal(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws IOException, ServletException {
@@ -71,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 토큰에서 principalDetails 추출하는 메소드
     private PrincipalDetails getPrincipalDetailsFromToken(String Token){
         try {
-            DecodedJWT decodeJWT = jwtService.verifyToken(Token);
+            DecodedJWT decodeJWT = jwtService.verifyNDcodeToken(Token);
             String userId = jwtService.extractUserId(decodeJWT);
             return (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         } catch (Exception e) {
@@ -96,9 +93,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String resolveAccessToken(HttpServletRequest request){
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(BEARER_PREFIX.length()).trim();
+        String bearerToken = request.getHeader(TokenHeaderConstants.AUTHENTICATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TokenHeaderConstants.TOKEN_PREFIX)) {
+            return bearerToken.substring(TokenHeaderConstants.TOKEN_PREFIX.length()).trim();
         }
         return null;
     }
