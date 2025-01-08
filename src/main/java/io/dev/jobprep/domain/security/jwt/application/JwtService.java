@@ -17,18 +17,19 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Date;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class JwtService {
+
     @Value("${jwt.secret-key}")
     private String secretKey;
+
     @Value("${jwt.access-token-validity}")
     private Long accessTokenValidityTime;
+
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
-    //토큰 생성기
-    //리프레쉬토큰, 액세스 토큰 재생성
 
     private Algorithm getAlgorithm() {
         return Algorithm.HMAC256(secretKey);
@@ -66,7 +67,7 @@ public class JwtService {
                     .withSubject(userId)
                     .withExpiresAt(getCurrentDate(System.currentTimeMillis() + refreshTokenValidityTime))
                     .sign(getAlgorithm());
-        }catch (Exception e) {
+        } catch (Exception e) {
                 log.error("Failed to generate token info: {}", e.getMessage());
                 throw new JWTVerificationException("Failed to generate tokens");
             }
@@ -132,9 +133,11 @@ public class JwtService {
             throw new JWTVerificationException("Failed to extract user role");
         }
     }
+
     private Date getCurrentDate(Long time){
         return new Date(time);
     }
+
     private Date getCurrentDate(){
         return new Date();
     }
