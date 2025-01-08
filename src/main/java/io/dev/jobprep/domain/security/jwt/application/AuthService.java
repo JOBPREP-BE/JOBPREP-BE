@@ -1,6 +1,5 @@
 package io.dev.jobprep.domain.security.jwt.application;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.dev.jobprep.domain.security.jwt.exception.TokenException;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
@@ -15,19 +14,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AuthService {
+
     private final JwtService jwtService;
     private final JwtRedisService jwtRedisService;
     private final PrincipalDetailsService principalDetailsService;
 
     @Value("${jwt.access-token-validity}")
     private Long accessTokenValidity;
+
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidity;
-
 
     public TokenInfo reissue(String refreshToken) {
         jwtService.isTokenValid(refreshToken);
@@ -40,7 +40,7 @@ public class AuthService {
     public void deleteFromCache(PrincipalDetails principalDetails){
         SecurityContextHolder.clearContext();
         String userId = principalDetails.getUsername();
-        //리프레쉬 토큰 삭제
+
         try {
             jwtRedisService.deleteRefreshToken(userId);
         }catch(TokenException e) {
@@ -62,7 +62,7 @@ public class AuthService {
     }
 
     private String verifyRefreshToken(String refreshToken) {
-        DecodedJWT decodeJWT = jwtService.verifyNDcodeToken(refreshToken);
+        DecodedJWT decodeJWT = jwtService.verifyNDecodeToken(refreshToken);
         String userId = jwtService.extractUserId(decodeJWT);
 
         jwtRedisService.validateRefreshToken(userId, refreshToken);
