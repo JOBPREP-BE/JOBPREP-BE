@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.JWT;
 
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,18 +18,22 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Date;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class JwtService {
+
     @Value("${jwt.secret-key}")
     private String secretKey;
+
     @Value("${jwt.access-token-validity}")
     private Long accessTokenValidityTime;
+
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
-    //토큰 생성기
-    //리프레쉬토큰, 액세스 토큰 재생성
+
+    @Value("${cookie.domain}") // application.yml에 설정 필요
+    private String cookieDomain;
 
     private Algorithm getAlgorithm() {
         return Algorithm.HMAC256(secretKey);
@@ -66,7 +71,7 @@ public class JwtService {
                     .withSubject(userId)
                     .withExpiresAt(getCurrentDate(System.currentTimeMillis() + refreshTokenValidityTime))
                     .sign(getAlgorithm());
-        }catch (Exception e) {
+        } catch (Exception e) {
                 log.error("Failed to generate token info: {}", e.getMessage());
                 throw new JWTVerificationException("Failed to generate tokens");
             }
@@ -74,7 +79,7 @@ public class JwtService {
 
     public void isTokenValid(String token) {
         try {
-            DecodedJWT decodedJWT = verifyToken(token);
+            DecodedJWT decodedJWT = verifyNDcodeToken(token);
             isTokenExpired(decodedJWT);
         } catch (TokenExpiredException e) {
             throw e;
@@ -95,7 +100,7 @@ public class JwtService {
     }
 
     // Verify and decode a JWT
-    public DecodedJWT verifyToken(String token) {
+    public DecodedJWT verifyNDcodeToken(String token) {
         try {
             JWTVerifier verifier = JWT.require(getAlgorithm()).build();
             return verifier.verify(token);
@@ -132,9 +137,26 @@ public class JwtService {
             throw new JWTVerificationException("Failed to extract user role");
         }
     }
+
+    public Cookie bake(String key, String value, Long tokenExpiry) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setDomain(cookieDomain);
+        cookie.setPath("/");
+        cookie.setMaxAge(convert(tokenExpiry));
+        cookie.setAttribute("SameSite", "None");
+        return cookie;
+    }
+
+    private int convert(Long tokenExpiry) {
+        return (int) (tokenExpiry / 1000);
+    }
+
     private Date getCurrentDate(Long time){
         return new Date(time);
     }
+
     private Date getCurrentDate(){
         return new Date();
     }

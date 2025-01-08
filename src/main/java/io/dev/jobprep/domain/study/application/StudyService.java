@@ -90,18 +90,22 @@ public class StudyService {
         validateAlreadyGathered(id);
 
         StudyWithStartDateDto studyWithDate = getStudyWithStartDate(studyId);
-        Study study = studyWithDate.getStudy();
+        try {
+            Study study = studyWithDate.getStudy();
 
-        if (isPassedDueDate(studyWithDate.getStartDate())) {
-            // 모집 기간이 지났으면 모집 종료
-            study.close();
-            throw new StudyException(ALREADY_PASSED_DUE_DATE);
+            if (isPassedDueDate(studyWithDate.getStartDate())) {
+                // 모집 기간이 지났으면 모집 종료
+                study.close();
+                throw new StudyException(ALREADY_PASSED_DUE_DATE);
+            }
+
+            study.join(user);
+
+            // 모집 인원이 다 찼으면 모집 종료
+            validateShouldClose(study);
+        } catch (NullPointerException e) {
+            throw new StudyException(STUDY_NOT_FOUND);
         }
-
-        study.join(user);
-
-        // 모집 인원이 다 찼으면 모집 종료
-        validateShouldClose(study);
 
         return studyId;
     }
@@ -191,7 +195,7 @@ public class StudyService {
     }
 
     private StudyWithStartDateDto getStudyWithStartDate(Long studyId) {
-        return studyRepository.getStudyWithStartDate(studyId)
+        return studyId == null ? null : studyRepository.getStudyWithStartDate(studyId)
             .orElseThrow(() -> new StudyException(STUDY_NOT_FOUND));
     }
 

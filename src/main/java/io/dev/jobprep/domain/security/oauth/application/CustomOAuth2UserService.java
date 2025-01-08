@@ -21,7 +21,7 @@ import java.util.Map;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
 
-    @Transactional
+    @Transactional("transactionManager")
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         Map<String, Object> oAuth2UserAttributes = super.loadUser(userRequest).getAttributes();

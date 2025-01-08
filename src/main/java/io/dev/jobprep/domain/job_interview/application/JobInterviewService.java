@@ -6,7 +6,6 @@ import io.dev.jobprep.domain.job_interview.domain.enums.JobInterviewCategory;
 import io.dev.jobprep.domain.job_interview.exception.JobInterviewException;
 import io.dev.jobprep.domain.job_interview.infrastructure.JobInterviewRepository;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
-import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
 import io.dev.jobprep.domain.users.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +29,7 @@ public class JobInterviewService {
     @Transactional("transactionManager")
     public JobInterviewIdResponse saveJobInterview (User user) {
         JobInterview jobInterview = JobInterview.builder()
-                .question("")
                 .category(JobInterviewCategory.PERSONALITY)
-                .answer("")
                 .creator(user)
                 .isDefault(false)
                 .build();
@@ -42,15 +39,16 @@ public class JobInterviewService {
     }
 
     @Transactional("transactionManager")
-    public FindJobInterviewResponse update (PutJobInterviewRequest request, Long id, User user) {
+    public String update (PutJobInterviewRequest request, Long id, String field, User user) {
+
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
 
-        validateIsDefault(savedEntity, request);
+        validateIsDefault(field, savedEntity, request);
         validateUser(user.getId(), savedEntity.getCreator().getId());
-        savedEntity.update(request);
+        savedEntity.update(field, request);
 
-        return FindJobInterviewResponse.from(savedEntity);
+        return request.getNewVal();
     }
 
     @Transactional("transactionManager")
@@ -74,7 +72,6 @@ public class JobInterviewService {
             JobInterview jobInterview = JobInterview.builder()
                     .question(interviewList.getQuestion())
                     .category(interviewList.getCategory())
-                    .answer("")
                     .creator(user)
                     .isDefault(true)
                     .build();
@@ -88,8 +85,8 @@ public class JobInterviewService {
             throw new JobInterviewException(INTERVIEW_FORBIDDEN_OPERATION);
         }
     }
-    private void validateIsDefault(JobInterview savedEntity, PutJobInterviewRequest request) {
-        if (savedEntity.getIsDefault() && (request.getField().equals("question") || request.getField().equals("category"))) {
+    private void validateIsDefault(String field, JobInterview savedEntity, PutJobInterviewRequest request) {
+        if (savedEntity.getIsDefault() && (field.equals("question") || field.equals("category"))) {
             throw new JobInterviewException(IS_DEFAULT_INTERVIEW);
         }
     }

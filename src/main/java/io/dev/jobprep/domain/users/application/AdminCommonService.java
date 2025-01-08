@@ -28,7 +28,7 @@ public class AdminCommonService {
     private final StudyJpaRepository studyRepository;
     private final UserStudyJpaRepository userStudyRepository;
 
-    @Transactional
+    @Transactional("transactionManager")
     public Long penalize(Long userId, UserPenalizeRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
@@ -58,7 +58,7 @@ public class AdminCommonService {
     }
 
     private boolean validateisAdmin(Long userId) {
-        return userCommonService.getUserWithId(userId).getUserRole().equals(UserRole.ADMIN);
+        return userCommonService.getUserWithId(userId).getUserRole().equals(UserRole.ROLE_ADMIN);
     }
 
     private UserStudy validateGatheredUser(Long userId, Long studyId) {

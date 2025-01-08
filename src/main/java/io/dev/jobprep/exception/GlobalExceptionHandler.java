@@ -85,15 +85,27 @@ public class GlobalExceptionHandler {
         return ErrorResponse.from(AUTH_TOKEN_EXPIRED);
     }
 
-    @ExceptionHandler(value = {AuthenticationException.class, JWTVerificationException.class})
+    @ExceptionHandler(value = {AuthenticationException.class})
     protected ResponseEntity<ErrorResponse> handleAuthenticationException(
         AuthenticationException e, HttpServletRequest request
     ) {
-        log.info("Authentication Exception: {}, Path: {}", e.getMessage(), request.getPathInfo());
-        log.info("Token: {}", request.getHeader(AUTHORIZATION));
-        return ErrorResponse.from(AUTH_MISSING_CREDENTIALS);
+        return handleCommonAuthException(e, request);
     }
 
+    @ExceptionHandler(JWTVerificationException.class)
+    protected ResponseEntity<ErrorResponse> handleJWTVerificationException(
+            JWTVerificationException e, HttpServletRequest request
+    ) {
+        return handleCommonAuthException(e, request);
+    }
+
+    // JWTVerificationException,AuthenticationException 공통 처리 로직
+    private ResponseEntity<ErrorResponse> handleCommonAuthException(Exception e, HttpServletRequest request) {
+        log.info("AuthException: {}, Path: {}", e.getMessage(), request.getPathInfo());
+        log.info("AccessToken: {}", request.getHeader(AUTHORIZATION));
+        log.info("RefreshToken: {}", request.getHeader("xRefreshToken"));
+        return ErrorResponse.from(AUTH_MISSING_CREDENTIALS);
+    }
     @ExceptionHandler(value = {AccessDeniedException.class})
     protected ResponseEntity<ErrorResponse> handleAccessDeniedException(
         AccessDeniedException e, HttpServletRequest request
