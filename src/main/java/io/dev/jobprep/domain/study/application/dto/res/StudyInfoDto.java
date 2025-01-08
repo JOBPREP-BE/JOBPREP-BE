@@ -41,13 +41,31 @@ public class StudyInfoDto {
 
     public static StudyInfoDto of(StudyWithStartDateDto dto, int headCount) {
         return StudyInfoDto.builder()
-            .id(dto.getStudy().getId())
-            .name(dto.getStudy().getName())
-            .startDate(dto.getStartDate())
+            .id((Long) resolve(dto, Long.class))
+            .name((String) resolve(dto, String.class))
+            .startDate((LocalDateTime) resolve(dto, LocalDateTime.class))
             .headCount(headCount)
-            .position(dto.getStudy().getPosition())
-            .dueDate(calculateDueDate(dto.getStartDate()))
+            .position((Position) resolve(dto, Position.class))
+            .dueDate(resolve(dto))
             .build();
+    }
+
+    private static Object resolve(StudyWithStartDateDto dto, Class<?> clazz) {
+        if (clazz == String.class) {
+            return dto.getStudy() != null ? dto.getStudy().getName() : null;
+        } else if (clazz == Long.class) {
+            return dto.getStudy() != null ? dto.getStudy().getId() : null;
+        } else if (clazz == LocalDateTime.class) {
+            return dto.getStartDate() != null ? dto.getStartDate() : null;
+        } else if (clazz == Position.class) {
+            return dto.getStudy() != null ? dto.getStudy().getPosition() : null;
+        } else {
+            throw new IllegalArgumentException("Unknown class type: " + clazz);
+        }
+    }
+
+    private static LocalDateTime resolve(StudyWithStartDateDto dto) {
+        return dto.getStartDate() != null ? calculateDueDate(dto.getStartDate()) : null;
     }
 
     private static LocalDateTime calculateDueDate(LocalDateTime startDate) {

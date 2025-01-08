@@ -18,16 +18,20 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Date;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class JwtService {
+
     @Value("${jwt.secret-key}")
     private String secretKey;
+
     @Value("${jwt.access-token-validity}")
     private Long accessTokenValidityTime;
+
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
+
     @Value("${cookie.domain}") // application.yml에 설정 필요
     private String cookieDomain;
 
@@ -67,7 +71,7 @@ public class JwtService {
                     .withSubject(userId)
                     .withExpiresAt(getCurrentDate(System.currentTimeMillis() + refreshTokenValidityTime))
                     .sign(getAlgorithm());
-        }catch (Exception e) {
+        } catch (Exception e) {
                 log.error("Failed to generate token info: {}", e.getMessage());
                 throw new JWTVerificationException("Failed to generate tokens");
             }
@@ -148,9 +152,11 @@ public class JwtService {
     private int convert(Long tokenExpiry) {
         return (int) (tokenExpiry / 1000);
     }
+
     private Date getCurrentDate(Long time){
         return new Date(time);
     }
+
     private Date getCurrentDate(){
         return new Date();
     }

@@ -28,11 +28,12 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .where(studySchedule.week_number.eq(1), study.id.eq(studyId))
             .fetchOne();
 
-        return Optional.ofNullable(
+        return Optional.ofNullable(result != null ?
             StudyWithStartDateDto.of(
                 result.get(study),
                 result.get(studySchedule.start_date)
-        ));
+            )
+        : null);
     }
 
     @Override

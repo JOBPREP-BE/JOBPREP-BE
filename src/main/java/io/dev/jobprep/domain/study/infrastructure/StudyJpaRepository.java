@@ -21,9 +21,9 @@ public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRep
     Optional<Study> findStudyByName(String name);
 
     @Query(value = """
-        select * from study as s inner join user_study us on s.id = us.study_id
-        where us.user_id = :userId and (not s.study_status = 'FINISHED' or s.deleted_at is not null)
-    """, nativeQuery = true)
+        SELECT s FROM Study s JOIN UserStudy us ON s.id = us.study.id
+        WHERE us.user.id = :userId AND (s.status <> 'FINISHED' OR s.deletedAt IS NOT NULL)
+    """)
     Optional<Study> findGatheredStudyByUserId(Long userId);
 
     @Query(value = """

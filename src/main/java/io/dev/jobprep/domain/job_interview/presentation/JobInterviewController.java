@@ -7,6 +7,7 @@ import io.dev.jobprep.domain.job_interview.application.JobInterviewService;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
+import io.dev.jobprep.domain.job_interview.presentation.dto.res.UpdateJobInterviewResponse;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.domain.users.domain.User;
 import jakarta.validation.Valid;
@@ -33,14 +34,14 @@ public class JobInterviewController implements JobInterviewSwagger {
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 
-    @PutMapping("/{interviewId}")
-    public ResponseEntity<FindJobInterviewResponse> update (
-            @PathVariable("interviewId") Long id,
+    @PatchMapping("/{interviewId}/{field}")
+    public ResponseEntity<UpdateJobInterviewResponse> update (
+            @PathVariable("interviewId") Long id, @PathVariable String field,
             @RequestBody PutJobInterviewRequest dto,
             @RequestParam Long userId
             ) {
         User user = userCommonService.getUserWithId(userId);
-        return ResponseEntity.ok(jobInterviewService.update(dto, id, user));
+        return ResponseEntity.ok(UpdateJobInterviewResponse.from(jobInterviewService.update(dto, id, field, user)));
     }
 
     @DeleteMapping("/{interviewId}")
