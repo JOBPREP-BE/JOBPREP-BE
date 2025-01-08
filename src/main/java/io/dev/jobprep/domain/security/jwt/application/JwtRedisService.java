@@ -39,16 +39,15 @@ public class JwtRedisService {
     }
 
 
-    public boolean validateRefreshToken(String userId, String refreshToken) {
+    public void validateRefreshToken(String userId, String refreshToken) {
         String key = getKey(userId);
         try {
             String savedToken = redisTemplate.opsForValue().get(key);
 
             if (savedToken == null) {
                 log.warn("No refresh token found for user: {}", userId);
-                return false;
+                throw new TokenException(ErrorCode400.RFT_VALIDATION_FAILURE);
             }
-            return savedToken.equals(refreshToken);
 
         } catch (Exception e) {
             throw new TokenException(ErrorCode400.RFT_VALIDATION_FAILURE);

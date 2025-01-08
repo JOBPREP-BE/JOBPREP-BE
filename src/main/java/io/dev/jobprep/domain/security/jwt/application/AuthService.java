@@ -65,9 +65,7 @@ public class AuthService {
         DecodedJWT decodeJWT = jwtService.verifyNDcodeToken(refreshToken);
         String userId = jwtService.extractUserId(decodeJWT);
 
-        if(!jwtRedisService.validateRefreshToken(userId, refreshToken)){
-            throw new JWTVerificationException("refresh token absent from whitelist");
-        }
+        jwtRedisService.validateRefreshToken(userId, refreshToken);
 
         return userId;
     }
