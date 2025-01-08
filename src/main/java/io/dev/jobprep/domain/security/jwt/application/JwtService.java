@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.JWT;
 
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,9 @@ public class JwtService {
 
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
+
+    @Value("${cookie.domain}") // application.yml에 설정 필요
+    private String cookieDomain;
 
     private Algorithm getAlgorithm() {
         return Algorithm.HMAC256(secretKey);
@@ -75,7 +79,7 @@ public class JwtService {
 
     public void isTokenValid(String token) {
         try {
-            DecodedJWT decodedJWT = verifyToken(token);
+            DecodedJWT decodedJWT = verifyNDcodeToken(token);
             isTokenExpired(decodedJWT);
         } catch (TokenExpiredException e) {
             throw e;
@@ -96,7 +100,7 @@ public class JwtService {
     }
 
     // Verify and decode a JWT
-    public DecodedJWT verifyToken(String token) {
+    public DecodedJWT verifyNDcodeToken(String token) {
         try {
             JWTVerifier verifier = JWT.require(getAlgorithm()).build();
             return verifier.verify(token);
@@ -132,6 +136,21 @@ public class JwtService {
             log.error("Failed to extract user role from token: {}", e.getMessage());
             throw new JWTVerificationException("Failed to extract user role");
         }
+    }
+
+    public Cookie bake(String key, String value, Long tokenExpiry) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setDomain(cookieDomain);
+        cookie.setPath("/");
+        cookie.setMaxAge(convert(tokenExpiry));
+        cookie.setAttribute("SameSite", "None");
+        return cookie;
+    }
+
+    private int convert(Long tokenExpiry) {
+        return (int) (tokenExpiry / 1000);
     }
 
     private Date getCurrentDate(Long time){

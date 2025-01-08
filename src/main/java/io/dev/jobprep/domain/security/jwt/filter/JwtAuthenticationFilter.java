@@ -5,9 +5,11 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
+import io.dev.jobprep.domain.security.util.TokenHeaderConstants;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,8 +20,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -27,12 +27,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final PrincipalDetailsService principalDetailsService;
 
-    private static final String AUTHORIZATION_HEADER = "authorization";
-    private static final String BEARER_PREFIX = "Bearer ";
-    private static final String REFRESH_HEADER = "xRefreshToken";
-
     @Override
-    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilterInternal(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws IOException, ServletException {
         try {
             String accessToken = resolveAccessToken(request);
             //액세스 토큰 존재하면
@@ -72,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 토큰에서 principalDetails 추출하는 메소드
     private PrincipalDetails getPrincipalDetailsFromToken(String Token){
         try {
-            DecodedJWT decodeJWT = jwtService.verifyToken(Token);
+            DecodedJWT decodeJWT = jwtService.verifyNDcodeToken(Token);
             String userId = jwtService.extractUserId(decodeJWT);
             return (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         } catch (Exception e) {
@@ -97,14 +93,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String resolveAccessToken(HttpServletRequest request){
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(BEARER_PREFIX.length()).trim();
+        String bearerToken = request.getHeader(TokenHeaderConstants.AUTHENTICATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TokenHeaderConstants.TOKEN_PREFIX)) {
+            return bearerToken.substring(TokenHeaderConstants.TOKEN_PREFIX.length()).trim();
         }
         return null;
-    }
-
-    private String resolveRefreshToken(HttpServletRequest request) {
-        return request.getHeader(REFRESH_HEADER);
     }
 }

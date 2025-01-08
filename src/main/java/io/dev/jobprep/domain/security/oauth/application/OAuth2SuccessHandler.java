@@ -1,11 +1,10 @@
 package io.dev.jobprep.domain.security.oauth.application;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.dev.jobprep.domain.security.jwt.application.JwtRedisService;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
-import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
-import jakarta.servlet.ServletException;
+import io.dev.jobprep.domain.security.util.TokenHeaderConstants;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,21 +23,21 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-    final JwtService jwtService;
-
+    private final JwtService jwtService;
+    private final JwtRedisService jwtRedisService;
     @Value("${spring.security.oauth2.frontend-redirect.url}") // application.yml에 설정한 리다이렉트 URL
     private String redirectUrl;
 
     @Value("${jwt.access-token-validity}")
-    private Long accessTokenValidity;  // 밀리초 단위로 받아옴
+    private Long accessTokenValidity;
 
     @Value("${jwt.refresh-token-validity}")
-    private Long refreshTokenValidity;  // 밀리초 단위로 받아옴
+    private Long refreshTokenValidity;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        String userId = principalDetails.getUsername().toString();
+        String userId = principalDetails.getUsername();
         String userEmail = principalDetails.getEmail();
         String userAuthority = principalDetails
                 .getAuthorities()
@@ -46,32 +45,17 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .collect(Collectors.joining(","));
 
         TokenInfo tokenInfo = jwtService.generateTokenInfo(userId, userEmail, userAuthority);
-        TokenResponse tokenResponse = TokenResponse.from(tokenInfo);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writeValueAsString(tokenResponse);
 
-        Cookie accessTokenCookie = new Cookie("accessToken", tokenInfo.getAccessToken());
-        accessTokenCookie.setHttpOnly(true);  // JavaScript에서 접근 불가
-        accessTokenCookie.setSecure(true);    // HTTPS에서만 전송
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge((int)(accessTokenValidity/1000));    // 1시간
+        jwtRedisService.saveRefreshToken(userId, tokenInfo);
 
-        Cookie refreshTokenCookie = new Cookie("refreshToken", tokenInfo.getRefreshToken());
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int)(refreshTokenValidity/1000));  // 7일
-
+        Cookie accessTokenCookie = jwtService.bake(TokenHeaderConstants.AUTHENTICATION_HEADER, tokenInfo.getAccessToken(), accessTokenValidity);
         response.addCookie(accessTokenCookie);
+
+        Cookie refreshTokenCookie = jwtService.bake(TokenHeaderConstants.REFRESH_HEADER, tokenInfo.getRefreshToken(), refreshTokenValidity);
         response.addCookie(refreshTokenCookie);
 
         // 프론트엔드로 리다이렉트
         response.sendRedirect(redirectUrl);
-
-        // 성공 메시지 JSON 작성
-//        response.setStatus(HttpServletResponse.SC_OK);
-//        response.setContentType("application/json");
-//        response.setCharacterEncoding("UTF-8");
-//        response.getWriter().write(jsonResponse);
     }
+
 }

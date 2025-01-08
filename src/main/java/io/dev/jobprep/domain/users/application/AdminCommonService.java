@@ -58,7 +58,7 @@ public class AdminCommonService {
     }
 
     private boolean validateisAdmin(Long userId) {
-        return userCommonService.getUserWithId(userId).getUserRole().equals(UserRole.ADMIN);
+        return userCommonService.getUserWithId(userId).getUserRole().equals(UserRole.ROLE_ADMIN);
     }
 
     private UserStudy validateGatheredUser(Long userId, Long studyId) {

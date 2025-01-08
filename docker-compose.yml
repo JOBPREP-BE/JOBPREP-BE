@@ -108,7 +108,7 @@ services:
 
   app:
     container_name: jobprep-app
-    image: jobpreb/jobprep:33.0
+    image: jobpreb/jobprep:40.0
     restart: always
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://jobprep_mysql:3306/${MYSQL_DATABASE}
@@ -121,6 +121,7 @@ services:
     ports:
       - "${APP_PORT}:8080"
       - "443:443"
+      - "80:80"
     volumes:
       - ${SSL_FULLCHAIN}:/application/ssl/fullchain.pem
       - ${SSL_PRIVKEY}:/application/ssl/privkey.pem
