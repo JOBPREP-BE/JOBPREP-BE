@@ -53,12 +53,12 @@ public interface OauthSwagger {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(name = "E01-JWT-001", value = SwaggerJwtErrorExamples.REFRESH_TOKEN_CACHING_FAILED))),
+                            examples = @ExampleObject(name = "E01-JWT-001", value = SwaggerJwtErrorExamples.RFT_CACHE_FALIURE))),
             @ApiResponse(responseCode = "400", description = "리프레쉬토큰 캐시 검증에서 문제가 발생했을 때",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(name = "E01-JWT-002", value = SwaggerJwtErrorExamples.REFRESH_TOKEN_CACHE_VALIDATION_FAILED))),
+                            examples = @ExampleObject(name = "E01-JWT-003", value = SwaggerJwtErrorExamples.RFT_VALIDATION_FAILURE))),
 
     })
     ResponseEntity<TokenResponse> reissue(
@@ -80,6 +80,11 @@ public interface OauthSwagger {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject(name = "E02-AUTH-002", value = SwaggerJwtErrorExamples.AUTH_ACCESS_DENIED))),
+            @ApiResponse(responseCode = "400", description = "리프레쉬토큰 캐시 삭제에 실패했을 때",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(name = "E01-JWT-002", value = SwaggerJwtErrorExamples.RFT_CACHE_DELETION_FALIURE))),
     })
     ResponseEntity<Void> logout(
             @Parameter(description = "인증된 사용자 정보", required = true)
