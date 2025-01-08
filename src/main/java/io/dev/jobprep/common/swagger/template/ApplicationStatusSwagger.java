@@ -40,7 +40,7 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<ApplicationStatusIdResponse> create(
-        @Parameter(description = "유저 ID", required = true) Long userId
+            @Parameter(hidden = true) Long userId
     );
 
     @Operation(summary = "지원 현황 삭제", description = "사용자가 지원현황을 삭제할 때 사용하는 API")
@@ -63,7 +63,7 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<Void> delete(
-        @Parameter(description = "유저 ID", required = true) Long userId,
+        @Parameter(hidden = true) Long userId,
         @PathVariable Long id
     );
 
@@ -88,7 +88,7 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<ApplicationStatusInfoResponse> getMyApplicationStatus(
-        @Parameter(description = "유저 ID", required = true)Long userId,
+        @Parameter(hidden = true) Long userId,
         @PathVariable Long id
     );
 
@@ -103,7 +103,7 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<CursorPaginationResult<ApplicationStatusCommonResponse>> getAll(
-        @Parameter(description = "유저 ID", required = true) Long userId,
+        @Parameter(hidden = true) Long userId,
         @Valid @ModelAttribute LongCursorPaginationReq pageable
     );
 
@@ -134,7 +134,7 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<ApplicationStatusUpdateResponse> modify(
-        @Parameter(description = "유저 ID", required = true) Long userId,
+        @Parameter(hidden = true) Long userId,
         @PathVariable Long id,
         @PathVariable String field,
         ApplicationStatusUpdateRequest request
