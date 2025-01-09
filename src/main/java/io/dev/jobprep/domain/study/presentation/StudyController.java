@@ -1,5 +1,6 @@
 package io.dev.jobprep.domain.study.presentation;
 
+import io.dev.jobprep.common.auth.JwtToken;
 import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.base.OffsetPaginationReq;
@@ -31,7 +32,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -44,26 +44,26 @@ public class StudyController implements StudySwagger {
 
     @PostMapping
     public ResponseEntity<StudyIdResponse> create(
-        @RequestParam Long userId, @RequestBody StudyCreateRequest request
+            @JwtToken Long userId, @RequestBody StudyCreateRequest request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(StudyIdResponse.from(studyService.create(userId, request)));
     }
 
     @PostMapping("/{id}/join")
-    public ResponseEntity<StudyIdResponse> join(@RequestParam Long userId, @PathVariable Long id) {
+    public ResponseEntity<StudyIdResponse> join(@JwtToken Long userId, @PathVariable Long id) {
         return ResponseEntity.ok(StudyIdResponse.from(studyService.join(userId, id)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@RequestParam Long userId, @PathVariable Long id) {
+    public ResponseEntity<Void> delete(@JwtToken Long userId, @PathVariable Long id) {
         studyService.delete(userId, id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/admin")
     public ResponseEntity<CursorPaginationResult<StudyInfoAdminResponse>> getAllForAdmin(
-        @RequestParam Long userId,
+        @JwtToken Long userId,
         @Valid @ModelAttribute LongCursorPaginationReq pageable
     ) {
 
@@ -80,7 +80,7 @@ public class StudyController implements StudySwagger {
 
     @PatchMapping("/{id}/{field}/admin")
     public ResponseEntity<StudyUpdateAdminResponse> modifyForAdmin(
-        @RequestParam Long userId,
+        @JwtToken Long userId,
         @PathVariable Long id, @PathVariable String field,
         @RequestBody StudyUpdateAdminRequest request
     ) {
@@ -90,7 +90,7 @@ public class StudyController implements StudySwagger {
 
     @PatchMapping("/{id}")
     public ResponseEntity<StudyUpdateResponse> modify(
-        @RequestParam Long userId,
+        @JwtToken Long userId,
         @PathVariable Long id,
         @RequestBody StudyUpdateRequest request
     ) {
@@ -100,7 +100,7 @@ public class StudyController implements StudySwagger {
 
     @GetMapping
     public ResponseEntity<OffsetPaginationResult<StudyCommonResponse>> getRecruitingStudy(
-        @RequestParam Long userId,
+        @JwtToken Long userId,
         @Valid @ModelAttribute OffsetPaginationReq pageable
     ) {
         return ResponseEntity.ok(
@@ -116,7 +116,7 @@ public class StudyController implements StudySwagger {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<StudyInfoResponse> getMyStudy(@RequestParam Long userId) {
+    public ResponseEntity<StudyInfoResponse> getMyStudy(@JwtToken Long userId) {
 
         Optional<Study> study = studyService.getGatheredStudy(userId);
         return study.map(value -> ResponseEntity.ok(StudyInfoResponse.of(
