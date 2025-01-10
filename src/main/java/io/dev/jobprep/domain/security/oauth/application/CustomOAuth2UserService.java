@@ -15,10 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
-@RequiredArgsConstructor
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
     private final UserRepository userRepository;
 
     @Transactional("transactionManager")
@@ -27,12 +28,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> oAuth2UserAttributes = super.loadUser(userRequest).getAttributes();
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
                 .getUserInfoEndpoint().getUserNameAttributeName();
 
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, oAuth2UserAttributes);
-
+        // TODO: NPE 방지를 위한 에러 핸들링 필요해보임
         User user = getOrSave(attributes);
 
         return new PrincipalDetails(user, oAuth2UserAttributes, userNameAttributeName);

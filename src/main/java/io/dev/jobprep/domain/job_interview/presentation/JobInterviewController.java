@@ -1,5 +1,6 @@
 package io.dev.jobprep.domain.job_interview.presentation;
 
+import io.dev.jobprep.common.auth.JwtToken;
 import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.swagger.template.JobInterviewSwagger;
@@ -27,7 +28,7 @@ public class JobInterviewController implements JobInterviewSwagger {
 
     @PostMapping
     public ResponseEntity<JobInterviewIdResponse> save (
-            @RequestParam Long userId
+            @JwtToken Long userId
     ) {
         User user = userCommonService.getUserWithId(userId);
         JobInterviewIdResponse id = jobInterviewService.saveJobInterview(user);
@@ -38,7 +39,7 @@ public class JobInterviewController implements JobInterviewSwagger {
     public ResponseEntity<UpdateJobInterviewResponse> update (
             @PathVariable("interviewId") Long id, @PathVariable String field,
             @RequestBody PutJobInterviewRequest dto,
-            @RequestParam Long userId
+            @JwtToken Long userId
             ) {
         User user = userCommonService.getUserWithId(userId);
         return ResponseEntity.ok(UpdateJobInterviewResponse.from(jobInterviewService.update(dto, id, field, user)));
@@ -47,7 +48,7 @@ public class JobInterviewController implements JobInterviewSwagger {
     @DeleteMapping("/{interviewId}")
     public ResponseEntity<Void> delete (
             @PathVariable("interviewId") Long interviewId,
-            @RequestParam Long userId
+            @JwtToken Long userId
     ) {
         User user = userCommonService.getUserWithId(userId);
         jobInterviewService.delete(interviewId, user);
@@ -56,7 +57,7 @@ public class JobInterviewController implements JobInterviewSwagger {
 
     @GetMapping
     public ResponseEntity<CursorPaginationResult<FindJobInterviewResponse>> find (
-            @RequestParam Long userId,
+            @JwtToken Long userId,
             @Valid @ModelAttribute LongCursorPaginationReq pageable
             ) {
         User user = userCommonService.getUserWithId(userId);

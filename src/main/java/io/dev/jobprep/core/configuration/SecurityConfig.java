@@ -32,6 +32,7 @@ public class SecurityConfig {
     private final AuthenticationEntryPoint entryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Bean
     public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
         configureCommonSecuritySettings(http);
@@ -46,10 +47,8 @@ public class SecurityConfig {
                             "/swagger-ui/**",
                             "/actuator/**",
                             "/internal/**"
-                    )
-                    .permitAll()
+                    ).permitAll()
                     .anyRequest().authenticated()
-//                      .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(handling -> handling
@@ -78,7 +77,6 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()));
     }
 
-    //cors 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

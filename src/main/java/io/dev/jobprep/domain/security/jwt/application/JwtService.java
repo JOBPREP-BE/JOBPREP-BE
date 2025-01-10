@@ -42,6 +42,7 @@ public class JwtService {
     public TokenInfo generateTokenInfo(String userId, String userEmail, String userRoles ){
         // Create Access Token
         String accessToken = generateAccessToken(userId, userEmail, userRoles);
+        log.info("Generated access token: {}", accessToken);
 
         // Create Refresh Token
         String refreshToken = generateRefreshToken(userId);
@@ -79,7 +80,7 @@ public class JwtService {
 
     public void isTokenValid(String token) {
         try {
-            DecodedJWT decodedJWT = verifyNDcodeToken(token);
+            DecodedJWT decodedJWT = verifyNDecodeToken(token);
             isTokenExpired(decodedJWT);
         } catch (TokenExpiredException e) {
             throw e;
@@ -100,7 +101,7 @@ public class JwtService {
     }
 
     // Verify and decode a JWT
-    public DecodedJWT verifyNDcodeToken(String token) {
+    public DecodedJWT verifyNDecodeToken(String token) {
         try {
             JWTVerifier verifier = JWT.require(getAlgorithm()).build();
             return verifier.verify(token);

@@ -43,7 +43,7 @@ public interface ChatSwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             ))
     })
-    ResponseEntity<ChatRoomIdResponse> create(@Parameter(required = true) Long userId);
+    ResponseEntity<ChatRoomIdResponse> create(@Parameter(hidden = true) Long userId);
 
     @Operation(summary = "채팅방 조회", description = "사용자가 메시지를 보내기 위해 채팅방이 존재하는지 확인할 때 사용하는 API")
     @ApiResponses(value = {
@@ -56,7 +56,7 @@ public interface ChatSwagger {
                 examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
             ))
     })
-    ResponseEntity<ChatRoomIdResponse> getExistChatRoom(@Parameter(required = true) Long userId);
+    ResponseEntity<ChatRoomIdResponse> getExistChatRoom(@Parameter(hidden = true) Long userId);
 
     @Operation(summary = "채팅 메시지 내역 조회", description = "사용자가 관리자와의 채팅 메시지 내역을 조회할 때 사용하는 API")
     @ApiResponses(value = {
@@ -69,7 +69,7 @@ public interface ChatSwagger {
             ))
     })
     ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getMyMessageHistory(
-        @Parameter(required = true) Long userId,
+        @Parameter(hidden = true) Long userId,
         @Valid @ModelAttribute LongCursorPaginationReq pageable
     );
 
@@ -93,7 +93,7 @@ public interface ChatSwagger {
             ))
     })
     ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getUserMessageHistoryForAdmin(
-        @Parameter(required = true) Long userId,
+        @Parameter(hidden = true) Long userId,
         @PathVariable String id,
         @Valid @ModelAttribute LongCursorPaginationReq pageable
     );
@@ -115,7 +115,7 @@ public interface ChatSwagger {
             ))
     })
     ResponseEntity<CursorPaginationResult<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
-        @Parameter(required = true) Long userId,
+        @Parameter(hidden = true) Long userId,
         @Valid @ModelAttribute StringCursorPaginationReq pageable
     );
 
