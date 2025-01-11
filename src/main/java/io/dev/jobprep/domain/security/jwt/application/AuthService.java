@@ -54,10 +54,10 @@ public class AuthService {
         Long AccessDuration = StringUtils.hasText(tokenInfo.getAccessToken())?accessTokenValidity : 0L;
         Long RefreshDuration = StringUtils.hasText(tokenInfo.getRefreshToken())?refreshTokenValidity : 0L;
 
-        Cookie accessTokenCookie = jwtService.bake("Authorization", tokenInfo.getAccessToken(), AccessDuration);
+        Cookie accessTokenCookie = jwtService.bake("Authorization", tokenInfo.getAccessToken(), AccessDuration, false, "Lax");
         response.addCookie(accessTokenCookie);
 
-        Cookie refreshTokenCookie = jwtService.bake("XRefreshToken", tokenInfo.getRefreshToken(), RefreshDuration);
+        Cookie refreshTokenCookie = jwtService.bake("XRefreshToken", tokenInfo.getRefreshToken(), RefreshDuration, true, "Lax");
         response.addCookie(refreshTokenCookie);
     }
 

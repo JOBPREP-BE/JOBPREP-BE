@@ -138,14 +138,14 @@ public class JwtService {
         }
     }
 
-    public Cookie bake(String key, String value, Long tokenExpiry) {
+    public Cookie bake(String key, String value, Long tokenExpiry, boolean httpOnly, String sameSiteOptions) {
         Cookie cookie = new Cookie(key, value);
-        cookie.setHttpOnly(true);
+        cookie.setHttpOnly(httpOnly);
         cookie.setSecure(true);
         cookie.setDomain(cookieDomain);
         cookie.setPath("/");
         cookie.setMaxAge(convert(tokenExpiry));
-        cookie.setAttribute("SameSite", "None");
+        cookie.setAttribute("SameSite", sameSiteOptions);
         return cookie;
     }
 

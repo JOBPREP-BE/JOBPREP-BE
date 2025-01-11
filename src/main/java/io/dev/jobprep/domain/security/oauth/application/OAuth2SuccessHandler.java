@@ -48,10 +48,21 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         jwtRedisService.saveRefreshToken(userId, tokenInfo);
 
-        Cookie accessTokenCookie = jwtService.bake(TokenHeaderConstants.AUTHENTICATION_HEADER, tokenInfo.getAccessToken(), accessTokenValidity);
-        response.addCookie(accessTokenCookie);
+//        Cookie accessTokenCookie = jwtService.bake(
+//                TokenHeaderConstants.AUTHENTICATION_HEADER,
+//                tokenInfo.getAccessToken(),
+//                accessTokenValidity.longValue(),
+//                false,
+//                "None"
+//        );
+//        response.addCookie(accessTokenCookie);
 
-        Cookie refreshTokenCookie = jwtService.bake(TokenHeaderConstants.REFRESH_HEADER, tokenInfo.getRefreshToken(), refreshTokenValidity);
+        Cookie refreshTokenCookie = jwtService.bake(
+                TokenHeaderConstants.REFRESH_HEADER,
+                tokenInfo.getRefreshToken(),
+                refreshTokenValidity,
+                true,
+                "None");
         response.addCookie(refreshTokenCookie);
 
         // 프론트엔드로 리다이렉트
