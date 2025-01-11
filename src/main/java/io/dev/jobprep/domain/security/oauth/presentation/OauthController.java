@@ -20,8 +20,8 @@ public class OauthController implements OauthSwagger{
     private final AuthService authService;
 
     // 토큰 재발급
-    @PostMapping("/reissue")
-    public ResponseEntity<TokenResponse> reissue(@RequestHeader(value = "XRefreshToken ") String refreshToken,
+    @GetMapping("/reissue")
+    public ResponseEntity<Void> reissue(@CookieValue(value = "XRefreshTokens") String refreshToken,
                                                  HttpServletResponse response) {
         TokenInfo tokenInfo = authService.reissue(refreshToken);
         authService.bakeCookieIntoResponse(tokenInfo, response);
