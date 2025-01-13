@@ -3,6 +3,8 @@ package io.dev.jobprep.common.stomp;
 import io.dev.jobprep.domain.chat.application.ChatCommonService;
 import io.dev.jobprep.domain.chat.application.ChatService;
 import io.dev.jobprep.domain.chat.exception.ChatException;
+import io.dev.jobprep.domain.security.jwt.application.JwtService;
+import io.dev.jobprep.domain.security.util.TokenHeaderConstants;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.exception.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +31,11 @@ public class StompTokenProcessor {
     private final UserCommonService userCommonService;
     private final ChatCommonService chatCommonService;
     private final ChatService chatService;
+    private final JwtService jwtService;
 
     public void connect(StompHeaderAccessor accessor) {
         UUID roomId = verifyDestination(accessor);
-        Long userId = verifyHeaderTemporary(accessor);
+        Long userId = verifyAccessToken(accessor);
         chatService.access(roomId, userId, accessor.getSessionId());
     }
 
@@ -42,8 +45,7 @@ public class StompTokenProcessor {
 
     public void recoverMetaData(StompHeaderAccessor accessor) {
         UUID roomId = verifyDestinationFromSubscription(accessor);
-        // TODO: 소셜 로그인 합친 후 accessToken 활용하도록 변경
-        Long userId = verifyHeaderTemporary(accessor);
+        Long userId = verifyAccessToken(accessor);
         chatService.recaching(roomId, userId, accessor.getSessionId());
     }
 
@@ -72,22 +74,13 @@ public class StompTokenProcessor {
         return UUID.fromString(subscription);
     }
 
-    private Long verifyHeaderTemporary(StompHeaderAccessor stompHeaderAccessor) {
-        String token = getTokenFromHeader(stompHeaderAccessor, TEMP_AUTHORIZATION, AUTH_MISSING_CREDENTIALS);
-        log.info("Received a temporary token from {}", token);
-        Long userId = Long.valueOf(token);
-        userCommonService.getUserWithId(userId);
-        return userId;
-    }
-
-    // TODO: 소셜 로그인 합칠 떄 변경
     private Long verifyAccessToken(StompHeaderAccessor stompHeaderAccessor) {
         String accessToken = getTokenFromHeader(stompHeaderAccessor, AUTHORIZATION_HEADER, AUTH_MISSING_CREDENTIALS);
-
-        // TODO: parsing Access Token to verify
-        // TODO: verify Access Token using JWT and return 'userId'
-
-        return null;
+        accessToken = accessToken.substring(TokenHeaderConstants.TOKEN_PREFIX.length());
+        log.info("Received a access-token from {}", accessToken);
+        Long userId = jwtService.fetchFromToken(accessToken);
+        userCommonService.getUserWithId(userId);
+        return userId;
     }
 
     private String getTokenFromHeader(StompHeaderAccessor stompHeaderAccessor, String header, ErrorCode errorCode) {
@@ -100,5 +93,14 @@ public class StompTokenProcessor {
             throw new ChatException(errorCode);
         }
         return token;
+    }
+
+    @Deprecated
+    private Long verifyHeaderTemporary(StompHeaderAccessor stompHeaderAccessor) {
+        String token = getTokenFromHeader(stompHeaderAccessor, TEMP_AUTHORIZATION, AUTH_MISSING_CREDENTIALS);
+        log.info("Received a temporary token from {}", token);
+        Long userId = Long.valueOf(token);
+        userCommonService.getUserWithId(userId);
+        return userId;
     }
 }
