@@ -4,6 +4,7 @@ import io.dev.jobprep.domain.chat.application.ChatCommonService;
 import io.dev.jobprep.domain.chat.application.ChatService;
 import io.dev.jobprep.domain.chat.exception.ChatException;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
+import io.dev.jobprep.domain.security.util.TokenHeaderConstants;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.exception.code.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -75,6 +76,7 @@ public class StompTokenProcessor {
 
     private Long verifyAccessToken(StompHeaderAccessor stompHeaderAccessor) {
         String accessToken = getTokenFromHeader(stompHeaderAccessor, AUTHORIZATION_HEADER, AUTH_MISSING_CREDENTIALS);
+        accessToken = accessToken.substring(TokenHeaderConstants.TOKEN_PREFIX.length());
         log.info("Received a access-token from {}", accessToken);
         Long userId = jwtService.fetchFromToken(accessToken);
         userCommonService.getUserWithId(userId);
