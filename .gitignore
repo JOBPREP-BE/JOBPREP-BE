@@ -46,3 +46,9 @@ docker/
 ### back-up for database ###
 scripts/backup/
 scripts/*_host.sh
+
+### ssl cert
+src/main/resources/ssl/
+
+### logback
+src/main/resources/logback-variables.properties
