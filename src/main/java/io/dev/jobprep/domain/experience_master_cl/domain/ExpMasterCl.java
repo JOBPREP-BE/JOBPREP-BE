@@ -51,34 +51,41 @@ public class ExpMasterCl {
     @JoinColumn(name = "user_id", updatable = false)
     private User creator;
 
+
+    private static final String BLANK = "";
+
     private ExpMasterCl(Long id, String material, String emphasis, ExpAnalProcess expAnalProcess, MasterClProcess masterClProcess, String expAnal, String masterCl, boolean active, User creator) {
         this.id = id;
         this.material = material;
         this.emphasis = emphasis;
-        this.expAnalProcess = ExpAnalProcess.PREPARATION;
-        this.masterClProcess = MasterClProcess.PREPARATION;
+        this.expAnalProcess = expAnalProcess;
+        this.masterClProcess = masterClProcess;
         this.expAnal = expAnal;
         this.masterCl = masterCl;
         this.active = active;
         this.creator = creator;
     }
 
-    public void update(String field, ExpMasterClPatchRequest request) {
-        switch (field) {
-            case "material" -> this.material = request.getNewVal();
-            case "emphasis" -> this.emphasis = request.getNewVal();
-            case "expAnalProcess" -> this.expAnalProcess = ExpAnalProcess.from(request.getNewVal());
-            case "masterClProcess" -> this.masterClProcess = MasterClProcess.from(request.getNewVal());
-            case "expAnal" -> this.expAnal = request.getNewVal();
-            case "masterCl" -> this.masterCl = request.getNewVal();
-            default -> throw new ExpMasterClException(UNSUPPORTED_FIELD_TYPE_MASTER_CL);
+    public void update(ExpMasterClPatchRequest request) {
+        switch (request.getField()) {
+            case "material" -> this.material = request.getContent();
+            case "emphasis" -> this.emphasis = request.getContent();
+            case "expAnalProcess" -> this.expAnalProcess = ExpAnalProcess.from(request.getContent());
+            case "masterClProcess" -> this.masterClProcess = MasterClProcess.from(request.getContent());
+            case "expAnal" -> this.expAnal = request.getContent();
+            case "masterCl" -> this.masterCl = request.getContent();
+            default -> throw new ExpMasterClException(INVALID_INPUT_VALUE);
         }
     }
 
     public static ExpMasterCl createData(User user) {
         return ExpMasterCl.builder()
+                .material(BLANK)
+                .emphasis(BLANK)
                 .expAnalProcess(ExpAnalProcess.PREPARATION)
                 .masterClProcess(MasterClProcess.PREPARATION)
+                .expAnal(BLANK)
+                .masterCl(BLANK)
                 .creator(user)
                 .active(true)
                 .build();

@@ -1,11 +1,9 @@
 package io.dev.jobprep.domain.chat.presentation;
 
-import io.dev.jobprep.common.auth.JwtToken;
 import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.base.StringCursorPaginationReq;
 import io.dev.jobprep.common.swagger.template.ChatSwagger;
-import io.dev.jobprep.domain.chat.application.ChatCommonService;
 import io.dev.jobprep.domain.chat.application.ChatService;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatMessageCommonResponse;
 import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomAdminResponse;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -29,25 +28,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatRoomController implements ChatSwagger {
 
     private final ChatService chatService;
-    private final ChatCommonService chatCommonService;
 
     @PostMapping
-    public ResponseEntity<ChatRoomIdResponse> create(@JwtToken Long userId) {
+    public ResponseEntity<ChatRoomIdResponse> create(@RequestParam Long userId) {
 
         return ResponseEntity.status(201)
             .body(ChatRoomIdResponse.from(chatService.create(userId)));
     }
 
-    @GetMapping("/my/exist")
-    public ResponseEntity<ChatRoomIdResponse> getExistChatRoom(@JwtToken Long userId) {
-
-        return ResponseEntity.ok()
-            .body(ChatRoomIdResponse.from(chatCommonService.getChatRoom(userId)));
-    }
-
     @GetMapping("/my")
     public ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getMyMessageHistory(
-        @JwtToken Long userId,
+        @RequestParam Long userId,
         @Valid @ModelAttribute LongCursorPaginationReq pageable
     ) {
 
@@ -62,7 +53,7 @@ public class ChatRoomController implements ChatSwagger {
 
     @GetMapping("/{id}")
     public ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getUserMessageHistoryForAdmin(
-        @JwtToken Long userId,
+        @RequestParam Long userId,
         @PathVariable String id,
         @Valid @ModelAttribute LongCursorPaginationReq pageable
     ) {
@@ -79,7 +70,7 @@ public class ChatRoomController implements ChatSwagger {
 
     @GetMapping
     public ResponseEntity<CursorPaginationResult<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
-        @JwtToken Long userId,
+        @RequestParam Long userId,
         @Valid @ModelAttribute StringCursorPaginationReq pageable
     ) {
 

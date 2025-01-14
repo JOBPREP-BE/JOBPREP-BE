@@ -17,10 +17,12 @@ public class PrincipalDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        // TODO: 유저 이메일이나 이이디로 찾아오는거 관련해서 AOP로 처리하기
+        // 데이터베이스에서 사용자 조회
+        //todo: 유저 이메일이나 이이디로 찾아오는거 관련해서 AOP로 처리하기
         User user = userRepository.findUserById(Long.parseLong(username))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+
+        // PrincipalDetails 생성 후 반환
         return new PrincipalDetails(user, null, null);
     }
 }

@@ -28,12 +28,11 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .where(studySchedule.week_number.eq(1), study.id.eq(studyId))
             .fetchOne();
 
-        return Optional.ofNullable(result != null ?
+        return Optional.ofNullable(
             StudyWithStartDateDto.of(
                 result.get(study),
                 result.get(studySchedule.start_date)
-            )
-        : null);
+        ));
     }
 
     @Override
@@ -44,6 +43,21 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
                 deletedAtEq()
             )
             .limit(pageSize + 1)
+            .fetch();
+    }
+
+    @Override
+    public List<Study> findRecruitingStudyWithPagination(int page, int pageSize, int pageGroupSize) {
+        int offset = (page - 1) * pageSize;
+
+        return jpaQueryFactory.selectFrom(study)
+            .where(
+                studyStatusEq(StudyStatus.RECRUITING),
+                deletedAtEq()
+            )
+            .offset(offset)
+            .limit((long) pageSize * pageGroupSize)
+            .orderBy(study.id.desc())
             .fetch();
     }
 

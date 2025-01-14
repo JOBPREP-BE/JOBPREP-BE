@@ -18,17 +18,14 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Date;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JwtService {
-
     @Value("${jwt.secret-key}")
     private String secretKey;
-
     @Value("${jwt.access-token-validity}")
     private Long accessTokenValidityTime;
-
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
 
@@ -157,7 +154,6 @@ public class JwtService {
     private Date getCurrentDate(Long time){
         return new Date(time);
     }
-
     private Date getCurrentDate(){
         return new Date();
     }

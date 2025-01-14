@@ -7,10 +7,8 @@ import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
-import io.dev.jobprep.domain.job_interview.presentation.dto.res.UpdateJobInterviewResponse;
 import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,7 +36,7 @@ public interface JobInterviewSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<JobInterviewIdResponse> save(@Parameter(hidden = true) Long userId);
+    ResponseEntity<JobInterviewIdResponse> save(@RequestParam Long userId);
 
     @Operation(summary = "면접 삭제", description = "면접 데이터를 삭제합니다.")
     @ApiResponses(value = {
@@ -68,7 +66,7 @@ public interface JobInterviewSwagger {
                             }
                     ))
     })
-    ResponseEntity<Void> delete (@PathVariable("interviewId") Long interviewId, @Parameter(hidden = true) Long userId);
+    ResponseEntity<Void> delete (@PathVariable("interviewId") Long interviewId, @RequestParam Long userId);
 
     @Operation(summary = "면접 조회", description = "모든 면접 데이터를 조회합니다.")
     @ApiResponses (value = {
@@ -86,7 +84,7 @@ public interface JobInterviewSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<CursorPaginationResult<FindJobInterviewResponse>> find (@Parameter(hidden = true) Long userId, @Valid @ModelAttribute LongCursorPaginationReq pageable);
+    ResponseEntity<CursorPaginationResult<FindJobInterviewResponse>> find (@RequestParam Long userId, @Valid @ModelAttribute LongCursorPaginationReq pageable);
 
     @Operation(summary = "면접 수정", description = "면접 데이터를 수정합니다.")
     @ApiResponses (value = {
@@ -125,7 +123,7 @@ public interface JobInterviewSwagger {
                             }
                     ))
     })
-    ResponseEntity<UpdateJobInterviewResponse> update (
-            @PathVariable("interviewId") Long id, @PathVariable String field, @RequestBody PutJobInterviewRequest dto, @Parameter(hidden = true) Long userId
+    ResponseEntity<FindJobInterviewResponse> update (
+            @PathVariable("interviewId") Long id, @RequestBody PutJobInterviewRequest dto, @RequestParam Long userId
     );
 }

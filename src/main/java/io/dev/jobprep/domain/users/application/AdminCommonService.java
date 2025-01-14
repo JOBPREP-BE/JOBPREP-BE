@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(value = "transactionManager", readOnly = true)
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AdminCommonService {
 
@@ -28,7 +28,7 @@ public class AdminCommonService {
     private final StudyJpaRepository studyRepository;
     private final UserStudyJpaRepository userStudyRepository;
 
-    @Transactional("transactionManager")
+    @Transactional
     public Long penalize(Long userId, UserPenalizeRequest req) {
 
         // TODO: 유저 존재 여부 및 토큰 유효성 검사
@@ -58,7 +58,7 @@ public class AdminCommonService {
     }
 
     private boolean validateisAdmin(Long userId) {
-        return userCommonService.getUserWithId(userId).getUserRole().equals(UserRole.ROLE_ADMIN);
+        return userCommonService.getUserWithId(userId).getUserRole().equals(UserRole.ADMIN);
     }
 
     private UserStudy validateGatheredUser(Long userId, Long studyId) {

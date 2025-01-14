@@ -37,7 +37,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_role", nullable = false)
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private UserRole userRole = UserRole.ROLE_NORMAL;
+    private UserRole userRole = UserRole.NORMAL;
 
     @Column(name="penalty_updated_at")
     private LocalDateTime penaltyUpdatedAt;
@@ -82,7 +82,7 @@ public class User extends BaseTimeEntity {
         }
     }
     public void validateAdmin() {
-        if (!this.userRole.equals(UserRole.ROLE_ADMIN)) {
+        if (!this.userRole.equals(UserRole.ADMIN)) {
             throw new UserException(ADMIN_FORBIDDEN_OPERATION);
         }
     }

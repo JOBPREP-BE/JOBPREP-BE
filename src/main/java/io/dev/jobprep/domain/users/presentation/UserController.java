@@ -35,7 +35,6 @@ public class UserController implements UsersSwagger {
         URI location = URI.create("/mypage?"+ newUser.getId().toString());
         return ResponseEntity.created(location).body(SignUpAPIResponse.from(newUser));
     }
-
     @GetMapping("/mypage")
     public ResponseEntity<MyPageAPIResponse> getMyPage(@RequestParam(required = false) Long userId/*,
                                                     @AuthenticationPrincipal UserDetails userDetails*/) {

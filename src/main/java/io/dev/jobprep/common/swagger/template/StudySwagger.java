@@ -61,7 +61,7 @@ public interface StudySwagger {
             )),
     })
     ResponseEntity<StudyIdResponse> create(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(description = "유저 ID", required = true) Long userId,
         StudyCreateRequest req
     );
 
@@ -99,7 +99,7 @@ public interface StudySwagger {
             }))
     })
     ResponseEntity<StudyIdResponse> join(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(description = "유저 ID", required = true) Long userId,
         @PathVariable Long id
     );
 
@@ -129,7 +129,7 @@ public interface StudySwagger {
             ))
     })
     ResponseEntity<Void> delete(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(description = "유저 ID", required = true) Long userId,
         @PathVariable Long id
     );
 
@@ -150,7 +150,7 @@ public interface StudySwagger {
             )),
     })
     ResponseEntity<CursorPaginationResult<StudyInfoAdminResponse>> getAllForAdmin(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(description = "유저 ID", required = true) Long userId,
         @Valid @ModelAttribute LongCursorPaginationReq pageable
     );
 
@@ -183,7 +183,7 @@ public interface StudySwagger {
             )),
     })
     ResponseEntity<StudyUpdateAdminResponse> modifyForAdmin(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(description = "유저 ID", required = true) Long userId,
         @PathVariable Long id, @PathVariable String field,
         StudyUpdateAdminRequest request
     );
@@ -218,7 +218,7 @@ public interface StudySwagger {
             ))
     })
     ResponseEntity<StudyUpdateResponse> modify(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(description = "유저 ID", required = true) Long userId,
         @PathVariable Long id,
         StudyUpdateRequest request
     );
@@ -234,7 +234,7 @@ public interface StudySwagger {
             ))
     })
     ResponseEntity<OffsetPaginationResult<StudyCommonResponse>> getRecruitingStudy(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(required = true) Long userId,
         @Valid @ModelAttribute OffsetPaginationReq pageable
     );
 
@@ -250,6 +250,6 @@ public interface StudySwagger {
             ))
     })
     ResponseEntity<StudyInfoResponse> getMyStudy(
-        @Parameter(hidden = true) Long userId
+        @Parameter(description = "유저 ID", required = true) Long userId
     );
 }

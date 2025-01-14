@@ -1,6 +1,5 @@
 package io.dev.jobprep.domain.experience_master_cl.presentation;
 
-import io.dev.jobprep.common.auth.JwtToken;
 import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.swagger.template.ExpMasterClSwagger;
@@ -8,7 +7,6 @@ import io.dev.jobprep.domain.experience_master_cl.application.ExpMasterClService
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMasterClPatchRequest;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.ExpMasterClIdResponse;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
-import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.UpdateExpMasterClResponse;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.domain.users.domain.User;
 import jakarta.validation.Valid;
@@ -26,26 +24,26 @@ public class ExpMasterClController implements ExpMasterClSwagger {
     private final UserCommonService userCommonService;
 
     @PostMapping
-    public ResponseEntity<ExpMasterClIdResponse> save (@JwtToken Long userId) {
+    public ResponseEntity<ExpMasterClIdResponse> save (@RequestParam Long userId) {
         User user = userCommonService.getUserWithId(userId);
         ExpMasterClIdResponse id = expMasterClService.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 
-    @PatchMapping("/{id}/{field}")
-    public ResponseEntity<UpdateExpMasterClResponse> update (
-            @PathVariable("id") Long id, @PathVariable String field,
-            @JwtToken Long userId,
+    @PatchMapping("/{id}")
+    public ResponseEntity<FindExpMasterClResponse> update (
+            @PathVariable("id") Long id,
+            @RequestParam Long userId,
             @RequestBody ExpMasterClPatchRequest request
             ) {
         User user = userCommonService.getUserWithId(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(UpdateExpMasterClResponse.from(expMasterClService.patch(id, field, user, request)));
+        return ResponseEntity.status(HttpStatus.OK).body(expMasterClService.patch(id, user, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete (
             @PathVariable("id") Long id,
-            @JwtToken Long userId
+            @RequestParam Long userId
     ) {
         User user = userCommonService.getUserWithId(userId);
         expMasterClService.delete(id, user);
@@ -54,7 +52,7 @@ public class ExpMasterClController implements ExpMasterClSwagger {
 
     @GetMapping
     public ResponseEntity<CursorPaginationResult<FindExpMasterClResponse>> findAll (
-            @JwtToken Long userId, @Valid @ModelAttribute LongCursorPaginationReq pageable) {
+            @RequestParam Long userId, @Valid @ModelAttribute LongCursorPaginationReq pageable) {
         User user = userCommonService.getUserWithId(userId);
 
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(

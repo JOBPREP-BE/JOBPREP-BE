@@ -3,8 +3,8 @@ package io.dev.jobprep.common.swagger.template;
 import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerApplicationStatusErrorExamples;
-import io.dev.jobprep.core.properties.swagger.error.SwaggerCommonErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerUserErrorExamples;
+import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusCreateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusUpdateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusCommonResponse;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusIdResponse;
@@ -18,14 +18,11 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@Tag(name = "Application Status", description = "지원 현황 관련 API")
-@SuppressWarnings("unused")
 public interface ApplicationStatusSwagger {
 
     @Operation(summary = "지원 현황 생성", description = "사용자가 지원현황을 추가할 때 사용하는 API")
@@ -40,7 +37,8 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<ApplicationStatusIdResponse> create(
-            @Parameter(hidden = true) Long userId
+        @Parameter(description = "유저 ID", required = true) Long userId,
+        ApplicationStatusCreateRequest request
     );
 
     @Operation(summary = "지원 현황 삭제", description = "사용자가 지원현황을 삭제할 때 사용하는 API")
@@ -63,7 +61,7 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<Void> delete(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(description = "유저 ID", required = true) Long userId,
         @PathVariable Long id
     );
 
@@ -88,7 +86,7 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<ApplicationStatusInfoResponse> getMyApplicationStatus(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(description = "유저 ID", required = true)Long userId,
         @PathVariable Long id
     );
 
@@ -103,7 +101,7 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<CursorPaginationResult<ApplicationStatusCommonResponse>> getAll(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(description = "유저 ID", required = true) Long userId,
         @Valid @ModelAttribute LongCursorPaginationReq pageable
     );
 
@@ -111,12 +109,6 @@ public interface ApplicationStatusSwagger {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "지원 현황 수정 성공",
             content = @Content(schema = @Schema(implementation = ApplicationStatusUpdateResponse.class))),
-        @ApiResponse(responseCode = "400", description = "데이터가 유효하지 않음",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class),
-                examples = @ExampleObject(name = "E00-COMMON-004", value = SwaggerCommonErrorExamples.UNSUPPORTED_FIELD_TYPE)
-            )),
         @ApiResponse(responseCode = "403", description = "데이터를 삭제할 권한이 없음",
             content = @Content(
                 mediaType = "application/json",
@@ -134,7 +126,7 @@ public interface ApplicationStatusSwagger {
             ))
     })
     ResponseEntity<ApplicationStatusUpdateResponse> modify(
-        @Parameter(hidden = true) Long userId,
+        @Parameter(description = "유저 ID", required = true) Long userId,
         @PathVariable Long id,
         @PathVariable String field,
         ApplicationStatusUpdateRequest request

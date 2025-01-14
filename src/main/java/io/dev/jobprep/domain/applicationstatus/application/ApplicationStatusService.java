@@ -8,6 +8,7 @@ import io.dev.jobprep.domain.applicationstatus.domain.entity.ApplicationStatus;
 import io.dev.jobprep.domain.applicationstatus.domain.entity.InitData;
 import io.dev.jobprep.domain.applicationstatus.exception.ApplicationStatusException;
 import io.dev.jobprep.domain.applicationstatus.infrastructure.ApplicationStatusJpaRepository;
+import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusCreateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusUpdateRequest;
 import io.dev.jobprep.domain.users.domain.User;
 import io.dev.jobprep.domain.users.exception.UserException;
@@ -21,26 +22,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(value = "transactionManager", readOnly = true)
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ApplicationStatusService {
 
     private final ApplicationStatusJpaRepository applicationStatusRepository;
     private final UserRepository userRepository;
 
-    @Transactional("transactionManager")
-    public Long create(Long userId) {
+    @Transactional
+    public Long create(Long userId, ApplicationStatusCreateRequest req) {
 
         // TODO: 유저 토큰 검증
         User user = getUser(userId);
 
-        ApplicationStatus applicationStatus = ApplicationStatus.ofEmpty(user);
+        ApplicationStatus applicationStatus = req.toEntity(user);
         save(applicationStatus);
 
         return applicationStatus.getId();
     }
 
-    @Transactional("transactionManager")
+    @Transactional
     public Long delete(Long userId, Long id) {
 
         // TODO: 유저 토큰 검증
@@ -70,7 +71,7 @@ public class ApplicationStatusService {
         );
     }
 
-    @Transactional("transactionManager")
+    @Transactional
     public void modify(Long userId, Long id, String field, ApplicationStatusUpdateRequest req) {
 
         // TODO: 유저 토큰 검증
@@ -81,7 +82,7 @@ public class ApplicationStatusService {
     }
 
     // TODO: 회원가입 시 user 엔티티와 동시 생성
-    @Transactional("transactionManager")
+    @Transactional
     public void init(Long userId) {
 
         // TODO: 유저 토큰 검증
