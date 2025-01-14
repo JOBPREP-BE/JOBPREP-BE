@@ -50,3 +50,4 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         response.sendRedirect(redirectUrlWithToken);
     }
+}
