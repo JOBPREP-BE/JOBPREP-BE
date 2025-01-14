@@ -51,13 +51,8 @@ public class AuthService {
     public void bakeCookieIntoResponse(TokenInfo tokenInfo,
                                        HttpServletResponse response){
 
-        Long AccessDuration = StringUtils.hasText(tokenInfo.getAccessToken())?accessTokenValidity : 0L;
         Long RefreshDuration = StringUtils.hasText(tokenInfo.getRefreshToken())?refreshTokenValidity : 0L;
-
-        Cookie accessTokenCookie = jwtService.bake("Authorization", tokenInfo.getAccessToken(), AccessDuration);
-        response.addCookie(accessTokenCookie);
-
-        Cookie refreshTokenCookie = jwtService.bake("XRefreshToken", tokenInfo.getRefreshToken(), RefreshDuration);
+        Cookie refreshTokenCookie = jwtService.bake("XRefreshToken", tokenInfo.getRefreshToken(), RefreshDuration, true);
         response.addCookie(refreshTokenCookie);
     }
 
@@ -70,7 +65,7 @@ public class AuthService {
         return userId;
     }
 
-    private TokenInfo generateTokenPair(String userId){
+    public TokenInfo generateTokenPair(String userId){
         PrincipalDetails principalDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         TokenInfo tokenInfo = jwtService.generateTokenInfo(userId, principalDetails.getEmail(), principalDetails.getUserRoles());
 
