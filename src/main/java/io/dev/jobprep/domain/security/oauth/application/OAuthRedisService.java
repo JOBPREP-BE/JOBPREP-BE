@@ -2,7 +2,7 @@ package io.dev.jobprep.domain.security.oauth.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.dev.jobprep.domain.security.jwt.exception.TokenException;
+import io.dev.jobprep.domain.security.jwt.exception.TokenStorageException;
 import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class OAuthRedisService {
 
             redisTemplate.opsForValue().set(key, value, expiration);
         } catch (Exception e) {
-            throw new TokenException(TMPT_CACHE_FALIURE);
+            throw new TokenStorageException(TMPT_CACHE_FALIURE);
         }
     }
 
@@ -42,7 +42,7 @@ public class OAuthRedisService {
         try {
             value = redisTemplate.opsForValue().get(key);
             if (value == null) {
-                throw new TokenException(TMPT_VALIDATION_FAILURE);
+                throw new TokenStorageException(TMPT_VALIDATION_FAILURE);
 
             }
 
@@ -56,10 +56,10 @@ public class OAuthRedisService {
 
         }catch (JsonProcessingException e) {
             log.error("Failed to deserialize user info: {}", value, e);
-            throw new TokenException(TMPT_VALIDATION_FAILURE);
+            throw new TokenStorageException(TMPT_VALIDATION_FAILURE);
         }catch (Exception e){
             log.error("Failed to process temporary token: {}", key, e);
-            throw new TokenException(TMPT_VALIDATION_FAILURE);
+            throw new TokenStorageException(TMPT_VALIDATION_FAILURE);
         }
     }
 

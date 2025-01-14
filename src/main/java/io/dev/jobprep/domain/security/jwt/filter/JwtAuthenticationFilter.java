@@ -72,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 토큰에서 principalDetails 추출하는 메소드
     private PrincipalDetails getPrincipalDetailsFromToken(String Token){
         try {
-            DecodedJWT decodeJWT = jwtService.verifyToken(Token);
+            DecodedJWT decodeJWT = jwtService.verifyNDecodeToken(Token);
             String userId = jwtService.extractUserId(decodeJWT);
             return (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         } catch (Exception e) {

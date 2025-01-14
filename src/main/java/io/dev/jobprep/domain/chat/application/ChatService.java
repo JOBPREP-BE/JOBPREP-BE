@@ -163,11 +163,11 @@ public class ChatService {
     }
 
     private User getAdmin() {
-        return userCommonService.getUserWithRole(UserRole.ADMIN);
+        return userCommonService.getUserWithRole(UserRole.ROLE_ADMIN);
     }
 
     private boolean isNonAdmin(User user) {
-        return !user.getUserRole().equals(UserRole.ADMIN);
+        return !user.getUserRole().equals(UserRole.ROLE_ADMIN);
     }
 
 }
