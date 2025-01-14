@@ -3,11 +3,10 @@ package io.dev.jobprep.domain.security.oauth.application;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dev.jobprep.domain.security.jwt.exception.TokenException;
-import io.dev.jobprep.domain.security.oauth.presentation.dto.OAuthUserInfo;
+import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;

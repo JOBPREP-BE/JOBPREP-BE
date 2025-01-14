@@ -2,7 +2,7 @@ package io.dev.jobprep.domain.security.oauth.application;
 
 import io.dev.jobprep.domain.security.jwt.application.JwtRedisService;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
-import io.dev.jobprep.domain.security.oauth.presentation.dto.OAuthUserInfo;
+import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

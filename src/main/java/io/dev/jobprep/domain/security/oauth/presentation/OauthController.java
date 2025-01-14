@@ -6,7 +6,7 @@ import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
 import io.dev.jobprep.domain.security.oauth.application.OAuthRedisService;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.common.swagger.template.OauthSwagger;
-import io.dev.jobprep.domain.security.oauth.presentation.dto.OAuthUserInfo;
+import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
