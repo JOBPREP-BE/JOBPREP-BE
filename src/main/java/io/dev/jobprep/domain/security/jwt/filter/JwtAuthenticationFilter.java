@@ -29,6 +29,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final PrincipalDetailsService principalDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        log.info("Incoming request {}", request.getRequestURI());
+        return StringUtils.startsWithIgnoreCase(request.getRequestURI(), "/actuator/");
+    }
+
+    @Override
     public void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
