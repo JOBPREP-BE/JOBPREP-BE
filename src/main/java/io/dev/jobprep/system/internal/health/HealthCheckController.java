@@ -1,4 +1,4 @@
-package io.dev.jobprep.domain.health;
+package io.dev.jobprep.system.internal.health;
 
 import io.dev.jobprep.common.actuator.MutableHealthIndicator;
 import io.dev.jobprep.system.internal.developer.DeveloperTokenHelper;
