@@ -29,10 +29,8 @@ public class ChatService {
     private final UserCommonService userCommonService;
     private final ChatRedisService redisService;
 
-    // TODO: 채팅방 생성과 첫 메시지 전송을 통한 lastMessages 업데이트는 하나의 프로세스로 묶여야 함!
     public ChatRoom create(Long userId) {
 
-        // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User sender = getUser(userId);
 
         validateAlreadyExistChatRoom(userId);
@@ -50,7 +48,6 @@ public class ChatService {
 
     public List<ChatRoomCommonInfo> getAllActiveRoomsInfo(Long userId, String cursorId, int pageSize) {
 
-        // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User admin = getUser(userId);
         if (isNonAdmin(admin)) {
             throw new ChatException(CHAT_ROOM_FORBIDDEN_OPERATION);
@@ -70,7 +67,6 @@ public class ChatService {
 
     public List<ChatMessageCommonInfo> getMessageHistory(Long userId, Long cursorId, int pageSize) {
 
-        // TODO: 유저 존재 여부 및 토큰 유효성 검사
         User user = getUser(userId);
 
         try {
