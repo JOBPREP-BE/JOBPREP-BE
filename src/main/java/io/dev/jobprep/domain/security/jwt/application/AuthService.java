@@ -1,16 +1,20 @@
 package io.dev.jobprep.domain.security.jwt.application;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import io.dev.jobprep.domain.security.jwt.exception.TokenException;
+import io.dev.jobprep.domain.security.jwt.exception.TokenStorageException;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -43,17 +47,22 @@ public class AuthService {
 
         try {
             jwtRedisService.deleteRefreshToken(userId);
-        }catch(TokenException e) {
+        }catch(TokenStorageException e) {
             //do nothing.
         }
     }
 
-    public void bakeCookieIntoResponse(TokenInfo tokenInfo,
-                                       HttpServletResponse response){
+    public void bakeCookieIntoResponse(TokenInfo tokenInfo, HttpServletResponse response){
 
         Long RefreshDuration = StringUtils.hasText(tokenInfo.getRefreshToken())?refreshTokenValidity : 0L;
-        Cookie refreshTokenCookie = jwtService.bake("XRefreshToken", tokenInfo.getRefreshToken(), RefreshDuration, true);
+        Cookie refreshTokenCookie = jwtService.bake("XRefreshToken", tokenInfo.getRefreshToken(), RefreshDuration);
         response.addCookie(refreshTokenCookie);
+    }
+
+    public void bakeCsrfIntoResponse(HttpServletRequest request, HttpServletResponse response){
+        CsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        CsrfToken csrfToken = tokenRepository.generateToken(request);
+        tokenRepository.saveToken(csrfToken, request, response);
     }
 
     private String verifyRefreshToken(String refreshToken) {

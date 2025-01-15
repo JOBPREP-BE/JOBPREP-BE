@@ -8,6 +8,7 @@ import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.common.swagger.template.OauthSwagger;
 import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,22 +26,26 @@ public class OauthController implements OauthSwagger{
     private final OAuthRedisService oAuthRedisService;
 
     @PostMapping("/callback")
-    public ResponseEntity<TokenResponse> exchangeToken(
-            @RequestParam String tempToken,
+    public ResponseEntity<TokenResponse> callBack(
+            @RequestParam(name = "temp_token") String tempToken,
+            HttpServletRequest request,
             HttpServletResponse response) {
         Optional<OAuthUserInfo> userInfo = oAuthRedisService.getTemporaryToken(tempToken);
 
         TokenInfo tokenInfo = authService.generateTokenPair(userInfo.get().getUserId());
         authService.bakeCookieIntoResponse(tokenInfo, response);
+        authService.bakeCsrfIntoResponse(request, response);
 
         return ResponseEntity.ok(new TokenResponse(tokenInfo.getAccessToken()));
     }
 
-    @GetMapping("/reissue")
+    @PostMapping("/reissue")
     public ResponseEntity<TokenResponse> reissue(@CookieValue(value = "XRefreshToken ") String refreshToken,
+                                                 HttpServletRequest request,
                                                  HttpServletResponse response) {
         TokenInfo tokenInfo = authService.reissue(refreshToken);
         authService.bakeCookieIntoResponse(tokenInfo, response);
+        authService.bakeCsrfIntoResponse(request, response);
 
         return ResponseEntity.ok(new TokenResponse(tokenInfo.getAccessToken()));
     }
@@ -49,9 +54,12 @@ public class OauthController implements OauthSwagger{
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                       HttpServletRequest request,
                                        HttpServletResponse response) {
         authService.deleteFromCache(principalDetails);
         authService.bakeCookieIntoResponse(new TokenInfo(), response);
+        authService.bakeCsrfIntoResponse(request, response);
+
         return ResponseEntity.ok().build();
     }
 
