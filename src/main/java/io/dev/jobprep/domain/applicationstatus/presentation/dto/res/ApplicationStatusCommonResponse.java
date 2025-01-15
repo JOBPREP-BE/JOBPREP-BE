@@ -5,10 +5,7 @@ import io.dev.jobprep.domain.applicationstatus.domain.entity.enums.ApplicationPr
 import io.dev.jobprep.domain.applicationstatus.domain.entity.enums.ApplicationProgress;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
-
 import java.time.LocalDateTime;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,7 +14,7 @@ import lombok.Getter;
 public class ApplicationStatusCommonResponse {
 
     @Schema(description = "지원 현황 ID", example = "2", implementation = Long.class)
-    @NotNull
+    @Nullable
     private final Long id;
 
     @Schema(description = "지원 기업", example = "애플", implementation = String.class)
@@ -67,25 +64,12 @@ public class ApplicationStatusCommonResponse {
         this.id = id;
         this.company = company;
         this.position = position;
-        this.progress = resolve(progress);
-        this.process = resolve(process);
+        this.progress = progress != null ? progress.getDescription() : null;
+        this.process = process != null ? process.getDescription() : null;
         this.applicationDate = applicationDate;
         this.dueDate = dueDate;
         this.url = url;
         this.coverLetter = coverLetter;
-    }
-
-    private String resolve(@Nullable final Object value) {
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof ApplicationProgress) {
-            return ((ApplicationProgress) value).getDescription();
-        } else if (value instanceof ApplicationProcess) {
-            return ((ApplicationProcess) value).getDescription();
-        } else {
-            throw new UnsupportedOperationException("Unsupported value type: " + value.getClass());
-        }
     }
 
     public static ApplicationStatusCommonResponse from(ApplicationStatus applicationStatus) {

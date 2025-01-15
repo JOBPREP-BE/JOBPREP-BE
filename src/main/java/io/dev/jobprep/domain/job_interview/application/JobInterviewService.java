@@ -6,6 +6,7 @@ import io.dev.jobprep.domain.job_interview.domain.enums.JobInterviewCategory;
 import io.dev.jobprep.domain.job_interview.exception.JobInterviewException;
 import io.dev.jobprep.domain.job_interview.infrastructure.JobInterviewRepository;
 import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
+import io.dev.jobprep.domain.job_interview.presentation.dto.res.FindJobInterviewResponse;
 import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
 import io.dev.jobprep.domain.users.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -22,14 +23,16 @@ import static io.dev.jobprep.exception.code.ErrorCode404.INTERVIEW_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(value = "transactionManager", readOnly = true)
+@Transactional(readOnly = true)
 public class JobInterviewService {
     private final JobInterviewRepository jobInterviewRepository;
 
-    @Transactional("transactionManager")
+    @Transactional
     public JobInterviewIdResponse saveJobInterview (User user) {
         JobInterview jobInterview = JobInterview.builder()
+                .question("")
                 .category(JobInterviewCategory.PERSONALITY)
+                .answer("")
                 .creator(user)
                 .isDefault(false)
                 .build();
@@ -38,20 +41,19 @@ public class JobInterviewService {
         return JobInterviewIdResponse.from(jobInterview.getId());
     }
 
-    @Transactional("transactionManager")
-    public String update (PutJobInterviewRequest request, Long id, String field, User user) {
-
+    @Transactional
+    public FindJobInterviewResponse update (PutJobInterviewRequest request, Long id, User user) {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
 
-        validateIsDefault(field, savedEntity, request);
+        validateIsDefault(savedEntity, request);
         validateUser(user.getId(), savedEntity.getCreator().getId());
-        savedEntity.update(field, request);
+        savedEntity.update(request);
 
-        return request.getNewVal();
+        return FindJobInterviewResponse.from(savedEntity);
     }
 
-    @Transactional("transactionManager")
+    @Transactional
     public void delete(Long id, User user) {
         JobInterview savedEntity = jobInterviewRepository.findById(id)
                 .orElseThrow(() -> new JobInterviewException(ALREADY_DELETED_INTERVIEW));
@@ -66,12 +68,13 @@ public class JobInterviewService {
         return jobInterviewRepository.findByConditionWithPagination(user.getId(), cursorId, pageSize);
     }
 
-    @Transactional("transactionManager")
+    @Transactional
     public void initJobInterview(User user) {
         for (DefaultJobInterview interviewList : DefaultJobInterview.values()) {
             JobInterview jobInterview = JobInterview.builder()
                     .question(interviewList.getQuestion())
                     .category(interviewList.getCategory())
+                    .answer("")
                     .creator(user)
                     .isDefault(true)
                     .build();
@@ -85,8 +88,8 @@ public class JobInterviewService {
             throw new JobInterviewException(INTERVIEW_FORBIDDEN_OPERATION);
         }
     }
-    private void validateIsDefault(String field, JobInterview savedEntity, PutJobInterviewRequest request) {
-        if (savedEntity.getIsDefault() && (field.equals("question") || field.equals("category"))) {
+    private void validateIsDefault(JobInterview savedEntity, PutJobInterviewRequest request) {
+        if (savedEntity.getIsDefault() && (request.getField().equals("question") || request.getField().equals("category"))) {
             throw new JobInterviewException(IS_DEFAULT_INTERVIEW);
         }
     }

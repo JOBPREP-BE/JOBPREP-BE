@@ -37,7 +37,6 @@ public class StompInterceptor implements ChannelInterceptor {
                 stompTokenProcessor.connect(accessor);
                 break;
             case SUBSCRIBE:
-                break;
             case SEND:
                 stompTokenProcessor.recoverMetaData(accessor);
                 break;

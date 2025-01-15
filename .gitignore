@@ -43,11 +43,12 @@ application*.yml
 ### docker-compose.yml ###
 docker/
 
-### SSL
-/src/main/resources/ssl/keystore.p12
 ### back-up for database ###
 scripts/backup/
 scripts/*_host.sh
 
-### .properties ###
-logback-variables.properties
+### ssl cert
+src/main/resources/ssl/
+
+### logback
+src/main/resources/logback-variables.properties

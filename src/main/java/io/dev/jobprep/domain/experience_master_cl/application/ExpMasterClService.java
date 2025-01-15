@@ -7,6 +7,7 @@ import io.dev.jobprep.domain.experience_master_cl.exception.ExpMasterClException
 import io.dev.jobprep.domain.experience_master_cl.infrastructure.ExpMasterClRepository;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.req.ExpMasterClPatchRequest;
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.ExpMasterClIdResponse;
+import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
 import io.dev.jobprep.domain.job_interview.exception.JobInterviewException;
 import io.dev.jobprep.domain.users.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static io.dev.jobprep.exception.code.ErrorCode400.INVALID_INPUT_VALUE;
 import static io.dev.jobprep.exception.code.ErrorCode403.MASTER_CL_FORBIDDEN_OPERATION;
 
 @Service
-@Transactional(value = "transactionManager", readOnly = true)
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class ExpMasterClService {
     private final ExpMasterClRepository expMasterClRepository;
 
-    @Transactional("transactionManager")
+    @Transactional
     public ExpMasterClIdResponse save (User user) {
 
         ExpMasterCl expMasterCl = ExpMasterCl.createData(user);
@@ -36,19 +38,18 @@ public class ExpMasterClService {
         return ExpMasterClIdResponse.from(expMasterCl.getId());
     }
 
-    @Transactional("transactionManager")
-    public String patch (Long id, String field, User user, ExpMasterClPatchRequest request) {
-
+    @Transactional
+    public FindExpMasterClResponse patch (Long id, User user, ExpMasterClPatchRequest request) {
         ExpMasterCl expMasterCl = findById(id);
 
         validateUser(user.getId(), expMasterCl.getCreator().getId());
 
-        expMasterCl.update(field, request);
+        expMasterCl.update(request);
 
-        return request.getNewVal();
+        return FindExpMasterClResponse.toDto(expMasterCl);
     }
 
-    @Transactional("transactionManager")
+    @Transactional
     public void delete (Long id, User user) {
         ExpMasterCl expMasterCl = findById(id);
 
@@ -60,7 +61,7 @@ public class ExpMasterClService {
         return expMasterClRepository.findByConditionWithPagination(user.getId(), cursorId, pageSize);
     }
 
-    @Transactional("transactionManager")
+    @Transactional
     public void defaultSave (User user) {
 
         ExpMasterCl expMasterCl = ExpMasterCl.builder()

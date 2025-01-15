@@ -53,7 +53,7 @@ public class StudyAutoDeletionScheduler {
     }
 
     @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
-    @Transactional(value = "jdbcTransactionManager", rollbackFor = {DataAccessException.class, Exception.class})
+    @Transactional(rollbackFor = {DataAccessException.class, Exception.class})
     @Retryable(
         retryFor = {
             DataAccessResourceFailureException.class, QueryTimeoutException.class,
@@ -69,7 +69,7 @@ public class StudyAutoDeletionScheduler {
         }
     }
 
-    @Transactional(value = "jdbcTransactionManager", rollbackFor = {DataAccessException.class, Exception.class})
+    @Transactional(rollbackFor = {DataAccessException.class, Exception.class})
     public void execute(Resource statement) {
         String sql = loadSqlFromFile(statement);
         try {
@@ -115,7 +115,7 @@ public class StudyAutoDeletionScheduler {
     }
 
     @Deprecated
-    @Transactional("jdbcTransactionManager")
+    @Transactional
     public void deleteStudyForShortOnMember() {
         jdbcTemplate.execute(
             """
@@ -132,7 +132,7 @@ public class StudyAutoDeletionScheduler {
     }
 
     @Deprecated
-    @Transactional("jdbcTransactionManager")
+    @Transactional
     public void deleteStudyForCompletion() {
         jdbcTemplate.execute(
             """

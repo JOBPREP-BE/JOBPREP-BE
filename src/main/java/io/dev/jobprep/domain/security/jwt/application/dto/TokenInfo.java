@@ -15,8 +15,8 @@ public class TokenInfo {
     private String refreshToken;// Access token을 발급받기 위한 토큰
 
     public TokenInfo(){
-        grantType ="";
-        accessToken = "";
-        refreshToken = "";
+        grantType="";
+        accessToken="";
+        refreshToken="";
     }
 }

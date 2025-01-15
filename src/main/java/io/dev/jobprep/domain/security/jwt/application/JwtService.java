@@ -8,7 +8,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.JWT;
 
-import io.dev.jobprep.domain.security.jwt.exception.TokenException;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,19 +18,14 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Date;
 
-import static io.dev.jobprep.exception.code.ErrorCode401.AUTH_MISSING_CREDENTIALS;
-
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JwtService {
-
     @Value("${jwt.secret-key}")
     private String secretKey;
-
     @Value("${jwt.access-token-validity}")
     private Long accessTokenValidityTime;
-
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
 
@@ -94,17 +88,7 @@ public class JwtService {
         }
     }
 
-    public Long fetchFromToken(String token) {
-        try {
-            DecodedJWT decodedJWT = verifyNDecodeToken(token);
-            isTokenExpired(decodedJWT);
-            return Long.parseLong(extractUserId(decodedJWT));
-        } catch (Exception e) {
-            log.warn("Failed to verity and fetch userId from token: {}", e.getMessage());
-            throw new TokenException(AUTH_MISSING_CREDENTIALS);
-        }
-    }
-
+    //토큰 만료 확인
     private void isTokenExpired(DecodedJWT decodedJWT) {
         boolean expired = decodedJWT.getExpiresAt().before(new Date());
         if(expired) {
@@ -113,6 +97,7 @@ public class JwtService {
         }
     }
 
+    // Verify and decode a JWT
     public DecodedJWT verifyNDecodeToken(String token) {
         try {
             JWTVerifier verifier = JWT.require(getAlgorithm()).build();
@@ -122,6 +107,7 @@ public class JwtService {
         }
     }
 
+    // Extract username (subject) from token
     public String extractUserId(DecodedJWT decodedJWT) {
         try {
             return decodedJWT.getSubject();
@@ -131,6 +117,7 @@ public class JwtService {
         }
     }
 
+    //Exract UserRole from token
     public String extractUserEmail(DecodedJWT decodedJWT) {
         try {
             return decodedJWT.getClaim("email").asString();
@@ -167,7 +154,6 @@ public class JwtService {
     private Date getCurrentDate(Long time){
         return new Date(time);
     }
-
     private Date getCurrentDate(){
         return new Date();
     }

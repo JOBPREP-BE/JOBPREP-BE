@@ -17,14 +17,7 @@ public class ChatRoomIdResponse {
     }
 
     public static ChatRoomIdResponse from(ChatRoom chatRoom) {
-        return new ChatRoomIdResponse(resolve(chatRoom));
-    }
-
-    private static UUID resolve(ChatRoom chatRoom) {
-        if (chatRoom == null) {
-            return null;
-        }
-        return chatRoom.getId();
+        return new ChatRoomIdResponse(chatRoom.getId());
     }
 
 }

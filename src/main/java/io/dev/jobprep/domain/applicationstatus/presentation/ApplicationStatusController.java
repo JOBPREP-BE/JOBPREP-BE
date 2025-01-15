@@ -1,10 +1,10 @@
 package io.dev.jobprep.domain.applicationstatus.presentation;
 
-import io.dev.jobprep.common.auth.JwtToken;
 import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.swagger.template.ApplicationStatusSwagger;
 import io.dev.jobprep.domain.applicationstatus.application.ApplicationStatusService;
+import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusCreateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusUpdateRequest;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusCommonResponse;
 import io.dev.jobprep.domain.applicationstatus.presentation.dto.res.ApplicationStatusIdResponse;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -32,22 +33,23 @@ public class ApplicationStatusController implements ApplicationStatusSwagger {
 
     @PostMapping
     public ResponseEntity<ApplicationStatusIdResponse> create(
-        @JwtToken Long userId
+        @RequestParam Long userId,
+        @RequestBody ApplicationStatusCreateRequest request
     ) {
         return ResponseEntity.status(201).body(
-            ApplicationStatusIdResponse.of(applicationStatusService.create(userId))
+            ApplicationStatusIdResponse.of(applicationStatusService.create(userId, request))
         );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@JwtToken Long userId, @PathVariable Long id) {
+    public ResponseEntity<Void> delete(@RequestParam Long userId, @PathVariable Long id) {
         applicationStatusService.delete(userId, id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApplicationStatusInfoResponse> getMyApplicationStatus(
-        @JwtToken Long userId,
+        @RequestParam Long userId,
         @PathVariable Long id
     ) {
         return ResponseEntity.ok(
@@ -57,7 +59,7 @@ public class ApplicationStatusController implements ApplicationStatusSwagger {
 
     @GetMapping("/my")
     public ResponseEntity<CursorPaginationResult<ApplicationStatusCommonResponse>> getAll(
-        @JwtToken Long userId,
+        @RequestParam Long userId,
         @Valid @ModelAttribute LongCursorPaginationReq pageable) {
 
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
@@ -71,7 +73,7 @@ public class ApplicationStatusController implements ApplicationStatusSwagger {
 
     @PatchMapping("/{id}/{field}")
     public ResponseEntity<ApplicationStatusUpdateResponse> modify(
-        @JwtToken Long userId,
+        @RequestParam Long userId,
         @PathVariable Long id, @PathVariable String field,
         @RequestBody ApplicationStatusUpdateRequest request
     ) {

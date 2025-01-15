@@ -1,6 +1,5 @@
 package io.dev.jobprep.domain.essentialMaterial.presentation.dto;
 
-import io.dev.jobprep.common.auth.JwtToken;
 import io.dev.jobprep.common.swagger.template.EssentialMaterialSwagger;
 import io.dev.jobprep.domain.essentialMaterial.application.EssentialMaterialService;
 import io.dev.jobprep.domain.essentialMaterial.presentation.dto.req.EssentialMaterialIUpdateAPIRequest;
@@ -20,13 +19,13 @@ public class EssentialMaterialController implements EssentialMaterialSwagger {
     private final UserCommonService userCommonService;
 
     @GetMapping(value = "/")
-    public ResponseEntity<EssentialMaterialGetAPIResponse> get(@JwtToken Long userId){
+    public ResponseEntity<EssentialMaterialGetAPIResponse> get(@RequestParam(required = false) Long userId){
         String material = essentialMaterialService.get(userCommonService.getUserWithId(userId));
         return ResponseEntity.ok(new EssentialMaterialGetAPIResponse(material));
     }
 
     @PatchMapping(value ="/update")
-    public ResponseEntity<EssentialMaterialUpdateAPIResponse> update(@JwtToken Long userId,
+    public ResponseEntity<EssentialMaterialUpdateAPIResponse> update(@RequestParam(required = false) Long userId,
                                                                      @RequestBody EssentialMaterialIUpdateAPIRequest req){
         String material = essentialMaterialService.update(userCommonService.getUserWithId(userId),req.getContent());
         return ResponseEntity.ok(new EssentialMaterialUpdateAPIResponse(material));

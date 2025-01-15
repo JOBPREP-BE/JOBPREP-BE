@@ -35,11 +35,11 @@ public class JobInterview {
     @JoinColumn(name = "user_id", updatable = false)
     private User creator;
 
-    public void update(String field, PutJobInterviewRequest request) {
-        switch (field) {
-            case "question" -> question = request.getNewVal();
-            case "category" -> category = JobInterviewCategory.from(request.getNewVal());
-            case "answer" -> answer = request.getNewVal();
+    public void update(PutJobInterviewRequest request) {
+        switch (request.getField()) {
+            case "question" -> question = request.getContent();
+            case "category" -> category = JobInterviewCategory.from(request.getContent());
+            case "answer" -> answer = request.getContent();
         }
     }
 

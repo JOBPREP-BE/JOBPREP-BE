@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Deprecated
 @Schema(description = "지원현황 생성 요청 Dto")
 @Getter
 @NoArgsConstructor
