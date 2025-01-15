@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -58,11 +59,14 @@ public interface OauthSwagger {
                             examples = @ExampleObject(name = "E01-JWT-001", value = SwaggerJwtErrorExamples.RFT_CACHE_FALIURE)))
 
     })
-    ResponseEntity<TokenResponse> exchangeToken(
+    ResponseEntity<TokenResponse> callBack(
             @Parameter(description = "OAuth 로그인 후 발급된 임시 토큰", required = true)
             @RequestParam String tempToken,
+            @Parameter(description = "HTTP 요청 객체", required = true)
+            HttpServletRequest request,
             @Parameter(description = "HTTP 응답 객체", required = true)
-            HttpServletResponse response);
+            HttpServletResponse response
+    );
 
 
     @Operation(summary = "토큰 재발급", description = "Refresh 토큰을 사용하여 새로운 Access 토큰을 발급받는 API")
@@ -110,6 +114,8 @@ public interface OauthSwagger {
     ResponseEntity<TokenResponse> reissue(
             @Parameter(description = "갱신용 리프레시 토큰", required = true)
             @CookieValue(value = "XRefreshToken") String refreshToken,
+            @Parameter(description = "HTTP 요청 객체", required = true)
+            HttpServletRequest request,
             @Parameter(description = "HTTP 응답 객체", required = true)
                     HttpServletResponse response);
 
@@ -130,6 +136,8 @@ public interface OauthSwagger {
     ResponseEntity<Void> logout(
             @Parameter(description = "인증된 사용자 정보", required = true)
             @AuthenticationPrincipal PrincipalDetails principalDetails,
+            @Parameter(description = "HTTP 요청 객체", required = true)
+            HttpServletRequest request,
             @Parameter(description = "HTTP 응답 객체", required = true)
             HttpServletResponse response);
 }
