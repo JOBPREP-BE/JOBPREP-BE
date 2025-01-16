@@ -118,7 +118,8 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .requestMatchers(
-                        "/actuator/**"
+                        "/actuator/**",
+                        "/api/v1/oauth2/reissue"
                 );
     }
 }
