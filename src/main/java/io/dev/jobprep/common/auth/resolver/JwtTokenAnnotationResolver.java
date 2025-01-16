@@ -1,7 +1,7 @@
 package io.dev.jobprep.common.auth.resolver;
 
 import io.dev.jobprep.common.auth.JwtToken;
-import io.dev.jobprep.domain.security.jwt.exception.TokenException;
+import io.dev.jobprep.domain.security.jwt.exception.TokenStorageException;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,11 +32,11 @@ public class JwtTokenAnnotationResolver implements HandlerMethodArgumentResolver
         if (authentication != null && authentication.isAuthenticated()) {
             PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
             if (principalDetails == null || principalDetails.getUsername().isEmpty()) {
-                throw new TokenException(AUTH_MISSING_CREDENTIALS);
+                throw new TokenStorageException(AUTH_MISSING_CREDENTIALS);
             }
             return (Long) Long.parseLong(principalDetails.getUsername());
         }
-        throw new TokenException(AUTH_MISSING_CREDENTIALS);
+        throw new TokenStorageException(AUTH_MISSING_CREDENTIALS);
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication() {
