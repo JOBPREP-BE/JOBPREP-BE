@@ -27,8 +27,6 @@ public class AuthService {
     private final JwtRedisService jwtRedisService;
     private final PrincipalDetailsService principalDetailsService;
 
-    @Value("${jwt.access-token-validity}")
-    private Long accessTokenValidity;
 
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidity;
@@ -53,13 +51,9 @@ public class AuthService {
     public void bakeCookieIntoResponse(TokenInfo tokenInfo,
                                        HttpServletResponse response){
 
-        Long AccessDuration = StringUtils.hasText(tokenInfo.getAccessToken())?accessTokenValidity : 0L;
         Long RefreshDuration = StringUtils.hasText(tokenInfo.getRefreshToken())?refreshTokenValidity : 0L;
-
-        Cookie accessTokenCookie = jwtService.bake("Authorization", tokenInfo.getAccessToken(), AccessDuration);
-        response.addCookie(accessTokenCookie);
-
         Cookie refreshTokenCookie = jwtService.bake("XRefreshToken", tokenInfo.getRefreshToken(), RefreshDuration);
+
         response.addCookie(refreshTokenCookie);
     }
 
