@@ -1,7 +1,7 @@
 package io.dev.jobprep.domain.security.jwt.application;
 
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
-import io.dev.jobprep.domain.security.jwt.exception.TokenException;
+import io.dev.jobprep.domain.security.jwt.exception.TokenStorageException;
 import io.dev.jobprep.exception.code.ErrorCode400;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class JwtRedisService {
             );
         } catch (Exception e) {
             log.error("Failed to rotate refresh token for user {}: {}", userId, e.getMessage());
-            throw new TokenException(ErrorCode400.RFT_CACHE_FALIURE);
+            throw new TokenStorageException(ErrorCode400.RFT_CACHE_FALIURE);
         }
     }
 
@@ -46,11 +46,11 @@ public class JwtRedisService {
 
             if (savedToken == null) {
                 log.warn("No refresh token found for user: {}", userId);
-                throw new TokenException(ErrorCode400.RFT_VALIDATION_FAILURE);
+                throw new TokenStorageException(ErrorCode400.RFT_VALIDATION_FAILURE);
             }
 
         } catch (Exception e) {
-            throw new TokenException(ErrorCode400.RFT_VALIDATION_FAILURE);
+            throw new TokenStorageException(ErrorCode400.RFT_VALIDATION_FAILURE);
         }
 
     }
@@ -67,7 +67,6 @@ public class JwtRedisService {
             }
         } catch (Exception e) {
             log.error("Error occurred while deleting refresh token: {}", e.getMessage());
-            throw new TokenException(ErrorCode400.RFT_VALIDATION_FAILURE);
         }
     }
 

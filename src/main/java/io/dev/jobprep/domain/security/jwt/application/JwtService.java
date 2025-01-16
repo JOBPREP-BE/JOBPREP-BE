@@ -8,7 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.JWT;
 
-import io.dev.jobprep.domain.security.jwt.exception.TokenException;
+import io.dev.jobprep.domain.security.jwt.exception.TokenStorageException;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class JwtService {
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
 
-    @Value("${cookie.domain}") // application.yml에 설정 필요
+    @Value("${cookie.domain}")
     private String cookieDomain;
 
     private Algorithm getAlgorithm() {
@@ -43,14 +43,12 @@ public class JwtService {
     }
 
     public TokenInfo generateTokenInfo(String userId, String userEmail, String userRoles ){
-        // Create Access Token
+
         String accessToken = generateAccessToken(userId, userEmail, userRoles);
         log.info("Generated access token: {}", accessToken);
 
-        // Create Refresh Token
         String refreshToken = generateRefreshToken(userId);
 
-        //JWT 토큰 반환
         return TokenInfo.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
@@ -88,7 +86,7 @@ public class JwtService {
         } catch (TokenExpiredException e) {
             throw e;
         } catch (Exception e) {
-            // 다른 예외들은 JWTVerificationException으로 감싸기
+
             log.error("Unexpected error during token validation: {}", e.getMessage());
             throw new JWTVerificationException("Token validation failed");
         }
@@ -101,7 +99,7 @@ public class JwtService {
             return Long.parseLong(extractUserId(decodedJWT));
         } catch (Exception e) {
             log.warn("Failed to verity and fetch userId from token: {}", e.getMessage());
-            throw new TokenException(AUTH_MISSING_CREDENTIALS);
+            throw new TokenStorageException(AUTH_MISSING_CREDENTIALS);
         }
     }
 
