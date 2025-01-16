@@ -30,8 +30,12 @@ public enum ErrorCode400 implements ErrorCode {
     ALREADY_PENALIZED_USER("E01-USER-002", "이미 페널티가 부여된 유저입니다."),
 
     RFT_CACHE_FALIURE("E01-JWT-001", "리프레쉬 토큰 캐싱을 실패했습니다."),
-    RFT_CACHE_DELETION_FALIURE("E01-JWT-002", "리프레쉬 토큰 캐싱을 실패했습니다."),
+    RFT_CACHE_DELETION_FALIURE("E01-JWT-002", "리프레쉬 토큰 캐시 삭제를 실패했습니다."),
     RFT_VALIDATION_FAILURE("E01-JWT-003", "리프레쉬 토큰 캐시 검증을 실패했습니다."),
+
+    TMPT_CACHE_FALIURE("E01-TMPT-001", "임시 인증 토큰 캐싱을 실패했습니다."),
+    TMPT_CACHE_DELETION_FALIURE("E01-TMPT-002", "임시 인증 토큰 캐시 삭제를 실패했습니다."),
+    TMPT_VALIDATION_FAILURE("E01-TMPT-003", "임시 인증 토큰 캐시 검증을 실패했습니다."),
 
     ALREADY_DELETED_INTERVIEW("E01-JOB-INTERVIEW-001", "해당 면접 데이터는 이미 삭제되었습니다."),
     INVALID_INTERVIEW_STATUS("E01-JOB-INTERVIEW-002", "해당 면접 카테고리가 잘못되었습니다."),
