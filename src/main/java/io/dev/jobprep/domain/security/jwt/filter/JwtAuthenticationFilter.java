@@ -1,6 +1,5 @@
 package io.dev.jobprep.domain.security.jwt.filter;
 
-
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
@@ -24,57 +23,64 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private final JwtService jwtService;
     private final PrincipalDetailsService principalDetailsService;
 
     @Override
-    public void doFilterInternal(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws IOException, ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        log.info("Incoming request {}", request.getRequestURI());
+        return StringUtils.startsWithIgnoreCase(request.getRequestURI(), "/actuator/");
+    }
+
+    @Override
+    public void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws IOException, ServletException {
+
         try {
             String accessToken = resolveAccessToken(request);
-            //액세스 토큰 존재하면
             if (StringUtils.hasText(accessToken)) {
-                jwtService.isTokenValid(accessToken);//토큰 valid
+                jwtService.isTokenValid(accessToken);
                 PrincipalDetails principalDetails = getPrincipalDetailsFromToken(accessToken);
                 if (principalDetails != null) {
                     log.debug("Authentication successful for user: {}", principalDetails.getUsername());
                     setAuthentication(principalDetails);
-                    filterChain.doFilter(request, response);
-                } else{
+                } else {
                     log.warn("Failed to get principal details from token");
                     SecurityContextHolder.clearContext();
                     request.setAttribute("exception", new JWTVerificationException("User details not found"));
-                    filterChain.doFilter(request, response);
                 }
-            } else{
+            } else {
                 log.debug("No token found in request headers");
                 SecurityContextHolder.clearContext();
                 request.setAttribute( "exception", new JWTVerificationException("NO TOKEN FOUND"));
-                filterChain.doFilter(request, response);
             }
-        }catch (JWTVerificationException e) {
+        } catch (JWTVerificationException e) {
             log.warn("JWT verification failed: {}", e.getMessage());
             SecurityContextHolder.clearContext();
             request.setAttribute("exception", e);
-            filterChain.doFilter(request, response);
-
         } catch (Exception e) {
             log.error("Unexpected error during authentication: {}", e.getMessage(), e);
             SecurityContextHolder.clearContext();
             request.setAttribute("exception", e);
+        } finally {
             filterChain.doFilter(request, response);
         }
     }
 
-    // 토큰에서 principalDetails 추출하는 메소드
     private PrincipalDetails getPrincipalDetailsFromToken(String Token){
         try {
-            DecodedJWT decodeJWT = jwtService.verifyNDcodeToken(Token);
+            DecodedJWT decodeJWT = jwtService.verifyNDecodeToken(Token);
             String userId = jwtService.extractUserId(decodeJWT);
             return (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         } catch (Exception e) {
             throw new JWTVerificationException("Failed to get user details");
         }
     }
+
     private void setAuthentication(PrincipalDetails principalDetails) {
         try {
             if (principalDetails == null) {

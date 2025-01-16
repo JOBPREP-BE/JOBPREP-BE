@@ -19,7 +19,6 @@ public class OauthController implements OauthSwagger{
 
     private final AuthService authService;
 
-    // 토큰 재발급
     @GetMapping("/reissue")
     public ResponseEntity<Void> reissue(@CookieValue(value = "XRefreshTokens") String refreshToken,
                                                  HttpServletResponse response) {

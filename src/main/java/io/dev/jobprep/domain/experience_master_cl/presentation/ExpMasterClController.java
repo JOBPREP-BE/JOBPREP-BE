@@ -1,5 +1,6 @@
 package io.dev.jobprep.domain.experience_master_cl.presentation;
 
+import io.dev.jobprep.common.auth.JwtToken;
 import io.dev.jobprep.common.base.CursorPaginationResult;
 import io.dev.jobprep.common.base.LongCursorPaginationReq;
 import io.dev.jobprep.common.swagger.template.ExpMasterClSwagger;
@@ -25,7 +26,7 @@ public class ExpMasterClController implements ExpMasterClSwagger {
     private final UserCommonService userCommonService;
 
     @PostMapping
-    public ResponseEntity<ExpMasterClIdResponse> save (@RequestParam Long userId) {
+    public ResponseEntity<ExpMasterClIdResponse> save (@JwtToken Long userId) {
         User user = userCommonService.getUserWithId(userId);
         ExpMasterClIdResponse id = expMasterClService.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
@@ -34,7 +35,7 @@ public class ExpMasterClController implements ExpMasterClSwagger {
     @PatchMapping("/{id}/{field}")
     public ResponseEntity<UpdateExpMasterClResponse> update (
             @PathVariable("id") Long id, @PathVariable String field,
-            @RequestParam Long userId,
+            @JwtToken Long userId,
             @RequestBody ExpMasterClPatchRequest request
             ) {
         User user = userCommonService.getUserWithId(userId);
@@ -44,7 +45,7 @@ public class ExpMasterClController implements ExpMasterClSwagger {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete (
             @PathVariable("id") Long id,
-            @RequestParam Long userId
+            @JwtToken Long userId
     ) {
         User user = userCommonService.getUserWithId(userId);
         expMasterClService.delete(id, user);
@@ -53,7 +54,7 @@ public class ExpMasterClController implements ExpMasterClSwagger {
 
     @GetMapping
     public ResponseEntity<CursorPaginationResult<FindExpMasterClResponse>> findAll (
-            @RequestParam Long userId, @Valid @ModelAttribute LongCursorPaginationReq pageable) {
+            @JwtToken Long userId, @Valid @ModelAttribute LongCursorPaginationReq pageable) {
         User user = userCommonService.getUserWithId(userId);
 
         return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(

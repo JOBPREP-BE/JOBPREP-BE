@@ -57,6 +57,7 @@ public interface OauthSwagger {
                             examples = @ExampleObject(name = "E01-JWT-003", value = SwaggerJwtErrorExamples.RFT_VALIDATION_FAILURE))),
 
     })
+
     ResponseEntity<Void> reissue(
             @Parameter(description = "갱신용 리프레시 토큰", required = true)
             @CookieValue(value = "XRefreshTokens") String refreshToken,

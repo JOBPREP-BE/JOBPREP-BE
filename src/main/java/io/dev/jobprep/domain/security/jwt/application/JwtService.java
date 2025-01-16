@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Date;
 
+import static io.dev.jobprep.exception.code.ErrorCode401.AUTH_MISSING_CREDENTIALS;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,7 @@ public class JwtService {
     public TokenInfo generateTokenInfo(String userId, String userEmail, String userRoles ){
         // Create Access Token
         String accessToken = generateAccessToken(userId, userEmail, userRoles);
+        log.info("Generated access token: {}", accessToken);
 
         // Create Refresh Token
         String refreshToken = generateRefreshToken(userId);
@@ -79,7 +82,7 @@ public class JwtService {
 
     public void isTokenValid(String token) {
         try {
-            DecodedJWT decodedJWT = verifyNDcodeToken(token);
+            DecodedJWT decodedJWT = verifyNDecodeToken(token);
             isTokenExpired(decodedJWT);
         } catch (TokenExpiredException e) {
             throw e;
@@ -90,7 +93,17 @@ public class JwtService {
         }
     }
 
-    //토큰 만료 확인
+    public Long fetchFromToken(String token) {
+        try {
+            DecodedJWT decodedJWT = verifyNDecodeToken(token);
+            isTokenExpired(decodedJWT);
+            return Long.parseLong(extractUserId(decodedJWT));
+        } catch (Exception e) {
+            log.warn("Failed to verity and fetch userId from token: {}", e.getMessage());
+            throw new JWTVerificationException(AUTH_MISSING_CREDENTIALS);
+        }
+    }
+
     private void isTokenExpired(DecodedJWT decodedJWT) {
         boolean expired = decodedJWT.getExpiresAt().before(new Date());
         if(expired) {
@@ -99,8 +112,8 @@ public class JwtService {
         }
     }
 
-    // Verify and decode a JWT
-    public DecodedJWT verifyNDcodeToken(String token) {
+
+    public DecodedJWT verifyNDecodeToken(String token) {
         try {
             JWTVerifier verifier = JWT.require(getAlgorithm()).build();
             return verifier.verify(token);
@@ -109,7 +122,6 @@ public class JwtService {
         }
     }
 
-    // Extract username (subject) from token
     public String extractUserId(DecodedJWT decodedJWT) {
         try {
             return decodedJWT.getSubject();
@@ -119,7 +131,6 @@ public class JwtService {
         }
     }
 
-    //Exract UserRole from token
     public String extractUserEmail(DecodedJWT decodedJWT) {
         try {
             return decodedJWT.getClaim("email").asString();
@@ -138,14 +149,15 @@ public class JwtService {
         }
     }
 
-    public Cookie bake(String key, String value, Long tokenExpiry, boolean httpOnly, String sameSiteOptions) {
+
+    public Cookie bake(String key, String value, Long tokenExpiry) {
         Cookie cookie = new Cookie(key, value);
-        cookie.setHttpOnly(httpOnly);
+        cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setDomain(cookieDomain);
         cookie.setPath("/");
         cookie.setMaxAge(convert(tokenExpiry));
-        cookie.setAttribute("SameSite", sameSiteOptions);
+        cookie.setAttribute("SameSite", "None");
         return cookie;
     }
 
