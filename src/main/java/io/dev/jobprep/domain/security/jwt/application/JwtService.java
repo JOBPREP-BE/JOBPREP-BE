@@ -48,6 +48,7 @@ public class JwtService {
         log.info("Generated access token: {}", accessToken);
 
         String refreshToken = generateRefreshToken(userId);
+        log.info("Generated refresh token: (CENSORED)");
 
         return TokenInfo.builder()
                 .grantType("Bearer")
