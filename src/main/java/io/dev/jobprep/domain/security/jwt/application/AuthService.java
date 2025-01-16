@@ -1,16 +1,20 @@
 package io.dev.jobprep.domain.security.jwt.application;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import io.dev.jobprep.domain.security.jwt.exception.TokenException;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
+import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -41,11 +45,9 @@ public class AuthService {
         SecurityContextHolder.clearContext();
         String userId = principalDetails.getUsername();
 
-        try {
-            jwtRedisService.deleteRefreshToken(userId);
-        }catch(TokenException e) {
-            //do nothing.
-        }
+
+        jwtRedisService.deleteRefreshToken(userId);
+
     }
 
     public void bakeCookieIntoResponse(TokenInfo tokenInfo,
@@ -61,6 +63,14 @@ public class AuthService {
         response.addCookie(refreshTokenCookie);
     }
 
+    public TokenResponse generateTokenResponse(TokenInfo tokenInfo, HttpServletRequest request){
+        CsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        CsrfToken csrfToken = tokenRepository.generateToken(request);
+
+        return new TokenResponse(tokenInfo.getAccessToken(), csrfToken.getToken());
+    }
+
+
     private String verifyRefreshToken(String refreshToken) {
         DecodedJWT decodeJWT = jwtService.verifyNDecodeToken(refreshToken);
         String userId = jwtService.extractUserId(decodeJWT);
@@ -70,7 +80,7 @@ public class AuthService {
         return userId;
     }
 
-    private TokenInfo generateTokenPair(String userId){
+    public TokenInfo generateTokenPair(String userId){
         PrincipalDetails principalDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         TokenInfo tokenInfo = jwtService.generateTokenInfo(userId, principalDetails.getEmail(), principalDetails.getUserRoles());
 
