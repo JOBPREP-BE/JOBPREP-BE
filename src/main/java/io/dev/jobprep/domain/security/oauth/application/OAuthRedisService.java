@@ -62,6 +62,4 @@ public class OAuthRedisService {
             throw new TokenStorageException(TMPT_VALIDATION_FAILURE);
         }
     }
-
-    // 기존의 refresh token 관련 메소드들...
 }
