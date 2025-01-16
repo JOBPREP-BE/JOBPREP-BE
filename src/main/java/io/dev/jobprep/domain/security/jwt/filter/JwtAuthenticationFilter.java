@@ -19,6 +19,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -28,10 +30,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final PrincipalDetailsService principalDetailsService;
 
+    private static final List<String> EXCLUDE_PATHS = Arrays.asList(
+            "/actuator/",
+            "/api/v1/oauth2/reissue"
+    );
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         log.info("Incoming request {}", request.getRequestURI());
-        return StringUtils.startsWithIgnoreCase(request.getRequestURI(), "/actuator/");
+        return EXCLUDE_PATHS.stream()
+                .anyMatch(excludePath ->
+                        StringUtils.startsWithIgnoreCase(request.getRequestURI(), excludePath));
+
     }
 
     @Override
