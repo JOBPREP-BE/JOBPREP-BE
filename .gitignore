@@ -43,7 +43,7 @@ application*.yml
 ### docker-compose.yml ###
 docker/
 
-### SSL
+### SSL/keystore.p12 ###
 /src/main/resources/ssl/keystore.p12
 
 ### back-up for database ###

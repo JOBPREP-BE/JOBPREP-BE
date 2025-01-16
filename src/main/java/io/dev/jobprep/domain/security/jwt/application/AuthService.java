@@ -49,7 +49,7 @@ public class AuthService {
         try {
             jwtRedisService.deleteRefreshToken(userId);
         }catch(TokenStorageException e) {
-            //do nothing.
+
         }
     }
 

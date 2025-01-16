@@ -25,7 +25,7 @@ public class JwtRedisService {
 
     public void saveRefreshToken(String userId, TokenInfo tokenInfo) /*throws TokenStorageException*/ {
         String key = getKey(userId);
-        //TODO: Exception handling 하기
+
 //        try {
             redisTemplate.opsForValue().set(
                     key,
@@ -51,15 +51,14 @@ public class JwtRedisService {
         return savedToken.equals(refreshToken);
     }
 
-    // Refresh Token 재발급 시 기존 토큰 삭제 및 새 토큰 저장
     public void rotateRefreshToken(String userId, TokenInfo newTokenInfo) {
         String key = getKey(userId);
 
         try {
-            // 기존 토큰 삭제
+
             redisTemplate.delete(key);
 
-            // 새 토큰 저장
+
             redisTemplate.opsForValue().set(
                     key,
                     newTokenInfo.getRefreshToken(),
@@ -74,7 +73,6 @@ public class JwtRedisService {
         }
     }
 
-    //로그아웃 시 Refresh Token 삭제
     public void deleteRefreshToken(String userId) {
         String key = getKey(userId);
         try {
