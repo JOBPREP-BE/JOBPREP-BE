@@ -34,20 +34,20 @@ public class OauthController implements OauthSwagger{
 
         TokenInfo tokenInfo = authService.generateTokenPair(userInfo.get().getUserId());
         authService.bakeCookieIntoResponse(tokenInfo, response);
-        authService.bakeCsrfIntoResponse(request, response);
 
-        return ResponseEntity.ok(new TokenResponse(tokenInfo.getAccessToken()));
+        TokenResponse tokenResponse = authService.generateTokenResponse(tokenInfo, request);
+        return ResponseEntity.ok(tokenResponse);
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponse> reissue(@CookieValue(value = "XRefreshToken ") String refreshToken,
+    public ResponseEntity<TokenResponse> reissue(@CookieValue(value = "XRefreshToken") String refreshToken,
                                                  HttpServletRequest request,
                                                  HttpServletResponse response) {
         TokenInfo tokenInfo = authService.reissue(refreshToken);
         authService.bakeCookieIntoResponse(tokenInfo, response);
-        authService.bakeCsrfIntoResponse(request, response);
 
-        return ResponseEntity.ok(new TokenResponse(tokenInfo.getAccessToken()));
+        TokenResponse tokenResponse = authService.generateTokenResponse(tokenInfo, request);
+        return ResponseEntity.ok(tokenResponse);
     }
 
 
@@ -58,7 +58,6 @@ public class OauthController implements OauthSwagger{
                                        HttpServletResponse response) {
         authService.deleteFromCache(principalDetails);
         authService.bakeCookieIntoResponse(new TokenInfo(), response);
-        authService.bakeCsrfIntoResponse(request, response);
 
         return ResponseEntity.ok().build();
     }

@@ -5,6 +5,7 @@ import io.dev.jobprep.domain.security.jwt.exception.TokenStorageException;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
+import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,10 +60,11 @@ public class AuthService {
         response.addCookie(refreshTokenCookie);
     }
 
-    public void bakeCsrfIntoResponse(HttpServletRequest request, HttpServletResponse response){
+    public TokenResponse generateTokenResponse(TokenInfo tokenInfo, HttpServletRequest request){
         CsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         CsrfToken csrfToken = tokenRepository.generateToken(request);
-        tokenRepository.saveToken(csrfToken, request, response);
+
+        return new TokenResponse(tokenInfo.getAccessToken(), csrfToken.getToken());
     }
 
     private String verifyRefreshToken(String refreshToken) {
