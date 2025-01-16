@@ -8,6 +8,7 @@ import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.common.swagger.template.OauthSwagger;
 import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
+import io.dev.jobprep.domain.security.util.TokenHeaderConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class OauthController implements OauthSwagger{
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponse> reissue(@CookieValue(value = "XRefreshToken") String refreshToken,
+    public ResponseEntity<TokenResponse> reissue(@CookieValue(value = TokenHeaderConstants.REFRESH_HEADER) String refreshToken,
                                                  HttpServletRequest request,
                                                  HttpServletResponse response) {
         TokenInfo tokenInfo = authService.reissue(refreshToken);

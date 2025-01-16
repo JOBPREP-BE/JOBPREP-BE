@@ -1,7 +1,6 @@
 package io.dev.jobprep.domain.security.oauth.application;
 
-import io.dev.jobprep.domain.security.jwt.application.JwtRedisService;
-import io.dev.jobprep.domain.security.jwt.application.JwtService;
+
 import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,10 +22,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-    private final JwtService jwtService;
-    private final JwtRedisService jwtRedisService;
     private final OAuthRedisService oAuthRedisService;
-    @Value("${spring.security.oauth2.frontend-redirect.url}") // application.yml에 설정한 리다이렉트 URL
+    @Value("${spring.security.oauth2.frontend-redirect.url}")
     private String redirectUrl;
 
     @Override
