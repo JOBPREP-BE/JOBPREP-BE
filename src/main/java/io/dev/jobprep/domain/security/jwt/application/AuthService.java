@@ -1,16 +1,20 @@
 package io.dev.jobprep.domain.security.jwt.application;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import io.dev.jobprep.domain.security.jwt.exception.TokenException;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
+import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -23,8 +27,6 @@ public class AuthService {
     private final JwtRedisService jwtRedisService;
     private final PrincipalDetailsService principalDetailsService;
 
-    @Value("${jwt.access-token-validity}")
-    private Long accessTokenValidity;
 
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidity;
@@ -41,25 +43,27 @@ public class AuthService {
         SecurityContextHolder.clearContext();
         String userId = principalDetails.getUsername();
 
-        try {
-            jwtRedisService.deleteRefreshToken(userId);
-        }catch(TokenException e) {
-            //do nothing.
-        }
+
+        jwtRedisService.deleteRefreshToken(userId);
+
     }
 
     public void bakeCookieIntoResponse(TokenInfo tokenInfo,
                                        HttpServletResponse response){
 
-        Long AccessDuration = StringUtils.hasText(tokenInfo.getAccessToken())?accessTokenValidity : 0L;
         Long RefreshDuration = StringUtils.hasText(tokenInfo.getRefreshToken())?refreshTokenValidity : 0L;
-
-        Cookie accessTokenCookie = jwtService.bake("Authorization", tokenInfo.getAccessToken(), AccessDuration);
-        response.addCookie(accessTokenCookie);
-
         Cookie refreshTokenCookie = jwtService.bake("XRefreshToken", tokenInfo.getRefreshToken(), RefreshDuration);
+
         response.addCookie(refreshTokenCookie);
     }
+
+    public TokenResponse generateTokenResponse(TokenInfo tokenInfo, HttpServletRequest request){
+        CsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        CsrfToken csrfToken = tokenRepository.generateToken(request);
+
+        return new TokenResponse(tokenInfo.getAccessToken(), csrfToken.getToken());
+    }
+
 
     private String verifyRefreshToken(String refreshToken) {
         DecodedJWT decodeJWT = jwtService.verifyNDecodeToken(refreshToken);
@@ -70,7 +74,7 @@ public class AuthService {
         return userId;
     }
 
-    private TokenInfo generateTokenPair(String userId){
+    public TokenInfo generateTokenPair(String userId){
         PrincipalDetails principalDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         TokenInfo tokenInfo = jwtService.generateTokenInfo(userId, principalDetails.getEmail(), principalDetails.getUserRoles());
 
