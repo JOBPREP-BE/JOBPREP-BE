@@ -55,3 +55,6 @@ logback-variables.properties
 
 ### jenkins ###
 /src/main/resources/jenkins/*_pipeline
+
+### gcloud ###
+/src/main/resources/gcloud/*.json
