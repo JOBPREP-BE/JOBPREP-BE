@@ -1,6 +1,6 @@
 package io.dev.jobprep.system.internal.health;
 
-import io.dev.jobprep.common.actuator.MutableHealthIndicator;
+import io.dev.jobprep.common.actuator.ApplicationHealthIndicator;
 import io.dev.jobprep.system.internal.developer.DeveloperTokenHelper;
 import io.dev.jobprep.util.IpAddressHelper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 public class HealthCheckController {
 
-    private final MutableHealthIndicator healthIndicator;
+    private final ApplicationHealthIndicator healthIndicator;
     private final DeveloperTokenHelper developerTokenHelper;
 
     @PutMapping("/up")
