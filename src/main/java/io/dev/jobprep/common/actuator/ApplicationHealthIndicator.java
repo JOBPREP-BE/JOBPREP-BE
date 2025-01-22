@@ -1,5 +1,7 @@
 package io.dev.jobprep.common.actuator;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
@@ -8,20 +10,19 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ApplicationHealthIndicator implements HealthIndicator {
 
     private static final int DEFAULT_PORT = 8080;
     private static final String DEFAULT_HOST = "localhost";
     private static final String PING_COMMAND = "ping -c 1 localhost";
     private static final String DEFAULT_STATE = "UP";
+    private static final String BLUE = "34.22.104.185";
 
-    private final AtomicReference<Health> health = new AtomicReference<>(
-            Health.down().build()
-    );
+    private final HttpServletRequest httpServletRequest;
 
     @Override
     public Health health() {
@@ -31,10 +32,6 @@ public class ApplicationHealthIndicator implements HealthIndicator {
         log.info("Application health-check in ping '{}', port '{}'", convert(pingStatus), convert(portStatus));
 
         return adaptiveFetchHealth(pingStatus, portStatus);
-    }
-
-    public void setHealth(final Health health) {
-        this.health.set(health);
     }
 
     private boolean isPingSuccessful() {
@@ -64,6 +61,7 @@ public class ApplicationHealthIndicator implements HealthIndicator {
         return Health.up()
                 .withDetail("Ping", DEFAULT_STATE)
                 .withDetail("Port", DEFAULT_STATE)
+                .withDetail("Server", getServerIp())
                 .build();
     }
 
@@ -71,10 +69,16 @@ public class ApplicationHealthIndicator implements HealthIndicator {
         return Health.down()
                 .withDetail("Ping", convert(pingStatus))
                 .withDetail("Port", convert(portStatus))
+                .withDetail("Server", getServerIp())
                 .build();
     }
 
     private String convert(boolean status) {
         return status ? "UP" : "DOWN";
+    }
+
+    private String getServerIp() {
+        String serverIp = httpServletRequest.getLocalAddr();
+        return serverIp.equals(BLUE) ? "BLUE" : "GREEN";
     }
 }
