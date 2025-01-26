@@ -123,10 +123,19 @@ appender: <appender> tag, log 메시지가 출력될 대상을 결정
     <springProfile name="prod">
       <root level="INFO">
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE-WARN" />
-        <appender-ref ref="FILE-ERROR" />
-        <appender-ref ref="SLACK" />
       </root>
+
+      <logger name="io.prod.jobprep.slackLogger" level="ERROR" additivity="false">
+        <appender-ref ref="SLACK" />
+      </logger>
+
+      <logger name="io.prod.jobprep.softFileLogger" level="WARN" additivity="false">
+        <appender-ref ref="FILE-WARN" />
+      </logger>
+
+      <logger name="io.prod.jobprep.hardFileLogger" level="ERROR" additivity="false">
+        <appender-ref ref="FILE-ERROR" />
+      </logger>
     </springProfile>
 
 </configuration>
