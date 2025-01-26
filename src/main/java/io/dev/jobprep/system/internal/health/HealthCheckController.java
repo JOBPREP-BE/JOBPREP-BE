@@ -6,7 +6,6 @@ import io.dev.jobprep.util.IpAddressHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +28,7 @@ public class HealthCheckController {
         developerTokenHelper.verify(token);
         fetchIncomingIp(request);
 
-        healthIndicator.setHealth(Health.up().build());
+        // healthIndicator.setHealth(Health.up().build());
         log.info("Health check up!");
     }
 
@@ -39,7 +38,7 @@ public class HealthCheckController {
         developerTokenHelper.verify(token);
         fetchIncomingIp(request);
 
-        healthIndicator.setHealth(Health.down().build());
+        // healthIndicator.setHealth(Health.down().build());
         log.info("Health check down!");
     }
 
