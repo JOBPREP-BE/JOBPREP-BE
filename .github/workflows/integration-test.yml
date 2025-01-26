@@ -92,18 +92,20 @@ jobs:
           if [ ! -z "$(docker ps -aq)" ]; then
             docker rm $(docker ps -aq)
           fi
-          docker-compose --env-file=./docker/conf/.env.test -f docker-compose-for-test.yml up -d
+          echo "Waiting for services to be ready..."
+          docker-compose --env-file=./docker/conf/.env.test -f docker-compose-for-test.yml up -d --wait --wait-timeout 120
         shell: bash
 
-      # 10. Wait for Services to be Ready
-      - name: Wait for Services to be Ready
+      # 10. Wait for Services to be Ready and Check docker-compose status
+      - name: Wait and Check docker-compose status
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          echo "Waiting for services to be ready..."
-          for i in {1..10}; do
-            docker inspect --format='{{json .State.Health.Status}}' $(docker ps -q --filter "name=jobprep-test-mongo") | grep "healthy" && \
-            docker inspect --format='{{json .State.Health.Status}}' $(docker ps -q --filter "name=jobprep-test-mysql") | grep "healthy" && \
-            break || sleep 10
-          done
+          echo "Docker Compose failed to start all services within the timeout period."
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"❌ *테스트 컨테이너 환경 구축 실패*: docker-compose 컨테이너를 띄우는 데 문제가 발생했습니다."}' \
+          $SLACK_WEBHOOK_URL
 
       # 11. build test
       - name: Build test without tests
