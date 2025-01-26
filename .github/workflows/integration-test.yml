@@ -1,0 +1,134 @@
+name: Daily Integration Test for prod
+
+on:
+  schedule:
+    - cron: '0 21 * * *' # 매일 오전 6시에 실행 ( UTC 기준 )
+
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. checkout
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: prod # checkout for prod
+
+      # 2. configure settings
+      - name: Set-up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. caching Gradle
+      - name: Gradle caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 4. Gradle Wrapper grant permission
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 5. create and save application.yml
+      - name: Make application.yml
+        run: |
+          mkdir -p ./src/main/resources
+          touch ./src/main/resources/application.yml
+        shell: bash
+  
+      - name: Save application.yml for secrets
+        run: echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
+        shell: bash
+
+      # 6. create and save test_application.yml
+      - name: Make test_application.yml
+        run: |
+          mkdir -p ./src/test/resources
+          touch ./src/test/resources/application.yml
+        shell: bash
+
+      - name: Save test_application.yml for secrets
+        run: echo "${{ secrets.APPLICATION_TEST }}" > ./src/test/resources/application.yml
+        shell: bash
+
+      # 7. create and save logback-variables.properties
+      - name: Make logback-variables.properties
+        run: |
+          mkdir -p ./src/main/resources
+          touch ./src/main/resources/logback-variables.properties
+        shell: bash
+
+      - name: Save logback-variables.properties for secrets
+        run: echo "${{ secrets.LOGBACK_PROPERTIES }}" > ./src/main/resources/logback-variables.properties
+        shell: bash
+
+      # 8. create and save .env.test for docker-compose
+      - name: Make .env.test
+        run: |
+          mkdir -p ./docker/conf
+          touch ./docker/conf/.env.test
+        shell: bash
+
+      - name: Save .env.test for secrets
+        run: echo "${{ secrets.ENV_TEST }}" > ./docker/conf/.env.test
+        shell: bash
+
+      # 9. set-up docker-compose for test-container
+      - name: Set-up docker-compose
+        run: |
+          if [ ! -z "$(docker ps -q)" ]; then
+            docker stop $(docker ps -q)
+          fi
+          if [ ! -z "$(docker ps -aq)" ]; then
+            docker rm $(docker ps -aq)
+          fi
+          docker-compose --env-file=./docker/conf/.env.test -f docker-compose-for-test.yml up -d
+        shell: bash
+
+      # 10. Wait for Services to be Ready
+      - name: Wait for Services to be Ready
+        run: |
+          echo "Waiting for services to be ready..."
+          for i in {1..10}; do
+            docker inspect --format='{{json .State.Health.Status}}' $(docker ps -q --filter "name=jobprep-test-mongo") | grep "healthy" && \
+            docker inspect --format='{{json .State.Health.Status}}' $(docker ps -q --filter "name=jobprep-test-mysql") | grep "healthy" && \
+            break || sleep 10
+          done
+
+      # 11. build test
+      - name: Build test without tests
+        run: ./gradlew clean build -x test
+
+      # 12. run integration tests
+      - name: Run integration tests 
+        run: ./gradlew --info test
+
+      # 13. upload test-results
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: integration-test-results
+          path: test-results/ # directory for test-results
+
+      # 14. notify team-slack
+      - name: Notify team-slack
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          echo "Sending Notification for test failure..."
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"❌ *통합 테스트 실패*: production 브랜치 코드에서 문제가 발생했습니다."}' \
+          $SLACK_WEBHOOK_URL
+        
