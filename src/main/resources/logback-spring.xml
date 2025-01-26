@@ -101,7 +101,7 @@ appender: <appender> tag, log 메시지가 출력될 대상을 결정
       <filter class="ch.qos.logback.classic.filter.LevelFilter">
         <level>error</level>
         <onMatch>ACCEPT</onMatch>
-        <onMatch>DENY</onMatch>
+        <onMisMatch>DENY</onMisMatch>
       </filter>
       <webhookUri>${SLACK_WEBHOOK_URI}</webhookUri>
       <username>LogWatch</username>
