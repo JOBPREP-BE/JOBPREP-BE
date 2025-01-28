@@ -34,7 +34,7 @@ services:
     volumes:
       - ${KEY_FILE_PATH}:/key
     healthcheck:
-      test: ["CMD", "sh", "-c", "sleep 2 && [ $(stat -c '%a' /key/mongodb.key 2>/dev/null) = 400 ] || exit 1"]
+      test: ["CMD", "sh", "-c", "sleep 2 && [ $(stat -c '%a' /key/mongodb.key 2>/dev/null) = 666 ] || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
