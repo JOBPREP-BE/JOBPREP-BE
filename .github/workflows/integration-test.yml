@@ -104,6 +104,7 @@ jobs:
         run: |
           echo "${{ secrets.MONGO_KEY }}" > ./docker/mongo/etc/mongodb.key
           chmod 400 ./docker/mongo/etc/mongodb.key
+          sudo chown ./docker/mongo/etc/mongodb.key
         shell: bash
 
       # 11. create and save my.cnf for docker-compose
