@@ -147,8 +147,8 @@ jobs:
           if [ ! -z "$(docker ps -aq)" ]; then
             docker rm $(docker ps -aq)
           fi
-          if [ ! -z "$(docker volume ls)" ]; then
-            docker volume rm $(docker volume ls)
+          if [ ! -z "$(docker volume ls -q)" ]; then
+            docker volume rm $(docker volume ls -q)
           fi
           echo "Waiting for services to be ready..."
           docker-compose --env-file=./docker/conf/.env.test -f docker-compose-for-test.yml up -d --wait --wait-timeout 130        shell: bash
