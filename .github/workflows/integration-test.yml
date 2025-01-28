@@ -151,8 +151,7 @@ jobs:
             docker volume rm $(docker volume ls)
           fi
           echo "Waiting for services to be ready..."
-          docker-compose --env-file=./docker/conf/.env.test -f docker-compose-for-test.yml up -d --wait --wait-timeout 120
-        shell: bash
+          docker-compose --env-file=./docker/conf/.env.test -f docker-compose-for-test.yml up -d --wait --wait-timeout 130        shell: bash
 
       # 14. Wait for Services to be Ready and Check docker-compose status
       - name: Wait and Check docker-compose status
