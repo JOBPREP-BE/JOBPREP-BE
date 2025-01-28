@@ -169,7 +169,7 @@ jobs:
         if: failure()
         run: |
           echo "Checking for unhealthy containers..."
-          unhealthy_containers=$(docker ps --filter "health=unhealthy" --format "{{.Names}}")
+          unhealthy_containers=$(docker ps --filter "health=Error" --format "{{.Names}}")
           
           if [ -z "$unhealthy_containers" ]; then
             echo "No unhealthy containers found."
