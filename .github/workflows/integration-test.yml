@@ -165,6 +165,22 @@ jobs:
           --data '{"text":"❌ *테스트 컨테이너 환경 구축 실패*: docker-compose 컨테이너를 띄우는 데 문제가 발생했습니다."}' \
           $SLACK_WEBHOOK_URL
 
+      - name: Output Logs for Failed Containers
+        if: failure()
+        run: |
+          echo "Checking for unhealthy containers..."
+          unhealthy_containers=$(docker ps --filter "health=unhealthy" --format "{{.Names}}")
+          
+          if [ -z "$unhealthy_containers" ]; then
+            echo "No unhealthy containers found."
+          else
+            echo "Unhealthy containers found: $unhealthy_containers"
+            for container in $unhealthy_containers; do
+              echo "Logs for container: $container"
+              docker logs $container
+            done
+          fi
+
       # 15. build test
       - name: Build test without tests
         run: ./gradlew clean build -x test
@@ -191,4 +207,3 @@ jobs:
           curl -X POST -H 'Content-type: application/json' \
           --data '{"text":"❌ *통합 테스트 실패*: production 브랜치 코드에서 문제가 발생했습니다."}' \
           $SLACK_WEBHOOK_URL
-        
