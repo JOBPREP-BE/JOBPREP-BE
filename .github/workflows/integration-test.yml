@@ -171,9 +171,13 @@ jobs:
           echo "Checking all container health statuses..."
           for container in $(docker ps -q); do
             echo "Inspecting container: $container"
-            health_status=$(docker inspect $container --format='{{.State.Health.Status}}')
           
-            if [ "$health_status" != "healthy" ]; then
+            # 컨테이너의 Health 키가 존재하는지 확인
+            health_status=$(docker inspect $container --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}')
+          
+            if [ "$health_status" == "none" ]; then
+              echo "Container $container has no health check defined."
+            elif [ "$health_status" != "healthy" ]; then
               echo "Container $container is $health_status. Printing logs..."
               docker logs $container
             else
