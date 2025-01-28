@@ -15,7 +15,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v3
         with:
-          ref: prod # checkout for prod
+          ref: dev # temporary for test # checkout for prod
 
       # 2. configure settings
       - name: Set-up JDK 17
@@ -102,7 +102,6 @@ jobs:
             docker rm $(docker ps -aq)
           fi
           echo "Waiting for services to be ready..."
-          cd ./JOBPREP-BE
           docker-compose --env-file=$ENV_TEST -f docker-compose-for-test.yml up -d --wait --wait-timeout 120
         shell: bash
 
