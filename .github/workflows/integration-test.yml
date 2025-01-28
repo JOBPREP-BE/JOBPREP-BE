@@ -103,7 +103,7 @@ jobs:
       - name: Save mongodb.key for secrets
         run: |
           echo "${{ secrets.MONGO_KEY }}" > ./docker/mongo/etc/mongodb.key
-          chmod 666 ./docker/mongo/etc/mongodb.key
+          chmod 400 ./docker/mongo/etc/mongodb.key
           sudo chown 999:999 ./docker/mongo/etc/mongodb.key
         shell: bash
 
