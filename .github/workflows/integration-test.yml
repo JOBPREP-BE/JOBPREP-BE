@@ -72,7 +72,7 @@ jobs:
         run: echo "${{ secrets.LOGBACK_PROPERTIES }}" > ./src/main/resources/logback-variables.properties
         shell: bash
 
-      # 8. create and save .env.test for docker-compose
+      # 9. create and save .env.test for docker-compose
       - name: Make .env.test
         run: |
           mkdir -p ./docker/conf
@@ -83,7 +83,53 @@ jobs:
         run: echo "${{ secrets.ENV_TEST }}" > ./docker/conf/.env.test
         shell: bash
 
-      # 9. set-up docker-compose for test-container
+      # 10. create and save .env.test for docker-compose
+      - name: Make mongo-init.js
+        run: |
+          mkdir -p ./docker/mongo/test
+          touch ./docker/mongo/test/mongo-init.js
+        shell: bash
+
+      - name: Save .env.test for secrets
+        run: echo "${{ secrets.MONGO_INIT }}" > ./docker/mongo/test/mongo-init.js
+        shell: bash
+
+      - name: Make mongodb.key
+        run: |
+          mkdir -p ./docker/mongo/etc
+          touch ./docker/mongo/etc/mongodb.key
+        shell: bash
+
+      - name: Save .env.test for secrets
+        run: |
+          echo "${{ secrets.MONGO_KEY }}" > ./docker/mongo/etc/mongodb.key
+          chmod ./docker/mongo/etc/mongodb.key
+          chown 999:999 ./docker/mongo/etc/mongodb.key
+        shell: bash
+
+      # 11. create and save .env.test for docker-compose
+      - name: Make my.cnf
+        run: |
+          mkdir -p ./docker/mysql/conf.d
+          touch ./docker/mysql/conf.d/my.cnf
+        shell: bash
+
+      - name: Save .env.test for secrets
+        run: echo "${{ secrets.MY_CNF }}" > ./docker/mysql/conf.d/my.cnf
+        shell: bash
+
+      # 12. create and save .env.test for docker-compose
+      - name: Make redis.conf
+        run: |
+          mkdir -p ./docker/redis
+          touch ./docker/redis/redis.conf
+        shell: bash
+
+      - name: Save .env.test for secrets
+        run: echo "${{ secrets.REDIS_CNF }}" > ./docker/redis/redis.conf
+        shell: bash
+
+      # 13. set-up docker-compose for test-container
       - name: Install docker-compose
         run: |
           sudo apt-get update
@@ -105,7 +151,7 @@ jobs:
           docker-compose --env-file=./docker/conf/.env.test -f docker-compose-for-test.yml up -d --wait --wait-timeout 120
         shell: bash
 
-      # 10. Wait for Services to be Ready and Check docker-compose status
+      # 14. Wait for Services to be Ready and Check docker-compose status
       - name: Wait and Check docker-compose status
         if: failure()
         env:
@@ -116,15 +162,15 @@ jobs:
           --data '{"text":"❌ *테스트 컨테이너 환경 구축 실패*: docker-compose 컨테이너를 띄우는 데 문제가 발생했습니다."}' \
           $SLACK_WEBHOOK_URL
 
-      # 11. build test
+      # 15. build test
       - name: Build test without tests
         run: ./gradlew clean build -x test
 
-      # 12. run integration tests
+      # 16. run integration tests
       - name: Run integration tests 
         run: ./gradlew --info test
 
-      # 13. upload test-results
+      # 17. upload test-results
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v3
@@ -132,7 +178,7 @@ jobs:
           name: integration-test-results
           path: test-results/ # directory for test-results
 
-      # 14. notify team-slack
+      # 18. notify team-slack
       - name: Notify team-slack
         if: failure()
         env:
