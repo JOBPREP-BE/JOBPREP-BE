@@ -102,7 +102,7 @@ jobs:
             docker rm $(docker ps -aq)
           fi
           echo "Waiting for services to be ready..."
-          docker-compose --env-file=$ENV_TEST -f docker-compose-for-test.yml up -d --wait --wait-timeout 120
+          docker-compose --env-file=./docker/conf/.env.test -f docker-compose-for-test.yml up -d --wait --wait-timeout 120
         shell: bash
 
       # 10. Wait for Services to be Ready and Check docker-compose status
