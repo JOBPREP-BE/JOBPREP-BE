@@ -84,9 +84,13 @@ jobs:
         shell: bash
 
       # 9. set-up docker-compose for test-container
+      - name: Install docker-compose
+        run: |
+          curl -L "https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
       - name: Set-up docker-compose
-        env:
-          ENV_TEST: ${{ secrets.ENV_TEST }}
         run: |
           if [ ! -z "$(docker ps -q)" ]; then
             docker stop $(docker ps -q)
