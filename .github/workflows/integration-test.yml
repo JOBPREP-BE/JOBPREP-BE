@@ -165,21 +165,21 @@ jobs:
           --data '{"text":"❌ *테스트 컨테이너 환경 구축 실패*: docker-compose 컨테이너를 띄우는 데 문제가 발생했습니다."}' \
           $SLACK_WEBHOOK_URL
 
-      - name: Output Logs for Failed Containers
-        if: failure()
+      - name: Check Container Status and Logs
+        if: always()
         run: |
-          echo "Checking for unhealthy containers..."
-          unhealthy_containers=$(docker ps --filter "health=Error" --format "{{.Names}}")
+          echo "Checking all container health statuses..."
+          for container in $(docker ps -q); do
+            echo "Inspecting container: $container"
+            health_status=$(docker inspect $container --format='{{.State.Health.Status}}')
           
-          if [ -z "$unhealthy_containers" ]; then
-            echo "No unhealthy containers found."
-          else
-            echo "Unhealthy containers found: $unhealthy_containers"
-            for container in $unhealthy_containers; do
-              echo "Logs for container: $container"
+            if [ "$health_status" != "healthy" ]; then
+              echo "Container $container is $health_status. Printing logs..."
               docker logs $container
-            done
-          fi
+            else
+              echo "Container $container is healthy."
+            fi
+          done
 
       # 15. build test
       - name: Build test without tests
