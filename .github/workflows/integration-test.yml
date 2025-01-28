@@ -83,14 +83,14 @@ jobs:
         run: echo "${{ secrets.ENV_TEST }}" > ./docker/conf/.env.test
         shell: bash
 
-      # 10. create and save .env.test for docker-compose
+      # 10. create and save mongo-init.js for docker-compose
       - name: Make mongo-init.js
         run: |
           mkdir -p ./docker/mongo/test
           touch ./docker/mongo/test/mongo-init.js
         shell: bash
 
-      - name: Save .env.test for secrets
+      - name: Save mongo-init.js for secrets
         run: echo "${{ secrets.MONGO_INIT }}" > ./docker/mongo/test/mongo-init.js
         shell: bash
 
@@ -100,32 +100,32 @@ jobs:
           touch ./docker/mongo/etc/mongodb.key
         shell: bash
 
-      - name: Save .env.test for secrets
+      - name: Save mongodb.key for secrets
         run: |
           echo "${{ secrets.MONGO_KEY }}" > ./docker/mongo/etc/mongodb.key
-          chmod ./docker/mongo/etc/mongodb.key
+          chmod 400 ./docker/mongo/etc/mongodb.key
           chown 999:999 ./docker/mongo/etc/mongodb.key
         shell: bash
 
-      # 11. create and save .env.test for docker-compose
+      # 11. create and save my.cnf for docker-compose
       - name: Make my.cnf
         run: |
           mkdir -p ./docker/mysql/conf.d
           touch ./docker/mysql/conf.d/my.cnf
         shell: bash
 
-      - name: Save .env.test for secrets
+      - name: Save my.cnf for secrets
         run: echo "${{ secrets.MY_CNF }}" > ./docker/mysql/conf.d/my.cnf
         shell: bash
 
-      # 12. create and save .env.test for docker-compose
+      # 12. create and save redis.conf for docker-compose
       - name: Make redis.conf
         run: |
           mkdir -p ./docker/redis
           touch ./docker/redis/redis.conf
         shell: bash
 
-      - name: Save .env.test for secrets
+      - name: Save redis.conf for secrets
         run: echo "${{ secrets.REDIS_CNF }}" > ./docker/redis/redis.conf
         shell: bash
 
