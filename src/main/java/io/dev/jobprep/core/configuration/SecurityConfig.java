@@ -49,7 +49,8 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/swagger-ui/**",
                                 "/actuator/**",
-                                "/internal/**"
+                                "/internal/**",
+                                "/metrics"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -118,6 +119,7 @@ public class SecurityConfig {
         return web -> web.ignoring()
                 .requestMatchers(
                         "/actuator/**",
+                        "/metrics",
                         "/api/v1/oauth2/reissue"
                 );
     }
