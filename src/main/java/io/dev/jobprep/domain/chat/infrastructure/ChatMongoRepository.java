@@ -112,7 +112,7 @@ public class ChatMongoRepository {
     public void markLastMessageAsRead(UUID roomId, Long userId) {
         Query query = new Query();
         query.addCriteria(verifyId(roomId))
-            .addCriteria(verifyLastMsgRead(userId));
+             .addCriteria(verifyLastMsgRead(userId));
         Update update = new Update().addToSet("last_message.read_by", userId);
         mongoTemplate.findAndModify(query, update, ChatRoom.class);
     }
