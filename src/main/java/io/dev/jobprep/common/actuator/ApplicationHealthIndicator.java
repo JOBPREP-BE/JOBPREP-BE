@@ -1,21 +1,15 @@
 package io.dev.jobprep.common.actuator;
 
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URL;
+import java.net.*;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class ApplicationHealthIndicator implements HealthIndicator {
 
     private static final int DEFAULT_PORT = 8080;
@@ -24,8 +18,6 @@ public class ApplicationHealthIndicator implements HealthIndicator {
     private static final String BLUE = "34.22.104.185";
     private static final String PREFIX = "http://";
     private static final String HEALTH_URL = "/internal/health/server";
-
-    private final HttpServletRequest httpServletRequest;
 
     @Override
     public Health health() {
@@ -88,8 +80,12 @@ public class ApplicationHealthIndicator implements HealthIndicator {
     }
 
     private String getServerIp() {
-        String serverIp = httpServletRequest.getLocalAddr();
-        log.info("incoming server IP: {}", serverIp);
-        return serverIp.equals(BLUE) ? "BLUE" : "GREEN";
+        try {
+            String serverIp = InetAddress.getLocalHost().getHostAddress();
+            log.info("incoming server IP: {}", serverIp);
+            return serverIp.equals(BLUE) ? "BLUE" : "GREEN";
+        } catch (UnknownHostException e) {
+            return "Unknown host";
+        }
     }
 }
