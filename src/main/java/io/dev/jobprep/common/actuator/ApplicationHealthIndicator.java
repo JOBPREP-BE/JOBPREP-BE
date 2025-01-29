@@ -8,8 +8,10 @@ import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.URL;
 
 @Slf4j
 @Component
@@ -18,30 +20,38 @@ public class ApplicationHealthIndicator implements HealthIndicator {
 
     private static final int DEFAULT_PORT = 8080;
     private static final String DEFAULT_HOST = "localhost";
-    private static final String PING_COMMAND = "ping -c 1 localhost";
     private static final String DEFAULT_STATE = "UP";
     private static final String BLUE = "34.22.104.185";
+    private static final String PREFIX = "http://";
+    private static final String HEALTH_URL = "/internal/health/server";
 
     private final HttpServletRequest httpServletRequest;
 
     @Override
     public Health health() {
 
-        boolean pingStatus = isPingSuccessful();
+        boolean httpStatus = isServerReachable();
         boolean portStatus = isPortOpen();
-        log.info("Application health-check in ping '{}', port '{}'", convert(pingStatus), convert(portStatus));
+        log.info("Application health-check in server '{}', port '{}'", convert(httpStatus), convert(portStatus));
 
-        return adaptiveFetchHealth(pingStatus, portStatus);
+        return adaptiveFetchHealth(httpStatus, portStatus);
     }
 
-    private boolean isPingSuccessful() {
+    private boolean isServerReachable() {
         try {
-            Process process = Runtime.getRuntime().exec(PING_COMMAND);
-            int exitCode = process.waitFor();
-            return exitCode == 0;
-        } catch (IOException | InterruptedException e) {
+            URL url = new URL(makeUrl());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(5000);
+            connection.connect();
+            return connection.getResponseCode() == 200;
+        } catch (Exception e) {
             return false;
         }
+    }
+
+    private String makeUrl() {
+        return PREFIX + DEFAULT_HOST + ":" + DEFAULT_PORT + HEALTH_URL;
     }
 
     private boolean isPortOpen() {
@@ -53,21 +63,21 @@ public class ApplicationHealthIndicator implements HealthIndicator {
         }
     }
 
-    private Health adaptiveFetchHealth(boolean pingStatus, boolean portStatus) {
-        return pingStatus && portStatus ? healthy() : unhealthy(pingStatus, portStatus);
+    private Health adaptiveFetchHealth(boolean httpStatus, boolean portStatus) {
+        return httpStatus && portStatus ? healthy() : unhealthy(httpStatus, portStatus);
     }
 
     private Health healthy() {
         return Health.up()
-                .withDetail("Ping", DEFAULT_STATE)
+                .withDetail("Http", DEFAULT_STATE)
                 .withDetail("Port", DEFAULT_STATE)
                 .withDetail("Server", getServerIp())
                 .build();
     }
 
-    private Health unhealthy(boolean pingStatus, boolean portStatus) {
+    private Health unhealthy(boolean httpStatus, boolean portStatus) {
         return Health.down()
-                .withDetail("Ping", convert(pingStatus))
+                .withDetail("Http", convert(httpStatus))
                 .withDetail("Port", convert(portStatus))
                 .withDetail("Server", getServerIp())
                 .build();
@@ -79,6 +89,7 @@ public class ApplicationHealthIndicator implements HealthIndicator {
 
     private String getServerIp() {
         String serverIp = httpServletRequest.getLocalAddr();
+        log.info("incoming server IP: {}", serverIp);
         return serverIp.equals(BLUE) ? "BLUE" : "GREEN";
     }
 }
