@@ -31,17 +31,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final PrincipalDetailsService principalDetailsService;
 
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
-            "/actuator/",
+            "/actuator",
             "/api/v1/oauth2/reissue"
     );
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         log.info("Incoming request {}", request.getRequestURI());
-        return EXCLUDE_PATHS.stream()
-                .anyMatch(excludePath ->
-                        StringUtils.startsWithIgnoreCase(request.getRequestURI(), excludePath));
 
+        return EXCLUDE_PATHS.stream()
+                .anyMatch(path -> {
+                    log.info("Matched result: {}", request.getRequestURI().startsWith(path));
+                    return request.getRequestURI().startsWith(path);
+                }
+        );
     }
 
     @Override
