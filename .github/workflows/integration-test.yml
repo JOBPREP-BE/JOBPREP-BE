@@ -91,7 +91,7 @@ jobs:
         shell: bash
 
       - name: Save mongo-init.js for secrets
-        run: echo "${{ secrets.MONGO_INIT }}" > ./docker/mongo/test/mongo-init.js
+        run: echo "${{ secrets.MONGO_INIT }}" | base64 --decode > ./docker/mongo/test/mongo-init.js
         shell: bash
 
       - name: Make mongodb.key
