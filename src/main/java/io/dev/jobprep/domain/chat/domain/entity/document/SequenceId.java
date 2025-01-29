@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
-@Document(collection = "counters")
+@Document(collection = "chat_counters")
 public class SequenceId {
 
     @Id
