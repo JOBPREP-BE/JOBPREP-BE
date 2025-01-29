@@ -15,7 +15,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v3
         with:
-          ref: dev # temporary for test # checkout for prod
+          ref: prod # checkout for prod
 
       # 2. configure settings
       - name: Set-up JDK 17
@@ -37,7 +37,7 @@ jobs:
 
       # 4. Gradle Wrapper grant permission
       - name: Grant execute permission for gradlew
-        run: echo $(pwd) && chmod +x gradlew
+        run: chmod +x gradlew
 
       # 5. create and save application.yml
       - name: Make application.yml
@@ -72,7 +72,7 @@ jobs:
         run: echo "${{ secrets.LOGBACK_PROPERTIES }}" > ./src/main/resources/logback-variables.properties
         shell: bash
 
-      # 9. create and save .env.test for docker-compose
+      # 8. create and save .env.test for docker-compose
       - name: Make .env.test
         run: |
           mkdir -p ./docker/conf
@@ -83,7 +83,7 @@ jobs:
         run: echo "${{ secrets.ENV_TEST }}" > ./docker/conf/.env.test
         shell: bash
 
-      # 10. create and save mongo-init.js for docker-compose
+      # 9. create and save mongo-init.js for docker-compose
       - name: Make mongo-init.js
         run: |
           mkdir -p ./docker/mongo/test
@@ -107,7 +107,7 @@ jobs:
           sudo chown 999:999 ./docker/mongo/etc/mongodb.key
         shell: bash
 
-      # 11. create and save my.cnf for docker-compose
+      # 10. create and save my.cnf for docker-compose
       - name: Make my.cnf
         run: |
           mkdir -p ./docker/mysql/conf.d
@@ -118,7 +118,7 @@ jobs:
         run: echo "${{ secrets.MY_CNF }}" > ./docker/mysql/conf.d/my.cnf
         shell: bash
 
-      # 12. create and save redis.conf for docker-compose
+      # 11. create and save redis.conf for docker-compose
       - name: Make redis.conf
         run: |
           mkdir -p ./docker/redis
@@ -129,7 +129,7 @@ jobs:
         run: echo "${{ secrets.REDIS_CNF }}" > ./docker/redis/redis.conf
         shell: bash
 
-      # 13. set-up docker-compose for test-container
+      # 12. set-up docker-compose for test-container
       - name: Install docker-compose
         run: |
           sudo apt-get update
@@ -140,6 +140,8 @@ jobs:
           echo $(docker-compose --version)
 
       - name: Set-up docker-compose
+        env:
+          ENV_TEST: ${{ secrets.ENV_TEST }}
         run: |
           if [ ! -z "$(docker ps -q)" ]; then
             docker stop $(docker ps -q)
@@ -154,7 +156,7 @@ jobs:
           docker-compose --env-file=./docker/conf/.env.test -f docker-compose-for-test.yml up -d --wait --wait-timeout 130
         shell: bash
 
-      # 14. Wait for Services to be Ready and Check docker-compose status
+      # 13. Wait for Services to be Ready and Check docker-compose status
       - name: Wait and Check docker-compose status
         if: failure()
         env:
@@ -185,15 +187,15 @@ jobs:
             fi
           done
 
-      # 15. build test
+      # 14. build test
       - name: Build test without tests
         run: ./gradlew clean build -x test
 
-      # 16. run integration tests
+      # 15. run integration tests
       - name: Run integration tests 
         run: ./gradlew --info test
 
-      # 17. upload test-results
+      # 16. upload test-results
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v3
@@ -211,3 +213,4 @@ jobs:
           curl -X POST -H 'Content-type: application/json' \
           --data '{"text":"❌ *통합 테스트 실패*: production 브랜치 코드에서 문제가 발생했습니다."}' \
           $SLACK_WEBHOOK_URL
+        
