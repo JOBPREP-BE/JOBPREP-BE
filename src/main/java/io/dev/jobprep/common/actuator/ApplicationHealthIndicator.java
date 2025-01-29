@@ -5,7 +5,9 @@ import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.*;
 
 @Slf4j
@@ -81,11 +83,18 @@ public class ApplicationHealthIndicator implements HealthIndicator {
 
     private String getServerIp() {
         try {
-            String serverIp = InetAddress.getLocalHost().getHostAddress();
-            log.info("incoming server IP: {}", serverIp);
-            return serverIp.equals(BLUE) ? "BLUE" : "GREEN";
-        } catch (UnknownHostException e) {
-            return "Unknown host";
+            URL url = new URL("https://checkip.amazonaws.com");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String publicIP = in.readLine();
+            in.close();
+
+            return publicIP.equals(BLUE) ? "BLUE" : "GREEN";
+        } catch (IOException e) {
+            log.info("Failed to get server IP cause {}", e.getMessage());
+            return "UNKNOWN";
         }
     }
 }
