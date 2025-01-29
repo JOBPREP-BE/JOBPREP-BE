@@ -119,7 +119,6 @@ public class SecurityConfig {
         return web -> web.ignoring()
                 .requestMatchers(
                         "/actuator/**",
-                        "/metrics",
                         "/api/v1/oauth2/reissue"
                 );
     }
