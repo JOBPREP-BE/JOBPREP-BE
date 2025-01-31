@@ -1,0 +1,54 @@
+package io.dev.jobprep.domain.study.infrastructure;
+
+import io.dev.jobprep.domain.study.domain.entity.Study;
+import io.dev.jobprep.domain.study.domain.entity.enums.StudyStatus;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface StudyJpaRepository extends JpaRepository<Study, Long>, StudyRepositoryCustom {
+
+    @Query("select std from Study std where std.id = :id")
+    Optional<Study> findById(Long id);
+
+    @Query("select std from Study std where std.creator.id = :creatorId")
+    Optional<Study> findStudyByCreatorId(Long creatorId);
+
+    @Query("select std from Study std where std.name = :name")
+    Optional<Study> findStudyByName(String name);
+
+    @Query(value = """
+        SELECT s FROM Study s JOIN UserStudy us ON s.id = us.study.id
+        WHERE us.user.id = :userId AND (s.status <> 'FINISHED' OR s.deletedAt IS NOT NULL)
+    """)
+    Optional<Study> findGatheredStudyByUserId(Long userId);
+
+    @Query(value = """
+        SELECT * FROM study AS std
+            JOIN (
+                    SELECT id FROM study
+                    WHERE study_status = 'RECRUITING' AND deleted_at IS NULL
+                    LIMIT :offset, :limit
+            ) AS temp USING (id)
+    """, nativeQuery = true)
+    List<Study> findRecruitingStudyWithPagination(int offset, int limit);
+
+    @Query(value = """
+        select * from study as s left join user_study us on s.id = us.study_id
+        where s.study_status = 'RECRUITING' group by s.id having count(us.user_id) < :headCount
+    """, nativeQuery = true)
+    List<Study> findUnderstaffedStudy(int headCount);
+
+    @Query(value = """
+        select * from study as s inner join study_schedule ss on s.id = ss.study_id
+        where ss.week_number = :weekNum and ss.start_date = CURDATE() - INTERVAL 1 DAY;
+    """, nativeQuery = true)
+    List<Study> findFinishedStudy(int weekNum);
+
+    @Query("select count(std.id) from Study std where std.status = :status")
+    Long findDistinct(StudyStatus status);
+
+}

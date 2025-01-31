@@ -1,0 +1,5 @@
+ALTER TABLE users ADD COLUMN temp_role ENUM('ROLE_ADMIN', 'ROLE_NORMAL') DEFAULT 'ROLE_NORMAL';
+UPDATE users SET temp_role = 'ROLE_NORMAL' WHERE user_role = 'NORMAL';
+UPDATE users SET temp_role = 'ROLE_ADMIN' WHERE user_role = 'ADMIN';
+ALTER TABLE users DROP COLUMN user_role;
+ALTER TABLE users CHANGE COLUMN temp_role user_role ENUM('ROLE_ADMIN', 'ROLE_NORMAL') DEFAULT 'ROLE_NORMAL';

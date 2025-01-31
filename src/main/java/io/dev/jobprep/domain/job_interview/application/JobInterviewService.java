@@ -1,0 +1,100 @@
+package io.dev.jobprep.domain.job_interview.application;
+
+import io.dev.jobprep.domain.job_interview.domain.JobInterview;
+import io.dev.jobprep.domain.job_interview.domain.enums.DefaultJobInterview;
+import io.dev.jobprep.domain.job_interview.domain.enums.JobInterviewCategory;
+import io.dev.jobprep.domain.job_interview.exception.JobInterviewException;
+import io.dev.jobprep.domain.job_interview.infrastructure.JobInterviewRepository;
+import io.dev.jobprep.domain.job_interview.presentation.dto.req.PutJobInterviewRequest;
+import io.dev.jobprep.domain.job_interview.presentation.dto.res.JobInterviewIdResponse;
+import io.dev.jobprep.domain.users.domain.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+
+import static io.dev.jobprep.exception.code.ErrorCode400.ALREADY_DELETED_INTERVIEW;
+import static io.dev.jobprep.exception.code.ErrorCode400.IS_DEFAULT_INTERVIEW;
+import static io.dev.jobprep.exception.code.ErrorCode403.INTERVIEW_FORBIDDEN_OPERATION;
+import static io.dev.jobprep.exception.code.ErrorCode404.INTERVIEW_NOT_FOUND;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(value = "transactionManager", readOnly = true)
+public class JobInterviewService {
+    private final JobInterviewRepository jobInterviewRepository;
+
+    @Transactional("transactionManager")
+    public JobInterviewIdResponse saveJobInterview (User user) {
+        JobInterview jobInterview = JobInterview.builder()
+                .category(JobInterviewCategory.PERSONALITY)
+                .creator(user)
+                .isDefault(false)
+                .build();
+
+        jobInterviewRepository.save(jobInterview);
+        return JobInterviewIdResponse.from(jobInterview.getId());
+    }
+
+    @Transactional("transactionManager")
+    public String update (PutJobInterviewRequest request, Long id, String field, User user) {
+
+        JobInterview savedEntity = jobInterviewRepository.findById(id)
+                .orElseThrow(() -> new JobInterviewException(INTERVIEW_NOT_FOUND));
+
+        validateIsDefault(field, savedEntity, request);
+        validateUser(user.getId(), savedEntity.getCreator().getId());
+        savedEntity.update(field, request);
+
+        return request.getNewVal();
+    }
+
+    @Transactional("transactionManager")
+    public void delete(Long id, User user) {
+        JobInterview savedEntity = jobInterviewRepository.findById(id)
+                .orElseThrow(() -> new JobInterviewException(ALREADY_DELETED_INTERVIEW));
+
+        validateIsDefault(savedEntity);
+        validateUser(user.getId(), savedEntity.getCreator().getId());
+
+        jobInterviewRepository.delete(savedEntity);
+    }
+
+    public List<JobInterview> find(User user, Long cursorId, int pageSize) {
+        return jobInterviewRepository.findByConditionWithPagination(user.getId(), cursorId, pageSize);
+    }
+
+    @Transactional("transactionManager")
+    public void initJobInterview(User user) {
+        for (DefaultJobInterview interviewList : DefaultJobInterview.values()) {
+            JobInterview jobInterview = JobInterview.builder()
+                    .question(interviewList.getQuestion())
+                    .category(interviewList.getCategory())
+                    .creator(user)
+                    .isDefault(true)
+                    .build();
+
+            jobInterviewRepository.save(jobInterview);
+        }
+    }
+
+    private void validateUser(Long userId, Long jobInterviewId) {
+        if (!Objects.equals(userId, jobInterviewId)) {
+            throw new JobInterviewException(INTERVIEW_FORBIDDEN_OPERATION);
+        }
+    }
+    private void validateIsDefault(String field, JobInterview savedEntity, PutJobInterviewRequest request) {
+        if (savedEntity.getIsDefault() && (field.equals("question") || field.equals("category"))) {
+            throw new JobInterviewException(IS_DEFAULT_INTERVIEW);
+        }
+    }
+
+    private void validateIsDefault(JobInterview savedEntity) {
+        if (savedEntity.getIsDefault()) {
+            throw new JobInterviewException(IS_DEFAULT_INTERVIEW);
+        }
+    }
+}
+

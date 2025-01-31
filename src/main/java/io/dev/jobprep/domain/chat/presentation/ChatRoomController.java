@@ -1,0 +1,96 @@
+package io.dev.jobprep.domain.chat.presentation;
+
+import io.dev.jobprep.common.auth.JwtToken;
+import io.dev.jobprep.common.base.CursorPaginationResult;
+import io.dev.jobprep.common.base.LongCursorPaginationReq;
+import io.dev.jobprep.common.base.StringCursorPaginationReq;
+import io.dev.jobprep.common.swagger.template.ChatSwagger;
+import io.dev.jobprep.domain.chat.application.ChatCommonService;
+import io.dev.jobprep.domain.chat.application.ChatService;
+import io.dev.jobprep.domain.chat.presentation.dto.res.ChatMessageCommonResponse;
+import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomAdminResponse;
+import io.dev.jobprep.domain.chat.presentation.dto.res.ChatRoomIdResponse;
+import jakarta.validation.Valid;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/v1/chatrooms")
+@RequiredArgsConstructor
+public class ChatRoomController implements ChatSwagger {
+
+    private final ChatService chatService;
+    private final ChatCommonService chatCommonService;
+
+    @PostMapping
+    public ResponseEntity<ChatRoomIdResponse> create(@JwtToken Long userId) {
+
+        return ResponseEntity.status(201)
+            .body(ChatRoomIdResponse.from(chatService.create(userId)));
+    }
+
+    @GetMapping("/my/exist")
+    public ResponseEntity<ChatRoomIdResponse> getExistChatRoom(@JwtToken Long userId) {
+
+        return ResponseEntity.ok()
+            .body(ChatRoomIdResponse.from(chatCommonService.getChatRoom(userId)));
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getMyMessageHistory(
+        @JwtToken Long userId,
+        @Valid @ModelAttribute LongCursorPaginationReq pageable
+    ) {
+
+        return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
+            chatService.getMessageHistory(userId, pageable.getCursorId(), pageable.getPageSize())
+                .stream()
+                .map(ChatMessageCommonResponse::from)
+                .toList(),
+            pageable.getPageSize()
+        ));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CursorPaginationResult<ChatMessageCommonResponse>> getUserMessageHistoryForAdmin(
+        @JwtToken Long userId,
+        @PathVariable String id,
+        @Valid @ModelAttribute LongCursorPaginationReq pageable
+    ) {
+
+        return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
+            chatService.getMessageHistoryForAdmin(
+                userId, UUID.fromString(id), pageable.getCursorId(), pageable.getPageSize())
+                .stream()
+                .map(ChatMessageCommonResponse::from)
+                .toList(),
+            pageable.getPageSize()
+        ));
+    }
+
+    @GetMapping
+    public ResponseEntity<CursorPaginationResult<ChatRoomAdminResponse>> getActiveChatRoomsForAdmin(
+        @JwtToken Long userId,
+        @Valid @ModelAttribute StringCursorPaginationReq pageable
+    ) {
+
+        return ResponseEntity.ok(CursorPaginationResult.fromDataWithExtraItemForNextCheck(
+            chatService.getAllActiveRoomsInfo(userId, pageable.getCursorId(), pageable.getPageSize())
+                .stream()
+                .map(ChatRoomAdminResponse::from)
+                .toList(),
+            pageable.getPageSize()
+        ));
+    }
+
+
+}

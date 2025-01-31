@@ -1,0 +1,130 @@
+package io.dev.jobprep.domain.applicationstatus.application;
+
+import static io.dev.jobprep.exception.code.ErrorCode403.APPLICATION_STATUS_FORBIDDEN_OPERATION;
+import static io.dev.jobprep.exception.code.ErrorCode404.APPLICATION_STATUS_NOT_FOUND;
+import static io.dev.jobprep.exception.code.ErrorCode404.USER_NOT_FOUND;
+
+import io.dev.jobprep.domain.applicationstatus.domain.entity.ApplicationStatus;
+import io.dev.jobprep.domain.applicationstatus.domain.entity.InitData;
+import io.dev.jobprep.domain.applicationstatus.exception.ApplicationStatusException;
+import io.dev.jobprep.domain.applicationstatus.infrastructure.ApplicationStatusJpaRepository;
+import io.dev.jobprep.domain.applicationstatus.presentation.dto.req.ApplicationStatusUpdateRequest;
+import io.dev.jobprep.domain.users.domain.User;
+import io.dev.jobprep.domain.users.exception.UserException;
+import io.dev.jobprep.domain.users.infrastructure.UserRepository;
+import java.util.Arrays;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Slf4j
+@Service
+@Transactional(value = "transactionManager", readOnly = true)
+@RequiredArgsConstructor
+public class ApplicationStatusService {
+
+    private final ApplicationStatusJpaRepository applicationStatusRepository;
+    private final UserRepository userRepository;
+
+    @Transactional("transactionManager")
+    public Long create(Long userId) {
+
+        // TODO: 유저 토큰 검증
+        User user = getUser(userId);
+
+        ApplicationStatus applicationStatus = ApplicationStatus.ofEmpty(user);
+        save(applicationStatus);
+
+        return applicationStatus.getId();
+    }
+
+    @Transactional("transactionManager")
+    public Long delete(Long userId, Long id) {
+
+        // TODO: 유저 토큰 검증
+        getUser(userId);
+
+        validateCreator(userId, id);
+        delete(id);
+        return id;
+    }
+
+    public ApplicationStatus get(Long userId, Long id) {
+
+        // TODO: 유저 토큰 검증
+        getUser(userId);
+
+        validateCreator(userId, id);
+        return getApplicationStatus(id);
+    }
+
+    public List<ApplicationStatus> getAll(Long userId, Long cursorId, int pageSize) {
+
+        // TODO: 유저 토큰 검증
+        getUser(userId);
+
+        return applicationStatusRepository.findByConditionWithPagination(
+            userId, cursorId, pageSize
+        );
+    }
+
+    @Transactional("transactionManager")
+    public void modify(Long userId, Long id, String field, ApplicationStatusUpdateRequest req) {
+
+        // TODO: 유저 토큰 검증
+        getUser(userId);
+
+        ApplicationStatus status = getApplicationStatus(id);
+        status.modify(field, req.getNewVal());
+    }
+
+    // TODO: 회원가입 시 user 엔티티와 동시 생성
+    @Transactional("transactionManager")
+    public void init(Long userId) {
+
+        // TODO: 유저 토큰 검증
+        User creator = getUser(userId);
+
+        List<ApplicationStatus> dummy = Arrays.stream(InitData.values()).map(
+            (init) -> ApplicationStatus.of(
+                creator,
+                init.getCompany(),
+                init.getPosition(),
+                init.getProgress(),
+                init.getProcess(),
+                init.getUrl(),
+                init.getCoverLetter()
+            )
+        ).toList();
+
+        applicationStatusRepository.saveAll(dummy);
+    }
+
+    private void validateCreator(Long userId, Long id) {
+        ApplicationStatus status = getApplicationStatus(id);
+        if (!status.getCreator().getId().equals(userId)) {
+            throw new ApplicationStatusException(APPLICATION_STATUS_FORBIDDEN_OPERATION);
+        }
+    }
+
+    private void save(ApplicationStatus applicationStatus) {
+        applicationStatusRepository.save(applicationStatus);
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findUserById(userId)
+            .orElseThrow(() -> new UserException(USER_NOT_FOUND));
+    }
+
+    private void delete(Long id) {
+        applicationStatusRepository.deleteById(id);
+    }
+
+    private ApplicationStatus getApplicationStatus(Long id) {
+        return applicationStatusRepository.findById(id)
+            .orElseThrow(() -> new ApplicationStatusException(APPLICATION_STATUS_NOT_FOUND));
+    }
+
+}

@@ -39,3 +39,22 @@ out/
 
 ### application.yml ###
 application*.yml
+
+### docker-compose.yml ###
+docker/
+
+### SSL
+/src/main/resources/ssl/keystore.p12
+
+### back-up for database ###
+scripts/backup/
+scripts/*_host.sh
+
+### .properties ###
+logback-variables.properties
+
+### jenkins ###
+/src/main/resources/jenkins/*_pipeline
+
+### gcloud ###
+/src/main/resources/gcloud/*.json

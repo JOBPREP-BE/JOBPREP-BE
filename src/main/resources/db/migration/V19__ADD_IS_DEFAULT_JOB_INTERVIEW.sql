@@ -1,0 +1,1 @@
+ALTER TABLE job_interview ADD COLUMN is_default TINYINT(1) NOT NULL DEFAULT 0;
