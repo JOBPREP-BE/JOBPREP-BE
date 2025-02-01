@@ -1,0 +1,159 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    environment {
+        WORK_DIR = "./JOBPREP-BE"
+        REPO_URL = "github.com/JOBPREP-BE/JOBPREP-BE.git"
+        DOCKER_USERNAME = "jobpreb"
+        DOCKER_IMAGE = "${DOCKER_USERNAME}/jobprep"
+        CONTAINER_NAME = "jobprep-app"
+        INSTANCE_NAME = "jobprep-prod-vmi-01"
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    def target = env.BRANCH
+
+                    // apply credentials using withCredentials()
+                    withCredentials([usernamePassword(credentialsId: 'github',
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_PASSWORD')]) {
+
+                        sh """
+                            if [ -d "$WORK_DIR" ]; then
+                                echo "Existing folder found. Deleting..."
+                                rm -rf "$WORK_DIR"
+                            fi
+
+                            git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@$REPO_URL
+                            cd $WORK_DIR
+
+                            echo "checkout for ${target}..."
+
+                            git checkout ${target}
+                        """
+                    }
+                }
+            }
+        }
+        stage('Grant Gradlew Permission') {
+            steps {
+                sh 'cd $WORK_DIR && chmod +x ./gradlew'
+            }
+        }
+        stage('Generate and Move application.yml') {
+            steps {
+                script {
+
+                    withCredentials([file(credentialsId: 'SECRETS_YML', variable: 'SECRETS_YML')]) {
+                        sh """
+                            echo "Creating application.yml from secrets..."
+                            echo 'Secret file path: $SECRETS_YML'
+                            cp $SECRETS_YML ./JOBPREP-BE/src/main/resources
+                        """
+                    }
+
+                    withCredentials([file(credentialsId: 'SECRETS_PROPERTIES', variable: 'SECRETS_PROPERTIES')]) {
+                        sh """
+                            echo "Creating logback-variables.properties from secrets..."
+                            cp $SECRETS_PROPERTIES ./JOBPREP-BE/src/main/resources
+                        """
+                    }
+                }
+            }
+        }
+        stage('Gradle Build') {
+            steps {
+                sh './gradlew clean build'
+            }
+        }
+        stage('Docker Login') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -f Dockerfile -t $DOCKER_IMAGE:1.${BUILD_NUMBER}.0 .'
+            }
+        }
+        stage('Docker Push') {
+            steps {
+                sh 'docker push $DOCKER_IMAGE:1.${BUILD_NUMBER}.0'
+            }
+        }
+        stage('Deploy to GCE') {
+            steps {
+                script {
+
+                    withCredentials([file(credentialsId: 'SERVICE_ACCOUNT_KEY', variable: 'SERVICE_ACCOUNT_KEY')]) {
+                        sh '''
+                            gcloud auth activate-service-account --key-file=$SERVICE_ACCOUNT_KEY
+                        '''
+                    }
+
+
+                    withCredentials([
+                        sshUserPrivateKey(credentialsId: 'jenkins-deploy-ssh-key', usernameVariable: 'SSH_USERNAME', keyFileVariable: 'SSH_KEY_FILE'),
+                        string(credentialsId: 'SSH_KEY_FILE_PATH', variable: 'SSH_KEY_FILE_PATH'),
+                        string(credentialsId: 'SECRETS_KEY', variable: 'SECRETS_KEY')
+                    ]) {
+
+                        sh '''
+                            gcloud secrets versions access latest --secret=$SECRETS_KEY > $SSH_KEY_FILE_PATH/id_rsa
+                            chmod 600 $SSH_KEY_FILE_PATH/id_rsa
+                            gcloud secrets versions access latest --secret=$SECRETS_KEY-pub > $SSH_KEY_FILE_PATH/id_rsa.pub
+                            chmod 640 $SSH_KEY_FILE_PATH/id_rsa.pub
+                        '''
+
+                        sshagent(['jenkins-deploy-ssh-key']) {
+                            sh '''
+                                gcloud compute ssh $SSH_USERNAME@$INSTANCE_NAME \
+                                --zone asia-northeast3-a \
+                                --ssh-key-file=$SSH_KEY_FILE_PATH/id_rsa \
+                                --command="\
+                                    sudo su - $SSH_USERNAME -c \
+                                    './scripts/remote_docker_commands.sh; \
+                                    echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin; \
+                                    docker pull \$DOCKER_IMAGE:1.\$BUILD_NUMBER.0; \
+
+                                    docker run -d \
+                                        --restart=always \
+                                        --name \$CONTAINER_NAME \
+                                        # Docker log-driver로 Loki에 로그 전송
+                                    #    --log-driver=loki \
+                                    #    --log-opt loki-url="http://<LOKI_SERVER>:3100/loki/api/v1/push" \
+                                    #    --log-opt loki-batch-size=400 \
+                                    #    --log-opt loki-batch-wait=1s \
+                                        -p 8080:8080 \
+                                        -e TZ=Asia/Seoul \
+                                        \$DOCKER_IMAGE:1.\$BUILD_NUMBER.0;
+                                    bash'"
+
+                                docker system prune -f
+                                rm -rf $SSH_KEY_FILE_PATH/id_rsa
+                                rm -rf $SSH_KEY_FILE_PATH/id_rsa.pub
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            sh '''
+                rm -rf ./src/main/resources/application.yml
+                rm -rf ./src/main/resources/logback-variables.properties
+                docker logout
+            '''
+        }
+    }
+}
