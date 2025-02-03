@@ -2,6 +2,8 @@
 
 ![image](https://github.com/user-attachments/assets/49ce351d-241c-40d3-a43c-cebbad2a2d7d)
 
+<br>
+
 ## 📢 프로젝트 소개
 
 ## ⚙️ 아키텍처
@@ -16,6 +18,8 @@ for `MySQL` (RDBMS) | `MongoDB` (NoSQL)
 <div align="center">
   <img width="1600" alt="image" src="https://github.com/user-attachments/assets/f86a0e2a-d7c7-4384-bbf3-e750dbf3e581">
 </div>
+
+<br>
 
 ## 📚 기술 스택
 
