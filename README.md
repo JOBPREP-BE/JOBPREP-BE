@@ -8,7 +8,7 @@
 
 ## ⚙️ 아키텍처
 
-![image](https://github.com/user-attachments/assets/c27ef2c8-dbcc-45a3-9e5c-f557d5a4d1ff)
+![image](https://github.com/user-attachments/assets/3720a313-a842-46e4-8280-47280d279006)
 
 <br>
 
