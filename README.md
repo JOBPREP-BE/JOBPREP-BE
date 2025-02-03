@@ -6,6 +6,10 @@
 
 ## ⚙️ 아키텍처
 
+![image](https://github.com/user-attachments/assets/c27ef2c8-dbcc-45a3-9e5c-f557d5a4d1ff)
+
+<br>
+
 ## 📁 DB ERD
 
 for `MySQL` (RDBMS) | `MongoDB` (NoSQL)
