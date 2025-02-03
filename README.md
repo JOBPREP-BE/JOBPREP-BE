@@ -1,6 +1,6 @@
 # JOBPREP
 
-![image](https://github.com/user-attachments/assets/49ce351d-241c-40d3-a43c-cebbad2a2d7d)
+![image](https://github.com/user-attachments/assets/fee51bf3-d686-4865-8227-323ab85bee3f)
 
 <br>
 
