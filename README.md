@@ -10,7 +10,7 @@
 
 for `MySQL` (RDBMS) | `MongoDB` (NoSQL)
 <div align="center">
-  <img width="1600" alt="image" src="https://github.com/user-attachments/assets/4a0cde6b-8347-4037-8922-8877df970ec8">
+  <img width="1600" alt="image" src="https://github.com/user-attachments/assets/f86a0e2a-d7c7-4384-bbf3-e750dbf3e581">
 </div>
 
 ## 📚 기술 스택
