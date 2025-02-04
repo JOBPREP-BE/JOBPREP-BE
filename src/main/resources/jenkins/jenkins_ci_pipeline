@@ -1,0 +1,135 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    environment {
+        WORK_DIR = "./JOBPREP-BE"
+        REPO_URL = "github.com/JOBPREP-BE/JOBPREP-BE.git"
+        ORG = "JOBPREP-BE"
+        REPO = "JOBPREP-BE"
+        GITHUB_CREDENTIALS = credentials('github');
+        TOKEN = "jobprep_secret_token"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    def target = env.TARGET_BRANCH
+
+                    // apply credentials using withCredentials()
+                    withCredentials([usernamePassword(credentialsId: 'github',
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_PASSWORD')]) {
+
+                        sh """
+                            if [ -d "$WORK_DIR" ]; then
+                                echo "Existing folder found. Deleting..."
+                                rm -rf "$WORK_DIR"
+                            fi
+
+                            git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@$REPO_URL
+                            cd $WORK_DIR
+
+                            echo "checkout for ${target}..."
+
+                            git checkout ${target}
+                        """
+                    }
+                }
+            }
+        }
+        stage('Grant Gradlew Permission') {
+            steps {
+                sh 'cd $WORK_DIR && chmod +x ./gradlew'
+            }
+        }
+        stage('Generate and Move application.yml') {
+            steps {
+                script {
+
+                    withCredentials([file(credentialsId: 'SECRETS_YML', variable: 'SECRETS_YML')]) {
+                        sh """
+                            echo "Creating application.yml from secrets..."
+                            echo 'Secret file path: $SECRETS_YML'
+                            cp $SECRETS_YML ./JOBPREP-BE/src/main/resources
+                        """
+                    }
+
+                    withCredentials([file(credentialsId: 'SECRETS_PROPERTIES', variable: 'SECRETS_PROPERTIES')]) {
+                        sh """
+                            echo "Creating logback-variables.properties from secrets..."
+                            cp $SECRETS_PROPERTIES ./JOBPREP-BE/src/main/resources
+                        """
+                    }
+                }
+            }
+        }
+        stage('Test with Gradle') {
+            steps {
+                script {
+                    def result = sh(script: 'cd $WORK_DIR && ./gradlew --info test', returnStatus: true)
+                    env.TEST_STATUS = result == 0 ? "success" : "failure"
+                }
+            }
+        }
+        stage('Public Test results') {
+            steps {
+                junit '**/build/test-results/test/TEST-*.xml'
+            }
+        }
+    }
+    post {
+        success {
+            script {
+
+                def prNumber = env.PR_NUMBER
+                def lastCommit = env.LAST_COMMIT.substring(0, 7)
+
+                def totalTests = (currentBuild.hasProperty('testResultAction')) ? currentBuild.testResultAction.totalCount : 0
+                def failedTests = (currentBuild.hasProperty('testResultAction')) ? currentBuild.testResultAction.failCount : 0
+                def succeedTests = totalTests - failedTests
+                def testDuration = currentBuild.duration / 1000 // 초 단위로 변환
+
+                echo "The PR Number is: ${prNumber}"
+
+                sh """
+                    curl -X POST -H "Authorization: token ${GITHUB_CREDENTIALS_PSW}" \
+                    -H "Accept: application/vnd.github.v3+json" \
+                    https://api.github.com/repos/${ORG}/${REPO}/issues/${prNumber}/comments \
+                    -d '{"body": "## Test Results\\n${totalTests} tests\\n\\n${succeedTests} success ✅ \
+                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \
+                                  ${testDuration}s ⏱️\\n${failedTests} failure ❌\
+                                  \\n\\nResults for commit ${lastCommit}\\n\\n🔥 Tests passed _successfully!_ Great work!"}'
+                """
+
+            }
+        }
+        failure {
+            script {
+                def prNumber = env.PR_NUMBER
+                def lastCommit = env.LAST_COMMIT.substring(0, 7)
+
+                def totalTests = (currentBuild.hasProperty('testResultAction')) ? currentBuild.testResultAction.totalCount : 0
+                def failedTests = (currentBuild.hasProperty('testResultAction')) ? currentBuild.testResultAction.failCount : 0
+                def succeedTests = totalTests - failedTests
+                def testDuration = currentBuild.duration / 1000 // 초 단위로 변환
+
+                echo "The PR Number is: ${prNumber}"
+
+                sh """
+                    curl -X POST -H "Authorization: token ${GITHUB_CREDENTIALS_PSW}" \
+                    -H "Accept: application/vnd.github.v3+json" \
+                    https://api.github.com/repos/${ORG}/${REPO}/issues/${prNumber}/comments \
+                    -d '{"body": "## Test Results\\n${totalTests} tests\\n\\n${succeedTests} success ✅ \
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \
+                                ${testDuration}s ⏱️\\n${failedTests} failure ❌\
+                                \\n\\nResults for commit ${lastCommit}\\n\\n💦 Tests _**failed!**_ Please check the logs and fix the errors."}'
+                """
+            }
+        }
+    }
+}
