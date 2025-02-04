@@ -1,6 +1,8 @@
-# JOBPREP
+# 취업이 처음인 당신을 위한 가이드, JOBPREP👩🏻‍💻🧑🏻‍💻
 
-![image](https://github.com/user-attachments/assets/fee51bf3-d686-4865-8227-323ab85bee3f)
+<div align="center">
+  <image width="1200" alt="image" src="https://github.com/user-attachments/assets/fee51bf3-d686-4865-8227-323ab85bee3f">
+</div>
 
 <br>
 
