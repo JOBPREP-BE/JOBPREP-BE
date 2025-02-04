@@ -12,6 +12,12 @@
 
 <br>
 
+## 🔗 CI/CD pipeline
+
+![image](https://github.com/user-attachments/assets/ac29af76-17cf-4c5e-b0fb-c08cc292f694)
+
+<br>
+
 ## 📁 DB ERD
 
 for `MySQL` (RDBMS) | `MongoDB` (NoSQL)
