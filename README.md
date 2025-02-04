@@ -16,7 +16,7 @@
 
 ## 🔗 CI/CD pipeline
 
-![image](https://github.com/user-attachments/assets/f66c4aff-ac90-431a-9cf4-6dedcf9eb10f)
+![image](https://github.com/user-attachments/assets/5e72d77c-5ef0-4e94-84a3-d22b832f5ac6)
 
 <br>
 
