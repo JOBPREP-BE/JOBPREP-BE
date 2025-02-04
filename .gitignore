@@ -53,8 +53,5 @@ scripts/*_host.sh
 ### .properties ###
 logback-variables.properties
 
-### jenkins ###
-/src/main/resources/jenkins/*_pipeline
-
 ### gcloud ###
 /src/main/resources/gcloud/*.json
