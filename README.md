@@ -10,7 +10,7 @@
 
 ## ⚙️ 아키텍처
 
-![image](https://github.com/user-attachments/assets/3720a313-a842-46e4-8280-47280d279006)
+![image](https://github.com/user-attachments/assets/c4e68965-ccad-49f3-b6b6-62d560cc2720)
 
 <br>
 
