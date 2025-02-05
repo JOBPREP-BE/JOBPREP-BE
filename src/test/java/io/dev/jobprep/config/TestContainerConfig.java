@@ -3,6 +3,7 @@ package io.dev.jobprep.config;
 import io.dev.jobprep.util.ContainerConstants;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -15,6 +16,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.io.File;
 
 import static io.dev.jobprep.util.ContainerConstants.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -23,7 +25,7 @@ public class TestContainerConfig {
 
     private static final DockerComposeContainer<?> composeContainer =
             new DockerComposeContainer<>(
-                    new File("docker-compose-for-test.yml"))
+                    new File("docker-compose-for-test-container.yml"))
                     .withExposedService(MYSQL_SRV, ContainerConstants.MYSQL_PORT, Wait.forListeningPort())
                     .withExposedService(MONGO_SRV_PRI, MONGO_PORT_PRI, Wait.forHealthcheck()
             );
@@ -64,6 +66,17 @@ public class TestContainerConfig {
         return "mongodb://" + TEST_USER + ":" + TEST_PASSWORD + "@"
                 + mongoHost + ":" + mongoPort + "/" + MONGO_TEST_DB
                 + "?directConnection=true&serverSelectionTimeoutMS=2000&authSource=" + MONGO_TEST_DB;
+    }
+
+    @Test
+    public void dockerComposeContainerIsRunning() {
+
+        assertThat(composeContainer.getContainerByServiceName(MYSQL_SRV)).isNotNull();
+        assertThat(composeContainer.getContainerByServiceName(MYSQL_SRV).isPresent()).isTrue();
+
+        assertThat(composeContainer.getContainerByServiceName(MONGO_SRV_PRI)).isNotNull();
+        assertThat(composeContainer.getContainerByServiceName(MONGO_SRV_PRI).isPresent()).isTrue();
+
     }
 
 }
