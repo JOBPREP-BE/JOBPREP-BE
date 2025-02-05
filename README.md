@@ -28,7 +28,7 @@
 <br>
 
 🪄 **어떤 기능을 구현했나요?**
-> 구현한 기능에 대해 자세히 알고 싶다면, [pre-release v1.0.0](https://github.com/JOBPREP-BE/JOBPREP-BE/releases/tag/v1.0.0)을 참고해 주세요!
+> 구현한 기능에 대해 자세히 알고 싶다면, [pre-release v1.0.0](https://github.com/JOBPREP-BE/JOBPREP-BE/releases/tag/v1.0.1)을 참고해 주세요!
 
 <br>
 
