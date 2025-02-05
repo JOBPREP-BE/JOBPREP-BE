@@ -1,12 +1,46 @@
-# 취업이 처음인 당신을 위한 가이드, JOBPREP👩🏻‍💻🧑🏻‍💻
+<h1 align="center">JOBPREP</h1>
 
 <div align="center">
-  <image width="1200" alt="image" src="https://github.com/user-attachments/assets/fee51bf3-d686-4865-8227-323ab85bee3f">
+  취업이 처음인 당신을 위한 가이드, 취업 관리 원툴 플랫폼 <code>JOBPREP</code> 입니다.
+</div>
+
+<br>
+
+<div align="center">
+  <img src="https://img.shields.io/github/v/release/JOBPREP-BE/JOBPREP-BE?include_prereleases" alt="GitHub Release">
+</div>
+
+<br>
+
+<div align="center">
+  <image width="1000" alt="image" src="https://github.com/user-attachments/assets/40c5e90f-7f05-43d6-9919-c38a77be17d9">
 </div>
 
 <br>
 
 ## 📢 프로젝트 소개
+
+> 현재 취준생들은 분산된 다양한 채용 플랫폼에 의해, 분산되어 있는 정보들을 취합하고 자기소개서를 작성하는 데에, 면접을 대비하기 위해 등등 결코
+> 짧지 않은 채용 프로세스를 준비하기 위해 너무나 많은 시간을 소비하고 있습니다.
+> 저희 서비스는 수많은 회사에 지원하며 채용 프로세스를 진행하고 있는 취준생분들에게 좀 더 효율적으로 취업을 준비할 수 있는 템플릿과 서비스를 제공하여
+> 고된 취준 과정에서 여러분들과 함께 달리기 위해 탄생했습니다!
+
+<br>
+
+🪄 **어떤 기능을 구현했나요?**
+> 구현한 기능에 대해 자세히 알고 싶다면, [pre-release v1.0.0](https://github.com/JOBPREP-BE/JOBPREP-BE/releases/tag/v1.0.0)을 참고해 주세요!
+
+<br>
+
+## ✨ 주요 서비스
+
+![image](https://github.com/user-attachments/assets/e3e52f9e-af25-46a3-924d-4a4b6da8ca77)
+![image](https://github.com/user-attachments/assets/4873cfa2-d940-4eaf-9b21-5a89f3e99a2e)
+![image](https://github.com/user-attachments/assets/47cbdf5d-d943-47af-8ed3-1a490987a447)
+![image](https://github.com/user-attachments/assets/c654f50c-95fd-447c-aba0-54a6026c7ed6)
+![image](https://github.com/user-attachments/assets/77ae0e9d-3421-4137-a76a-22f35c808fe8)
+
+<br>
 
 ## ⚙️ 아키텍처
 
