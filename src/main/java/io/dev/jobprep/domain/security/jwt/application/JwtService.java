@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.JWT;
 
+import io.dev.jobprep.domain.security.jwt.exception.TokenStorageException;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Date;
+
+import static io.dev.jobprep.exception.code.ErrorCode401.AUTH_MISSING_CREDENTIALS;
 
 @Slf4j
 @Service
@@ -32,7 +35,7 @@ public class JwtService {
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidityTime;
 
-    @Value("${cookie.domain}") // application.yml에 설정 필요
+    @Value("${cookie.domain}")
     private String cookieDomain;
 
     private Algorithm getAlgorithm() {
@@ -40,13 +43,13 @@ public class JwtService {
     }
 
     public TokenInfo generateTokenInfo(String userId, String userEmail, String userRoles ){
-        // Create Access Token
+
         String accessToken = generateAccessToken(userId, userEmail, userRoles);
+        log.info("Generated access token: {}", accessToken);
 
-        // Create Refresh Token
         String refreshToken = generateRefreshToken(userId);
+        log.info("Generated refresh token: (CENSORED)");
 
-        //JWT 토큰 반환
         return TokenInfo.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
@@ -79,18 +82,28 @@ public class JwtService {
 
     public void isTokenValid(String token) {
         try {
-            DecodedJWT decodedJWT = verifyNDcodeToken(token);
+            DecodedJWT decodedJWT = verifyNDecodeToken(token);
             isTokenExpired(decodedJWT);
         } catch (TokenExpiredException e) {
             throw e;
         } catch (Exception e) {
-            // 다른 예외들은 JWTVerificationException으로 감싸기
+
             log.error("Unexpected error during token validation: {}", e.getMessage());
             throw new JWTVerificationException("Token validation failed");
         }
     }
 
-    //토큰 만료 확인
+    public Long fetchFromToken(String token) {
+        try {
+            DecodedJWT decodedJWT = verifyNDecodeToken(token);
+            isTokenExpired(decodedJWT);
+            return Long.parseLong(extractUserId(decodedJWT));
+        } catch (Exception e) {
+            log.warn("Failed to verity and fetch userId from token: {}", e.getMessage());
+            throw new TokenStorageException(AUTH_MISSING_CREDENTIALS);
+        }
+    }
+
     private void isTokenExpired(DecodedJWT decodedJWT) {
         boolean expired = decodedJWT.getExpiresAt().before(new Date());
         if(expired) {
@@ -99,8 +112,7 @@ public class JwtService {
         }
     }
 
-    // Verify and decode a JWT
-    public DecodedJWT verifyNDcodeToken(String token) {
+    public DecodedJWT verifyNDecodeToken(String token) {
         try {
             JWTVerifier verifier = JWT.require(getAlgorithm()).build();
             return verifier.verify(token);
@@ -109,7 +121,6 @@ public class JwtService {
         }
     }
 
-    // Extract username (subject) from token
     public String extractUserId(DecodedJWT decodedJWT) {
         try {
             return decodedJWT.getSubject();
@@ -119,7 +130,6 @@ public class JwtService {
         }
     }
 
-    //Exract UserRole from token
     public String extractUserEmail(DecodedJWT decodedJWT) {
         try {
             return decodedJWT.getClaim("email").asString();

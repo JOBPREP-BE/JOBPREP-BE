@@ -15,6 +15,7 @@ public record PrincipalDetails (
         User user,
         Map<String, Object> attributes,
         String attributeKey ) implements OAuth2User, UserDetails {
+
     @Override
     public String getPassword() {
         return null;

@@ -6,6 +6,7 @@ import io.dev.jobprep.domain.essentialMaterial.presentation.dto.res.EssentialMat
 import io.dev.jobprep.domain.essentialMaterial.presentation.dto.res.EssentialMaterialUpdateAPIResponse;
 import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,7 +31,7 @@ public interface EssentialMaterialSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity < EssentialMaterialGetAPIResponse > get(@RequestParam(required = false) Long userId);
+    ResponseEntity < EssentialMaterialGetAPIResponse > get(@Parameter(hidden = true) Long userId);
     @Operation(summary = "필수 자료 최신화", description = "사용자의 필수 자료를 업데이트할 때 사용하는 API")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "자료 최신화 성공",
@@ -42,6 +43,6 @@ public interface EssentialMaterialSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<EssentialMaterialUpdateAPIResponse> update(@RequestParam(required = false) Long userId,
+    ResponseEntity<EssentialMaterialUpdateAPIResponse> update(@Parameter(hidden = true) Long userId,
                                                               @RequestBody EssentialMaterialIUpdateAPIRequest req);
 }

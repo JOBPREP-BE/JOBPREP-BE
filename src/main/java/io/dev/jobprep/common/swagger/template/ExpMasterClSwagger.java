@@ -10,6 +10,7 @@ import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMa
 import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.UpdateExpMasterClResponse;
 import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -37,7 +38,7 @@ public interface ExpMasterClSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<ExpMasterClIdResponse> save(@RequestParam Long userId);
+    ResponseEntity<ExpMasterClIdResponse> save(@Parameter(hidden = true) Long userId);
 
     @Operation(summary = "마스터 자소서 삭제", description = "마스터 자소서를 삭제합니다.")
     @ApiResponses(value = {
@@ -63,7 +64,7 @@ public interface ExpMasterClSwagger {
                             }
                     ))
     })
-    ResponseEntity<Void> delete (@PathVariable("id") Long id, @RequestParam Long userId);
+    ResponseEntity<Void> delete (@PathVariable("id") Long id, @Parameter(hidden = true) Long userId);
 
     @Operation(summary = "모든 마스터 자소서 조회", description = "모든 마스터 자소서 데이터를 조회합니다.")
     @ApiResponses (value = {
@@ -81,7 +82,7 @@ public interface ExpMasterClSwagger {
                             examples = @ExampleObject(name = "E03-USER-001", value = SwaggerUserErrorExamples.USER_NOT_FOUND)
                     )),
     })
-    ResponseEntity<CursorPaginationResult<FindExpMasterClResponse>> findAll (@RequestParam Long userId, @Valid @ModelAttribute LongCursorPaginationReq pageable);
+    ResponseEntity<CursorPaginationResult<FindExpMasterClResponse>> findAll (@Parameter(hidden = true) Long userId, @Valid @ModelAttribute LongCursorPaginationReq pageable);
 
     @Operation(summary = "마스터 자소서 수정", description = "마스터 자소서 데이터를 수정합니다.")
     @ApiResponses (value = {
@@ -111,6 +112,6 @@ public interface ExpMasterClSwagger {
                     ))
     })
     ResponseEntity<UpdateExpMasterClResponse> update (
-            @PathVariable("id") Long id, @PathVariable String field, @RequestParam Long userId, @RequestBody ExpMasterClPatchRequest request
+            @PathVariable("id") Long id, @PathVariable String field, @Parameter(hidden = true) Long userId, @RequestBody ExpMasterClPatchRequest request
     );
 }

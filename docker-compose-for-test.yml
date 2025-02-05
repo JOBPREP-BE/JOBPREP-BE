@@ -1,0 +1,160 @@
+version: '3.8'
+
+services:
+  jobprep_test_mysql:
+    image: mysql:8.2.0
+    container_name: jobprep_test_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - db_test_data:/var/lib/mysql
+      - db_test_log:/var/log/mysql
+      - db_test_cnf:/etc/mysql/conf.d
+      - ${DB_CNF}:/etc/mysql/conf.d
+    networks:
+      - test_network
+
+  init_permission:
+    image: nginx:latest
+    container_name: init_permission
+    restart: always
+    ports:
+      - "3015:80"
+    volumes:
+      - ${KEY_FILE_PATH}:/key
+    healthcheck:
+      test: ["CMD", "sh", "-c", "sleep 2 && [ $(stat -c '%a' /key/mongodb.key 2>/dev/null) = 400 ] || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  jobprep_test_mongo:
+    image: mongo:6.0
+    container_name: jobprep_test_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWD}
+    ports:
+      - "${MONGO_PORT}:27017"
+    command: ["--replSet", "rs0", "--keyFile", "/etc/mongodb.key", "--bind_ip_all"]
+    depends_on:
+      init_permission:
+        condition: service_healthy
+    healthcheck:
+      test: >
+        test $$(mongosh --port 27017 --quiet --eval "try {
+           var status = rs.status();
+           status.ok
+         } catch (e) {
+           if (e.codeName == 'NotYetInitialized') {
+             rs.initiate({
+               _id: \"rs0\",
+              members: [
+                { _id: 0, host: \"jobprep_test_mongo:27017\" },
+                { _id: 1, host: \"mongo_test_secondary_01:27017\" },
+                { _id: 2, host: \"mongo_test_secondary_02:27017\" }
+              ]
+             }).ok
+           }
+         }" -u ${MONGO_ROOT_USER} -p ${MONGO_ROOT_PASSWD} --authenticationDatabase admin) -eq 1
+      interval: 20s
+      timeout: 10s
+      retries: 6
+    volumes:
+      - mongodb_test_data:/data/db
+      - ${MONGO_KEY_FILE_PATH}:/etc/mongodb.key
+      - ${MONGO_INIT}:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - test_network
+
+  mongo_test_secondary_01:
+    image: mongo:6.0
+    container_name: mongo_test_secondary_01
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWD}
+    ports:
+      - "${MONGO_SECONDARY_01_PORT}:27017"
+    command: ["--replSet", "rs0", "--keyFile", "/etc/mongodb.key", "--bind_ip_all"]
+    depends_on:
+      init_permission:
+        condition: service_healthy
+    volumes:
+      - mongodb_test_secondary_01_data:/data/db
+      - ${MONGO_KEY_FILE_PATH}:/etc/mongodb.key
+    networks:
+      - test_network
+
+  mongo_test_secondary_02:
+    image: mongo:6.0
+    container_name: mongo_test_secondary_02
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWD}
+    ports:
+      - "${MONGO_SECONDARY_02_PORT}:27017"
+    command: ["--replSet", "rs0", "--keyFile", "/etc/mongodb.key", "--bind_ip_all"]
+    depends_on:
+      init_permission:
+        condition: service_healthy
+    volumes:
+      - mongodb_test_secondary_02_data:/data/db
+      - ${MONGO_KEY_FILE_PATH}:/etc/mongodb.key
+    networks:
+      - test_network
+
+  jobprep_test_redis:
+    image: redis:6.2.6-alpine
+    container_name: jobprep_test_redis
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_test_data:/data
+      - ${REDIS_DEFAULT_CONFIG}:/usr/local/etc/redis/redis.conf
+    networks:
+      - test_network
+
+  monitor:
+    image: alpine:latest
+    depends_on:
+      jobprep_test_mysql:
+        condition: service_healthy
+      jobprep_test_mongo:
+        condition: service_healthy
+      mongo_test_secondary_01:
+        condition: service_started
+      mongo_test_secondary_02:
+        condition: service_started
+      jobprep_test_redis:
+        condition: service_started
+    command: sh -c "echo '🔥All of Database Service are healthy!' && tail -f /dev/null"
+    networks:
+      - test_network
+
+volumes:
+  db_test_data: {}
+  db_test_log: {}
+  db_test_cnf: {}
+  mongodb_test_data: {}
+  mongodb_test_secondary_01_data: {}
+  mongodb_test_secondary_02_data: {}
+  redis_test_data: {}
+
+networks:
+  test_network:
+    driver: bridge
