@@ -18,8 +18,8 @@ import java.io.File;
 import static io.dev.jobprep.constants.ContainerConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @ExtendWith(SpringExtension.class)
+@SpringBootTest
 @Testcontainers
 public class TestContainerConfig {
 
@@ -27,7 +27,8 @@ public class TestContainerConfig {
             new DockerComposeContainer<>(
                     new File("docker-compose-for-test-container.yml"))
                     .withExposedService(MYSQL_SRV, ContainerConstants.MYSQL_PORT, Wait.forListeningPort())
-                    .withExposedService(MONGO_SRV_PRI, MONGO_PORT_PRI, Wait.forHealthcheck()
+                    .withExposedService(MONGO_SRV_PRI, MONGO_PORT_PRI, Wait.forHealthcheck())
+                    .withExposedService(REDIS_HOST, REDIS_PORT, Wait.forListeningPort()
             );
 
     @BeforeAll
@@ -55,6 +56,13 @@ public class TestContainerConfig {
         Integer mongoPort = composeContainer.getServicePort(MONGO_SRV_PRI, MONGO_PORT_PRI);
 
         registry.add("spring.data.mongodb.uri", () -> generateMongoUri(mongoHost, mongoPort));
+
+        // Redis 설정
+        String redisHost = composeContainer.getServiceHost(REDIS_HOST, REDIS_PORT);
+        Integer redisPort = composeContainer.getServicePort(REDIS_HOST, REDIS_PORT);
+
+        registry.add("spring.data.redis.host", () -> redisHost);
+        registry.add("spring.data.redis.port", () -> redisPort);
     }
 
     private static String generateMySQLUri(String mySqlHost, Integer mySqlPort) {
@@ -76,6 +84,9 @@ public class TestContainerConfig {
 
         assertThat(composeContainer.getContainerByServiceName(MONGO_SRV_PRI)).isNotNull();
         assertThat(composeContainer.getContainerByServiceName(MONGO_SRV_PRI).isPresent()).isTrue();
+
+        assertThat(composeContainer.getContainerByServiceName(REDIS_SRV)).isNotNull();
+        assertThat(composeContainer.getContainerByServiceName(REDIS_SRV).isPresent()).isTrue();
 
     }
 

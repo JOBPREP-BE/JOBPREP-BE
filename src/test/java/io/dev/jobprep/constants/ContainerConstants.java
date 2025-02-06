@@ -20,7 +20,7 @@ public class ContainerConstants {
     public static final Integer MONGO_PORT_SEC_02 = 27019;
     public static final Integer REDIS_PORT = 6379;
 
-    public static final String REDIS_HOST = "localhost";
+    public static final String REDIS_HOST = "jobprep_test_redis";
 
     private ContainerConstants() {
         throw new UnsupportedOperationException("Cannot instantiate this interface!");
