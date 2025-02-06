@@ -1,11 +1,9 @@
-package io.dev.jobprep.config;
+package io.dev.jobprep.base;
 
 import io.dev.jobprep.constants.ContainerConstants;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -16,14 +14,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.io.File;
 
 import static io.dev.jobprep.constants.ContainerConstants.*;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
 @Testcontainers
-public class TestContainerConfig {
+public abstract class BaseTestContainer {
 
-    private static final DockerComposeContainer<?> composeContainer =
+    protected static final DockerComposeContainer<?> composeContainer =
             new DockerComposeContainer<>(
                     new File("docker-compose-for-test-container.yml"))
                     .withExposedService(MYSQL_SRV, ContainerConstants.MYSQL_PORT, Wait.forListeningPort())
@@ -32,17 +28,17 @@ public class TestContainerConfig {
             );
 
     @BeforeAll
-    static void startContainer() {
+    static void beforeAll() {
         composeContainer.start();
     }
 
     @AfterAll
-    static void stopContainer() {
+    static void afterAll() {
         composeContainer.stop();
     }
 
     @DynamicPropertySource
-    public static void configureProperties(DynamicPropertyRegistry registry) {
+    protected static void configureProperties(DynamicPropertyRegistry registry) {
         // MySQL 설정
         String mySqlHost = composeContainer.getServiceHost(MYSQL_SRV, MYSQL_PORT);
         Integer mySqlPort = composeContainer.getServicePort(MYSQL_SRV, MYSQL_PORT);
@@ -75,19 +71,4 @@ public class TestContainerConfig {
                 + mongoHost + ":" + mongoPort + "/" + MONGO_TEST_DB
                 + "?directConnection=true&serverSelectionTimeoutMS=2000&authSource=" + MONGO_TEST_DB;
     }
-
-    @Test
-    public void dockerComposeContainerIsRunning() {
-
-        assertThat(composeContainer.getContainerByServiceName(MYSQL_SRV)).isNotNull();
-        assertThat(composeContainer.getContainerByServiceName(MYSQL_SRV).isPresent()).isTrue();
-
-        assertThat(composeContainer.getContainerByServiceName(MONGO_SRV_PRI)).isNotNull();
-        assertThat(composeContainer.getContainerByServiceName(MONGO_SRV_PRI).isPresent()).isTrue();
-
-        assertThat(composeContainer.getContainerByServiceName(REDIS_SRV)).isNotNull();
-        assertThat(composeContainer.getContainerByServiceName(REDIS_SRV).isPresent()).isTrue();
-
-    }
-
 }
