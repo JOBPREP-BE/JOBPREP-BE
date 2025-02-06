@@ -19,6 +19,8 @@ services:
       - db_test_data:/var/lib/mysql
       - db_test_log:/var/log/mysql
       - ./docker/mysql/conf.d:/etc/mysql/conf.d
+      - ./src/test/resources/test_container/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password
     networks:
       - test_network
 
