@@ -1,4 +1,4 @@
-package io.dev.jobprep.util;
+package io.dev.jobprep.constants;
 
 public class ContainerConstants {
 

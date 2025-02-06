@@ -1,6 +1,6 @@
 package io.dev.jobprep.config;
 
-import io.dev.jobprep.util.ContainerConstants;
+import io.dev.jobprep.constants.ContainerConstants;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.File;
 
-import static io.dev.jobprep.util.ContainerConstants.*;
+import static io.dev.jobprep.constants.ContainerConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest

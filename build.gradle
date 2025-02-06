@@ -5,6 +5,10 @@ plugins {
 	id 'org.flywaydb.flyway' version '10.8.1'
 }
 
+tasks.withType(Test) {
+	jvmArgs "-Xmx4g"
+}
+
 allprojects {
 	group = 'io.dev'
 	version = '0.0.1-SNAPSHOT'
