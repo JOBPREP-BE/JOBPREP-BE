@@ -27,7 +27,6 @@ public class AuthService {
     private final JwtRedisService jwtRedisService;
     private final PrincipalDetailsService principalDetailsService;
 
-
     @Value("${jwt.refresh-token-validity}")
     private Long refreshTokenValidity;
 
@@ -42,10 +41,7 @@ public class AuthService {
     public void deleteFromCache(PrincipalDetails principalDetails){
         SecurityContextHolder.clearContext();
         String userId = principalDetails.getUsername();
-
-
         jwtRedisService.deleteRefreshToken(userId);
-
     }
 
     public void bakeCookieIntoResponse(TokenInfo tokenInfo,
@@ -82,8 +78,5 @@ public class AuthService {
 
         return tokenInfo;
     }
-
-
-
 
 }

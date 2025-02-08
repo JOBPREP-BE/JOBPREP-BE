@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final OAuthRedisService oAuthRedisService;
+
     @Value("${spring.security.oauth2.frontend-redirect.url}")
     private String redirectUrl;
 
