@@ -46,6 +46,7 @@ public class SecurityConfig {
                                 "/api/v1/oauth2/callback",
                                 "/login/oauth2/code/**",
                                 "/oauth2/authorization/**",
+                                "/oauth2/callback",
                                 "/api-docs/**",
                                 "/swagger-ui/**",
                                 "/actuator/**",
@@ -119,7 +120,8 @@ public class SecurityConfig {
         return web -> web.ignoring()
                 .requestMatchers(
                         "/actuator/**",
-                        "/api/v1/oauth2/reissue"
+                        "/api/v1/oauth2/reissue",
+                        "/oauth/callback"
                 );
     }
 }
