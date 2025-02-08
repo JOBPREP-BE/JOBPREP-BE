@@ -120,7 +120,8 @@ public class SecurityConfig {
         return web -> web.ignoring()
                 .requestMatchers(
                         "/actuator/**",
-                        "/api/v1/oauth2/reissue"
+                        "/api/v1/oauth2/reissue",
+                        "/oauth/callback"
                 );
     }
 }
