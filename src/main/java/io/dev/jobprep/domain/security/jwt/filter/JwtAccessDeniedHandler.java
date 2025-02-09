@@ -10,6 +10,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
+
     private final HandlerExceptionResolver resolver;
 
     public JwtAccessDeniedHandler(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
@@ -17,7 +18,8 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     }
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response,
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
                        AccessDeniedException accessDeniedException) {
         resolver.resolveException(request, response, null, accessDeniedException);
     }

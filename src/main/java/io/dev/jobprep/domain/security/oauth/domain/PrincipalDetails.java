@@ -70,5 +70,6 @@ public record PrincipalDetails (
             .getAuthorities()
             .stream()
             .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(","));}
+            .collect(Collectors.joining(","));
+    }
 }
