@@ -1,4 +1,4 @@
-package io.dev.jobprep.domain.security.util;
+package io.dev.jobprep.common.constants;
 
 public class TokenHeaderConstants {
 
