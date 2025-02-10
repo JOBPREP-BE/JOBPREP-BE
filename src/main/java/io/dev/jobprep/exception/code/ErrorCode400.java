@@ -37,6 +37,10 @@ public enum ErrorCode400 implements ErrorCode {
     OTPT_CACHE_DELETION_FALIURE("E01-TMPT-002", "일회용 인증 토큰 캐시 삭제를 실패했습니다."),
     OTPT_VALIDATION_FAILURE("E01-TMPT-003", "일회용 인증 토큰 캐시 검증을 실패했습니다."),
 
+    CSRF_CACHE_FAILURE("E01-CSRF-001", "CSRF 토큰 캐싱을 실패했습니다."),
+    CSRF_CACHE_DELETION_FALIURE("E01-CSRF-002", "CSRF 토큰 캐시 삭제를 실패했습니다."),
+    CSRF_VALIDATION_FAILURE("E01-CSRF-003", "CSRF 토큰 캐시 검증을 실패했습니다."),
+
     ALREADY_DELETED_INTERVIEW("E01-JOB-INTERVIEW-001", "해당 면접 데이터는 이미 삭제되었습니다."),
     INVALID_INTERVIEW_STATUS("E01-JOB-INTERVIEW-002", "해당 면접 카테고리가 잘못되었습니다."),
     IS_DEFAULT_INTERVIEW("E01-JOB-INTERVIEW-003", "해당 면접은 유저가 변경할 수 없습니다."),

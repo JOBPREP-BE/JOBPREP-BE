@@ -1,5 +1,6 @@
 package io.dev.jobprep.domain.security.oauth.presentation.dto.res;
 
+import io.dev.jobprep.domain.security.jwt.application.dto.AuthenticationToken;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
@@ -17,7 +18,7 @@ public class TokenResponse {
         this.csrfToken = csrfToken;
     }
 
-    public static TokenResponse of(String accessToken, String csrfToken) {
-        return new TokenResponse(accessToken, csrfToken);
+    public static TokenResponse of(AuthenticationToken token) {
+        return new TokenResponse(token.getJwtToken().getAccessToken(), token.getCsrfToken().getToken());
     }
 }
