@@ -1,6 +1,7 @@
 package io.dev.jobprep.domain.security.oauth.application;
 
 
+import io.dev.jobprep.common.constants.TokenHeaderConstants;
 import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private static final String QUERY_PARAMETER = "?";
-    private static final String TOKEN_PARAMETER = "otp_token=";
+    private static final String EQUAVALENT = "=";
 
     private final OAuthCacheService oauthCacheService;
 
@@ -54,7 +55,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private String generateRedirectUrl(String otpToken) {
-        return redirectUrl + QUERY_PARAMETER + TOKEN_PARAMETER + otpToken;
+        return redirectUrl + QUERY_PARAMETER + TokenHeaderConstants.OTP_HEADER + EQUAVALENT + otpToken;
     }
 
     private String generateToken() {

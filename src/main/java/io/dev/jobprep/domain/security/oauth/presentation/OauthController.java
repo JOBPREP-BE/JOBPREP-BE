@@ -15,25 +15,26 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/oauth2")
 @RestController
 @RequiredArgsConstructor
-public class OauthController implements OauthSwagger{
+public class OauthController implements OauthSwagger {
 
     private final AuthIntegrationManager authIntegrationManager;
 
     @PostMapping("/callback")
-    public ResponseEntity<TokenResponse> callBack(@RequestParam(name = "otp_token") String otpToken,
+    public ResponseEntity<TokenResponse> callBack(@RequestParam(name = TokenHeaderConstants.OTP_HEADER) String otpToken,
                                                   HttpServletRequest request,
                                                   HttpServletResponse response) {
 
-        TokenResponse tokenResponse = authIntegrationManager.issueToken(request, response, otpToken);
+        TokenResponse tokenResponse = authIntegrationManager.issueToken(response, otpToken);
         return ResponseEntity.ok(tokenResponse);
     }
 
     @PostMapping("/reissue")
     public ResponseEntity<TokenResponse> reissue(@CookieValue(value = TokenHeaderConstants.REFRESH_HEADER) String refreshToken,
+                                                 @RequestHeader(TokenHeaderConstants.CSRF_HEADER) String csrfToken,
                                                  HttpServletRequest request,
                                                  HttpServletResponse response) {
 
-        TokenResponse tokenResponse = authIntegrationManager.reissueToken(request, response, refreshToken);
+        TokenResponse tokenResponse = authIntegrationManager.reissueToken(response, refreshToken, csrfToken);
         return ResponseEntity.ok(tokenResponse);
     }
 

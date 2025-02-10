@@ -1,5 +1,6 @@
 package io.dev.jobprep.common.swagger.template;
 
+import io.dev.jobprep.common.constants.TokenHeaderConstants;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerJwtErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerTempTokenErrorExamples;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "OAuth", description = "OAuth로그인용 path 조회")
@@ -58,7 +60,7 @@ public interface OauthSwagger {
     })
     ResponseEntity<TokenResponse> callBack(
             @Parameter(description = "OAuth 로그인 후 발급된 임시 토큰", required = true)
-            @RequestParam String tempToken,
+            @RequestParam String otpToken,
             @Parameter(description = "HTTP 요청 객체", required = true)
             HttpServletRequest request,
             @Parameter(description = "HTTP 응답 객체", required = true)
@@ -110,7 +112,9 @@ public interface OauthSwagger {
     })
     ResponseEntity<TokenResponse> reissue(
             @Parameter(description = "갱신용 리프레시 토큰", required = true)
-            @CookieValue(value = "XRefreshToken") String refreshToken,
+            @CookieValue(value = TokenHeaderConstants.REFRESH_HEADER) String refreshToken,
+            @Parameter(description = "CSRF 토큰", required = true)
+            @RequestHeader(value = TokenHeaderConstants.CSRF_HEADER) String csrfToken,
             @Parameter(description = "HTTP 요청 객체", required = true)
             HttpServletRequest request,
             @Parameter(description = "HTTP 응답 객체", required = true)
