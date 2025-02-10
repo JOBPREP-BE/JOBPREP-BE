@@ -25,23 +25,26 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Transactional("transactionManager")
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+
         Map<String, Object> oAuth2UserAttributes = super.loadUser(userRequest).getAttributes();
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
-                .getUserInfoEndpoint().getUserNameAttributeName();
+        String userNameAttributeName = userRequest.getClientRegistration()
+                .getProviderDetails()
+                .getUserInfoEndpoint()
+                .getUserNameAttributeName();
 
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, oAuth2UserAttributes);
-        // TODO: NPE 방지를 위한 에러 핸들링 필요해보임
-        User user = getOrSave(attributes);
-
+        User user = fetchAndSaveIfAbsent(attributes);
         return new PrincipalDetails(user, oAuth2UserAttributes, userNameAttributeName);
     }
 
-    private User getOrSave (OAuthAttributes attributes) {
+    private User fetchAndSaveIfAbsent(OAuthAttributes attributes) {
+        if (attributes == null) {
+            throw new IllegalArgumentException("attributes cannot be null");
+        }
         User user = userRepository.findUserByEmail(attributes.getEmail())
                 .orElseGet(attributes::toEntity);
-
         return userRepository.save(user);
     }
 }
