@@ -2,10 +2,8 @@ package io.dev.jobprep.common.swagger.template;
 
 import io.dev.jobprep.core.properties.swagger.error.SwaggerJwtErrorExamples;
 import io.dev.jobprep.core.properties.swagger.error.SwaggerTempTokenErrorExamples;
-import io.dev.jobprep.domain.experience_master_cl.presentation.dto.res.FindExpMasterClResponse;
-import io.dev.jobprep.domain.security.jwt.application.dto.TokenInfo;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
-import io.dev.jobprep.domain.security.oauth.presentation.dto.TokenResponse;
+import io.dev.jobprep.domain.security.oauth.presentation.dto.res.TokenResponse;
 import io.dev.jobprep.exception.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,7 +19,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "OAuth", description = "OAuth로그인용 path 조회")
