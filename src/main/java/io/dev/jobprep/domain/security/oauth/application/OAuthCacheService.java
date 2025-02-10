@@ -31,7 +31,11 @@ public class OAuthCacheService {
             String key = generateKey(otpToken);
             String value = objectMapper.writeValueAsString(userInfo);
             redisTemplate.opsForValue().set(key, value, expiration);
+        } catch (JsonProcessingException e) {
+            log.error("Error while processing json issued user '{}': {}", userInfo.getUserId(), e.getMessage());
+            throw new TokenStorageException(OTPT_CACHE_FALIURE);
         } catch (Exception e) {
+            log.error("Error while caching userInfo issued user '{}': {}", userInfo.getUserId(), e.getMessage());
             throw new TokenStorageException(OTPT_CACHE_FALIURE);
         }
     }

@@ -83,9 +83,31 @@ public class JwtTokenProvider {
         }
     }
 
+    public Long verifyWithoutExpiryAndFetch(String token) {
+        try {
+            DecodedJWT decodedJWT = verifyWithoutExpiry(token);
+            String userId = extractUserId(decodedJWT);
+            return Long.parseLong(userId);
+        } catch (Exception e) {
+            log.warn("Failed to verity and fetch userId for reissue from token: {}", e.getMessage());
+            throw new TokenStorageException(AUTH_MISSING_CREDENTIALS);
+        }
+    }
+
     private DecodedJWT verify(String token) {
         try {
             JWTVerifier verifier = JWT.require(getAlgorithm()).build();
+            return verifier.verify(token);
+        } catch (Exception e) {
+            throw new JWTVerificationException("Failed to verify token");
+        }
+    }
+
+    private DecodedJWT verifyWithoutExpiry(String token) {
+        try {
+            JWTVerifier verifier = JWT.require(getAlgorithm())
+                    .acceptExpiresAt(refreshTokenValidityTime)
+                    .build();
             return verifier.verify(token);
         } catch (Exception e) {
             throw new JWTVerificationException("Failed to verify token");
