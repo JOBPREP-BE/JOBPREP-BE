@@ -24,8 +24,7 @@ public class OauthController implements OauthSwagger {
                                                   HttpServletRequest request,
                                                   HttpServletResponse response) {
 
-        TokenResponse tokenResponse = authIntegrationManager.issueToken(response, otpToken);
-        return ResponseEntity.ok(tokenResponse);
+        return ResponseEntity.ok(authIntegrationManager.issueToken(response, otpToken));
     }
 
     @PostMapping("/reissue")
@@ -34,8 +33,7 @@ public class OauthController implements OauthSwagger {
                                                  HttpServletRequest request,
                                                  HttpServletResponse response) {
 
-        TokenResponse tokenResponse = authIntegrationManager.reissueToken(response, refreshToken, csrfToken);
-        return ResponseEntity.ok(tokenResponse);
+        return ResponseEntity.ok(authIntegrationManager.reissueToken(response, refreshToken, csrfToken));
     }
 
     @PostMapping("/logout")

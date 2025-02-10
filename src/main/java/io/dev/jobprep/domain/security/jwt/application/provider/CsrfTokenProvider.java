@@ -1,4 +1,4 @@
-package io.dev.jobprep.domain.security.jwt.application;
+package io.dev.jobprep.domain.security.jwt.application.provider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +17,9 @@ public class CsrfTokenProvider {
     private static final String DEFAULT_CSRF_PARAMETER_NAME = "_csrf";
     private static final String MASKER = "*****";
 
-    public CsrfToken sign() {
-        CsrfToken csrfToken = generateToken();
-        log.info("Signed csrfToken '{}'", masking(csrfToken.getToken()));
+    public CsrfToken sign(String userId) {
+        CsrfToken csrfToken = this.generateToken();
+        log.info("Signed csrfToken '{}' issued for user: {}", masking(csrfToken.getToken()), userId);
         return csrfToken;
     }
 

@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class JwtToken {
 
-    private String grantType;
-    private String accessToken;
-    private String refreshToken;
+    private final String grantType;
+    private final String accessToken;
+    private final String refreshToken;
 
     private JwtToken() {
         this.grantType = "";

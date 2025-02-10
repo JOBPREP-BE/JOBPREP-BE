@@ -2,7 +2,7 @@ package io.dev.jobprep.domain.security.jwt.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
-import io.dev.jobprep.domain.security.jwt.application.JwtTokenProvider;
+import io.dev.jobprep.domain.security.jwt.application.provider.JwtTokenProvider;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
 import io.dev.jobprep.common.constants.TokenHeaderConstants;
 import jakarta.servlet.*;

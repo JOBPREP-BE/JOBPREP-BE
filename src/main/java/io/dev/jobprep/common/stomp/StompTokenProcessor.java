@@ -3,7 +3,7 @@ package io.dev.jobprep.common.stomp;
 import io.dev.jobprep.domain.chat.application.ChatCommonService;
 import io.dev.jobprep.domain.chat.application.ChatService;
 import io.dev.jobprep.domain.chat.exception.ChatException;
-import io.dev.jobprep.domain.security.jwt.application.JwtTokenProvider;
+import io.dev.jobprep.domain.security.jwt.application.provider.JwtTokenProvider;
 import io.dev.jobprep.common.constants.TokenHeaderConstants;
 import io.dev.jobprep.domain.users.application.UserCommonService;
 import io.dev.jobprep.exception.code.ErrorCode;

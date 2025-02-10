@@ -1,4 +1,4 @@
-package io.dev.jobprep.domain.security.jwt.application;
+package io.dev.jobprep.domain.security.jwt.application.provider;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.dev.jobprep.domain.security.jwt.application.dto.JwtToken;

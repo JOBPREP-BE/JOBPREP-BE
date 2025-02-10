@@ -2,6 +2,9 @@ package io.dev.jobprep.domain.security.jwt.application;
 
 import io.dev.jobprep.common.constants.TokenHeaderConstants;
 import io.dev.jobprep.domain.security.jwt.application.dto.AuthenticationToken;
+import io.dev.jobprep.domain.security.jwt.application.handler.TokenCacheAggregator;
+import io.dev.jobprep.domain.security.jwt.application.provider.CsrfTokenProvider;
+import io.dev.jobprep.domain.security.jwt.application.provider.JwtTokenProvider;
 import io.dev.jobprep.domain.security.oauth.application.OAuthCacheService;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
 import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
@@ -25,7 +28,7 @@ public class AuthIntegrationManager {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CsrfTokenProvider csrfTokenProvider;
-    private final TokenCacheHandler tokenCacheHandler;
+    private final TokenCacheAggregator tokenCacheAggregator;
     private final OAuthCacheService oauthCacheService;
     private final PrincipalDetailsService principalDetailsService;
 
@@ -42,10 +45,7 @@ public class AuthIntegrationManager {
         return TokenResponse.of(token);
     }
 
-    public TokenResponse reissueToken(final HttpServletResponse response,
-                                      String refreshToken,
-                                      String csrfToken
-    ) {
+    public TokenResponse reissueToken(final HttpServletResponse response, String refreshToken, String csrfToken) {
         AuthenticationToken token = reissue(refreshToken, csrfToken);
         bakeCookie(token.getJwtToken(), response);
         return TokenResponse.of(token);
@@ -59,8 +59,8 @@ public class AuthIntegrationManager {
     private AuthenticationToken issue(String userId) {
         PrincipalDetails principalDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         JwtToken jwtToken = jwtTokenProvider.sign(userId, principalDetails.getEmail(), principalDetails.getUserRoles());
-        CsrfToken csrfToken = csrfTokenProvider.sign();
-        tokenCacheHandler.cache(userId, jwtToken, csrfToken);
+        CsrfToken csrfToken = csrfTokenProvider.sign(userId);
+        tokenCacheAggregator.cache(userId, jwtToken, csrfToken);
         return AuthenticationToken.of(jwtToken, csrfToken);
     }
 
@@ -73,7 +73,7 @@ public class AuthIntegrationManager {
 
     private void invalidateToken(PrincipalDetails principalDetails){
         SecurityContextHolder.clearContext();
-        tokenCacheHandler.evictCache(principalDetails.getUsername());
+        tokenCacheAggregator.evictCache(principalDetails.getUsername());
     }
 
     private void bakeCookie(JwtToken jwtToken, HttpServletResponse response){
@@ -84,7 +84,7 @@ public class AuthIntegrationManager {
 
     private String verify(String refreshToken, String csrfToken) {
         String userId = String.valueOf(jwtTokenProvider.verifyWithoutExpiryAndFetch(refreshToken));
-        tokenCacheHandler.verifyCache(userId, refreshToken, csrfToken);
+        tokenCacheAggregator.verifyCache(userId, refreshToken, csrfToken);
         return userId;
     }
 
