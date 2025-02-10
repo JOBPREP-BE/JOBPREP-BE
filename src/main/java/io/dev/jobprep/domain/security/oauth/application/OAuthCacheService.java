@@ -19,7 +19,7 @@ import static io.dev.jobprep.exception.code.ErrorCode400.OTPT_VALIDATION_FAILURE
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OAuthRedisService {
+public class OAuthCacheService {
 
     private static final String OTP_TOKEN_PREFIX = "otp:";
 
@@ -46,10 +46,13 @@ public class OAuthRedisService {
                 throw new TokenStorageException(OTPT_VALIDATION_FAILURE);
             }
             OAuthUserInfo userInfo = objectMapper.readValue(value.get(), OAuthUserInfo.class);
+            if (userInfo == null) {
+                throw new TokenStorageException(OTPT_VALIDATION_FAILURE);
+            }
             try {
                 redisTemplate.delete(key);
             } catch(Exception e) {
-                log.error("Failed to delete temporary token from Redis: {}", key, e);
+                log.error("Failed to delete otp-token from Redis: {}", key, e);
             }
             return Optional.of(userInfo);
         } catch (JsonProcessingException e) {

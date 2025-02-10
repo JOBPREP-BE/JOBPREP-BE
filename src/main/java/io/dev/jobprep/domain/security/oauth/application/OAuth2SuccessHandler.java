@@ -26,7 +26,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private static final String QUERY_PARAMETER = "?";
     private static final String TOKEN_PARAMETER = "otp_token=";
 
-    private final OAuthRedisService oauthRedisService;
+    private final OAuthCacheService oauthCacheService;
 
     @Value("${spring.security.oauth2.frontend-redirect.url}")
     private String redirectUrl;
@@ -48,7 +48,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         );
 
         String otpToken = generateToken();
-        oauthRedisService.cache(otpToken, userInfo, Duration.ofMinutes(5));
+        oauthCacheService.cache(otpToken, userInfo, Duration.ofMinutes(5));
 
         response.sendRedirect(generateRedirectUrl(otpToken));
     }
