@@ -12,54 +12,56 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.Optional;
 
-import static io.dev.jobprep.exception.code.ErrorCode400.TMPT_CACHE_FALIURE;
-import static io.dev.jobprep.exception.code.ErrorCode400.TMPT_VALIDATION_FAILURE;
+import static io.dev.jobprep.exception.code.ErrorCode400.OTPT_CACHE_FALIURE;
+import static io.dev.jobprep.exception.code.ErrorCode400.OTPT_VALIDATION_FAILURE;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class OAuthRedisService {
+
+    private static final String OTP_TOKEN_PREFIX = "otp:";
+
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
 
-    private static final String TEMP_TOKEN_PREFIX = "temp:";
-
-    public void saveTemporaryToken(String temporaryToken, OAuthUserInfo userInfo, Duration expiration) {
+    public void cache(String otpToken, OAuthUserInfo userInfo, Duration expiration) {
         try {
-            String key = TEMP_TOKEN_PREFIX + temporaryToken;
+            String key = generateKey(otpToken);
             String value = objectMapper.writeValueAsString(userInfo);
-
             redisTemplate.opsForValue().set(key, value, expiration);
         } catch (Exception e) {
-            throw new TokenStorageException(TMPT_CACHE_FALIURE);
+            throw new TokenStorageException(OTPT_CACHE_FALIURE);
         }
     }
 
-    public Optional<OAuthUserInfo> getTemporaryToken(String temporaryToken) {
-        String key = TEMP_TOKEN_PREFIX + temporaryToken;
-        String value="";
+    public Optional<OAuthUserInfo> fetch(String otpToken) {
+        String key = generateKey(otpToken);
+        Optional<String> value = Optional.empty();
 
         try {
-            value = redisTemplate.opsForValue().get(key);
-            if (value == null) {
-                throw new TokenStorageException(TMPT_VALIDATION_FAILURE);
-
+            value = Optional.ofNullable(redisTemplate.opsForValue().get(key));
+            if (value.isEmpty()) {
+                throw new TokenStorageException(OTPT_VALIDATION_FAILURE);
             }
-
-            OAuthUserInfo userInfo = objectMapper.readValue(value, OAuthUserInfo.class);
+            OAuthUserInfo userInfo = objectMapper.readValue(value.get(), OAuthUserInfo.class);
             try {
                 redisTemplate.delete(key);
             } catch(Exception e) {
                 log.error("Failed to delete temporary token from Redis: {}", key, e);
             }
             return Optional.of(userInfo);
-
-        }catch (JsonProcessingException e) {
-            log.error("Failed to deserialize user info: {}", value, e);
-            throw new TokenStorageException(TMPT_VALIDATION_FAILURE);
-        }catch (Exception e){
+        } catch (JsonProcessingException e) {
+            log.error("Failed to deserialize user info: {}", value.get(), e);
+            throw new TokenStorageException(OTPT_VALIDATION_FAILURE);
+        } catch (Exception e){
             log.error("Failed to process temporary token: {}", key, e);
-            throw new TokenStorageException(TMPT_VALIDATION_FAILURE);
+            throw new TokenStorageException(OTPT_VALIDATION_FAILURE);
         }
+    }
+
+    private String generateKey(String token) {
+        return OTP_TOKEN_PREFIX + token;
     }
 }
