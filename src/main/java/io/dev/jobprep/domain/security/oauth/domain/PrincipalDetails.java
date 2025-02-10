@@ -66,8 +66,8 @@ public record PrincipalDetails (
         return user.getEmail();
     }
 
-    public String getUserRoles(){ return this
-            .getAuthorities()
+    public String getUserRoles() {
+        return this.getAuthorities()
             .stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));

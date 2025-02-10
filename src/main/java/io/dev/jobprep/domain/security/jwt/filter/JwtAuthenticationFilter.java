@@ -4,7 +4,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.JwtService;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
-import io.dev.jobprep.domain.security.util.TokenHeaderConstants;
+import io.dev.jobprep.common.constants.TokenHeaderConstants;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -66,12 +66,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 } else {
                     log.warn("Failed to get principal details from token");
                     SecurityContextHolder.clearContext();
-                    request.setAttribute("exception", new JWTVerificationException("User details not found"));
+                    request.setAttribute("exception", new JWTVerificationException("No user-details found"));
                 }
             } else {
                 log.debug("No token found in request headers");
                 SecurityContextHolder.clearContext();
-                request.setAttribute( "exception", new JWTVerificationException("NO TOKEN FOUND"));
+                request.setAttribute( "exception", new JWTVerificationException("No token found"));
             }
         } catch (JWTVerificationException e) {
             log.warn("JWT verification failed: {}", e.getMessage());
@@ -92,14 +92,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String userId = jwtService.extractUserId(decodeJWT);
             return (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         } catch (Exception e) {
-            throw new JWTVerificationException("Failed to get user details");
+            throw new JWTVerificationException("Failed to get user-details");
         }
     }
 
     private void setAuthentication(PrincipalDetails principalDetails) {
         try {
             if (principalDetails == null) {
-                throw new JWTVerificationException("User details not found");
+                throw new JWTVerificationException("No user-details found");
             }
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
