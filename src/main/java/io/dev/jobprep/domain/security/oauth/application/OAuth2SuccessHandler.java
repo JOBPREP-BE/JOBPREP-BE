@@ -1,6 +1,7 @@
 package io.dev.jobprep.domain.security.oauth.application;
 
 
+import io.dev.jobprep.common.constants.TokenHeaderConstants;
 import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,34 +19,46 @@ import java.time.Duration;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-    private final OAuthRedisService oAuthRedisService;
+
+    private static final String QUERY_PARAMETER = "?";
+    private static final String EQUAVALENT = "=";
+
+    private final OAuthCacheService oauthCacheService;
 
     @Value("${spring.security.oauth2.frontend-redirect.url}")
     private String redirectUrl;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication
+    ) throws IOException {
+
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
 
-
-        String temporaryToken = UUID.randomUUID().toString();
-
-        OAuthUserInfo userInfo = OAuthUserInfo.builder()
-                .userId(principalDetails.getUsername())
-                .email(principalDetails.getEmail())
-                .authorities(principalDetails.getAuthorities().stream()
+        OAuthUserInfo userInfo = OAuthUserInfo.of(
+                principalDetails.getUsername(),
+                principalDetails.getEmail(),
+                principalDetails.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.joining(",")))
-                .build();
+                        .collect(Collectors.joining(","))
+        );
 
-        oAuthRedisService.saveTemporaryToken(temporaryToken, userInfo, Duration.ofMinutes(5));
+        String otpToken = generateToken();
+        oauthCacheService.cache(otpToken, userInfo, Duration.ofMinutes(5));
 
-        String redirectUrlWithToken = redirectUrl + "?temp_token=" + temporaryToken;
+        response.sendRedirect(generateRedirectUrl(otpToken));
+    }
 
-        response.sendRedirect(redirectUrlWithToken);
+    private String generateRedirectUrl(String otpToken) {
+        return redirectUrl + QUERY_PARAMETER + TokenHeaderConstants.OTP_HEADER + EQUAVALENT + otpToken;
+    }
+
+    private String generateToken() {
+        return UUID.randomUUID().toString();
     }
 }
