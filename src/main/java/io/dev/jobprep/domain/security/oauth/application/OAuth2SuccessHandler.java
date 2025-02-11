@@ -38,6 +38,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                                         Authentication authentication
     ) throws IOException {
 
+        log.info("call SuccessHandler!");
+
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
 
         OAuthUserInfo userInfo = OAuthUserInfo.of(
