@@ -23,7 +23,7 @@ public record PrincipalDetails (
 
     @Override
     public String getUsername() {
-        return user.getId().toString();
+        return this.user.getId().toString();
     }
 
     @Override
@@ -48,27 +48,28 @@ public record PrincipalDetails (
 
     @Override
     public Map<String, Object> getAttributes() {
-        return attributes;
+        return this.attributes;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(
-                new SimpleGrantedAuthority(user.getUserRole().toString()));
+                new SimpleGrantedAuthority(this.user.getUserRole().toString()));
     }
 
     @Override
     public String getName() {
-        return attributes.get(attributeKey).toString();
+        return this.attributes.get(this.attributeKey).toString();
     }
 
-    public String getEmail(){
-        return user.getEmail();
+    public String getEmail() {
+        return this.user.getEmail();
     }
 
-    public String getUserRoles(){ return this
-            .getAuthorities()
+    public String getUserRoles() {
+        return this.getAuthorities()
             .stream()
             .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(","));}
+            .collect(Collectors.joining(","));
+    }
 }

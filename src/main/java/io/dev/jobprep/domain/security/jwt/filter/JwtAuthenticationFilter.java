@@ -2,9 +2,9 @@ package io.dev.jobprep.domain.security.jwt.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
-import io.dev.jobprep.domain.security.jwt.application.JwtService;
+import io.dev.jobprep.domain.security.jwt.application.provider.JwtTokenProvider;
 import io.dev.jobprep.domain.security.oauth.application.PrincipalDetailsService;
-import io.dev.jobprep.domain.security.util.TokenHeaderConstants;
+import io.dev.jobprep.common.constants.TokenHeaderConstants;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -27,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
+    private final JwtTokenProvider jwtTokenProvider;
     private final PrincipalDetailsService principalDetailsService;
 
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
@@ -58,20 +57,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String accessToken = resolveAccessToken(request);
             if (StringUtils.hasText(accessToken)) {
-                jwtService.isTokenValid(accessToken);
-                PrincipalDetails principalDetails = getPrincipalDetailsFromToken(accessToken);
+                PrincipalDetails principalDetails = verifyAndFetch(accessToken);
                 if (principalDetails != null) {
                     log.debug("Authentication successful for user: {}", principalDetails.getUsername());
                     setAuthentication(principalDetails);
                 } else {
                     log.warn("Failed to get principal details from token");
                     SecurityContextHolder.clearContext();
-                    request.setAttribute("exception", new JWTVerificationException("User details not found"));
+                    request.setAttribute("exception", new JWTVerificationException("No user-details found"));
                 }
             } else {
                 log.debug("No token found in request headers");
                 SecurityContextHolder.clearContext();
-                request.setAttribute( "exception", new JWTVerificationException("NO TOKEN FOUND"));
+                request.setAttribute( "exception", new JWTVerificationException("No token found"));
             }
         } catch (JWTVerificationException e) {
             log.warn("JWT verification failed: {}", e.getMessage());
@@ -86,20 +84,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    private PrincipalDetails getPrincipalDetailsFromToken(String Token){
+    private PrincipalDetails verifyAndFetch(String token){
         try {
-            DecodedJWT decodeJWT = jwtService.verifyNDecodeToken(Token);
-            String userId = jwtService.extractUserId(decodeJWT);
+            String userId = String.valueOf(jwtTokenProvider.verifyAndFetch(token));
             return (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         } catch (Exception e) {
-            throw new JWTVerificationException("Failed to get user details");
+            throw new JWTVerificationException("Failed to get user-details");
         }
     }
 
     private void setAuthentication(PrincipalDetails principalDetails) {
         try {
             if (principalDetails == null) {
-                throw new JWTVerificationException("User details not found");
+                throw new JWTVerificationException("No user-details found");
             }
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
