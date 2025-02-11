@@ -70,7 +70,7 @@ public class OAuthAttributes {
     private static List<String> fetchInfoFromAttributes(String social, Map<String, Object> attributes) {
         if (KAKAO.equals(social)) {
             Map<String, Object> account = fetchAttribute(attributes, "kakao_account");
-            Map<String, Object> profile = fetchAttribute(attributes, "profile");
+            Map<String, Object> profile = fetchAttribute(account, "profile");
             return Arrays.asList(
                     String.valueOf(profile.get(NICKNAME)),
                     String.valueOf(account.get(EMAIL))
