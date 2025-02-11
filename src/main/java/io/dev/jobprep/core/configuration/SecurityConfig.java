@@ -46,7 +46,7 @@ public class SecurityConfig {
                                 "/api/v1/oauth2/callback",
                                 "/login/oauth2/code/**",
                                 "/oauth2/authorization/**",
-                                "/oauth2/callback",
+                                "/oauth/callback",
                                 "/api-docs/**",
                                 "/swagger-ui/**",
                                 "/actuator/**",
@@ -56,18 +56,18 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(handling -> handling
-                        .authenticationEntryPoint(entryPoint)
-                        .accessDeniedHandler(accessDeniedHandler)
+                .exceptionHandling(handling ->
+                        handling
+                            .authenticationEntryPoint(entryPoint)
+                            .accessDeniedHandler(accessDeniedHandler)
                 )
-
                 .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(oAuth2UserService))
+                        .userInfoEndpoint(userInfo ->
+                                userInfo.userService(oAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
         return http.build();
@@ -75,16 +75,16 @@ public class SecurityConfig {
 
     private void configureCommonSecuritySettings(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .requireCsrfProtectionMatcher(
-                                new AntPathRequestMatcher("/api/v1/oauth2/reissue", "POST")
-                        )
-                )
-                .formLogin(AbstractHttpConfigurer::disable)
-                .logout(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .csrf(csrf -> csrf
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    .requireCsrfProtectionMatcher(
+                            new AntPathRequestMatcher("/api/v1/oauth2/reissue", "POST")
+                    )
+            )
+            .formLogin(AbstractHttpConfigurer::disable)
+            .logout(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
     }
 
     @Bean
@@ -97,7 +97,8 @@ public class SecurityConfig {
                 "https://fe.jobprep.site"
         ));
         configuration.setAllowedMethods(
-                Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+                Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+        );
         configuration.setAllowedHeaders(Arrays.asList(
                 "Origin",
                 "Accept",
