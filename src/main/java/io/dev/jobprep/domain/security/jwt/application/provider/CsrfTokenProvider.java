@@ -1,6 +1,5 @@
 package io.dev.jobprep.domain.security.jwt.application.provider;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
@@ -10,7 +9,6 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class CsrfTokenProvider {
 
     private static final String DEFAULT_CSRF_HEADER_NAME = "X-XSRF-TOKEN";
@@ -24,8 +22,11 @@ public class CsrfTokenProvider {
     }
 
     private CsrfToken generateToken() {
-        String token = UUID.randomUUID().toString();
-        return new DefaultCsrfToken(DEFAULT_CSRF_HEADER_NAME, DEFAULT_CSRF_PARAMETER_NAME, token);
+        return new DefaultCsrfToken(DEFAULT_CSRF_HEADER_NAME, DEFAULT_CSRF_PARAMETER_NAME, this.createNewToken());
+    }
+
+    private String createNewToken() {
+        return UUID.randomUUID().toString();
     }
 
     private String masking(String token) {
