@@ -48,7 +48,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                         .collect(Collectors.joining(","))
         );
 
-        String otpToken = generateToken();
+        log.info("Successfully authenticated user '{}'", userInfo.getEmail());
+
+        String otpToken = createNewToken();
         oauthCacheService.cache(otpToken, userInfo, Duration.ofMinutes(5));
 
         response.sendRedirect(generateRedirectUrl(otpToken));
@@ -58,7 +60,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         return redirectUrl + QUERY_PARAMETER + TokenHeaderConstants.OTP_HEADER + EQUAVALENT + otpToken;
     }
 
-    private String generateToken() {
+    private String createNewToken() {
         return UUID.randomUUID().toString();
     }
 }

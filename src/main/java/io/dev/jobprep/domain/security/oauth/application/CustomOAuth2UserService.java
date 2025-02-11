@@ -36,6 +36,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, oAuth2UserAttributes);
         User user = fetchAndSaveIfAbsent(attributes);
+        log.info("Registered user '{}' with successful OAuth Authentication", user.getEmail());
         return new PrincipalDetails(user, oAuth2UserAttributes, userNameAttributeName);
     }
 
