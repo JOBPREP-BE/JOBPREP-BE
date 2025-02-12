@@ -11,6 +11,7 @@ import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.dto.JwtToken;
 import io.dev.jobprep.domain.security.oauth.presentation.dto.res.TokenResponse;
+import io.dev.jobprep.domain.users.domain.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,12 @@ public class AuthIntegrationManager {
             throw new IllegalStateException("Invalid OTP token");
         }
         AuthenticationToken token = issue(userInfo.getUserId());
+        bakeCookie(token.getJwtToken(), response);
+        return TokenResponse.of(token);
+    }
+
+    public TokenResponse issueTokenViaNonOAuth(final HttpServletResponse response, User developer) {
+        AuthenticationToken token = issue(String.valueOf(developer.getId()));
         bakeCookie(token.getJwtToken(), response);
         return TokenResponse.of(token);
     }
