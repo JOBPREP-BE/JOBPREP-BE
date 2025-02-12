@@ -19,6 +19,10 @@ public class TokenResponse {
     }
 
     public static TokenResponse of(AuthenticationToken token) {
-        return new TokenResponse(token.getJwtToken().getAccessToken(), token.getCsrfToken().getToken());
+        return new TokenResponse(token.getJwtToken().getAccessToken(), resolveCsrfToken(token));
+    }
+
+    private static String resolveCsrfToken(AuthenticationToken token) {
+        return token.getCsrfToken() == null ? null : token.getCsrfToken().getToken();
     }
 }
