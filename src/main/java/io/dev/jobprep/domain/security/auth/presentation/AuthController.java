@@ -4,7 +4,6 @@ import io.dev.jobprep.common.swagger.template.AuthSwagger;
 import io.dev.jobprep.domain.security.auth.application.AuthService;
 import io.dev.jobprep.domain.security.auth.presentation.dto.req.AuthLoginRequest;
 import io.dev.jobprep.domain.security.oauth.presentation.dto.res.TokenResponse;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +20,8 @@ public class AuthController implements AuthSwagger {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody AuthLoginRequest request,
-                                               HttpServletResponse response) {
-        return ResponseEntity.ok(authService.login(request, response));
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody AuthLoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 
 }

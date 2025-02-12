@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,8 +29,5 @@ public interface AuthSwagger {
                     examples = @ExampleObject(name = "E02-AUTH-001", value = SwaggerJwtErrorExamples.AUTH_MISSING_CREDENTIALS)
                 ))
     })
-    ResponseEntity<TokenResponse> login(
-            @Valid @RequestBody AuthLoginRequest request,
-            HttpServletResponse response
-    );
+    ResponseEntity<TokenResponse> login(@Valid @RequestBody AuthLoginRequest request);
 }

@@ -46,9 +46,8 @@ public class AuthIntegrationManager {
         return TokenResponse.of(token);
     }
 
-    public TokenResponse issueTokenViaNonOAuth(final HttpServletResponse response, User developer) {
+    public TokenResponse issueTokenViaNonOAuth(User developer) {
         AuthenticationToken token = issueForFP(String.valueOf(developer.getId()));
-        bakeCookie(token.getJwtToken(), response);
         return TokenResponse.of(token);
     }
 
@@ -74,9 +73,7 @@ public class AuthIntegrationManager {
     private AuthenticationToken issueForFP(String userId) {
         PrincipalDetails principalDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
         JwtToken jwtToken = jwtTokenProvider.signForFP(userId, principalDetails.getEmail(), principalDetails.getUserRoles());
-        CsrfToken csrfToken = csrfTokenProvider.sign(userId);
-        tokenCacheAggregator.cache(userId, jwtToken, csrfToken);
-        return AuthenticationToken.of(jwtToken, csrfToken);
+        return AuthenticationToken.of(jwtToken, null);
     }
 
     private AuthenticationToken reissue(String refreshToken, String csrfToken) {
