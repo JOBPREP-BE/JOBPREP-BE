@@ -19,7 +19,7 @@ public class EssentialMaterialController implements EssentialMaterialSwagger {
     private final EssentialMaterialService essentialMaterialService;
     private final UserCommonService userCommonService;
 
-    @GetMapping(value = "/")
+    @GetMapping
     public ResponseEntity<EssentialMaterialGetAPIResponse> get(@JwtToken Long userId){
         String material = essentialMaterialService.get(userCommonService.getUserWithId(userId));
         return ResponseEntity.ok(new EssentialMaterialGetAPIResponse(material));
