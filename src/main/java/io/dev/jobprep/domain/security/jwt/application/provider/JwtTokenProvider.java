@@ -27,6 +27,7 @@ public class JwtTokenProvider {
     private static final String USER_ROLE = "auth";
     private static final String USER_EMAIL = "email";
     private static final String MASKER = "*****";
+    private static final Long MONTH = 2_592_000_000L;
 
     @Value("${jwt.secret-key}")
     private String secretKey;
@@ -51,6 +52,14 @@ public class JwtTokenProvider {
         return JwtToken.of(TYPE, accessToken, refreshToken);
     }
 
+    public JwtToken signForFP(String userId, String userEmail, String userRoles) {
+
+        String accessToken = signAccessTokenForFP(userId, userEmail, userRoles);
+        log.info("Signed accessToken for FP '{}'", masking(accessToken));
+
+        return JwtToken.of(TYPE, accessToken, null);
+    }
+
     private String signAccessToken(String userId, String userEmail, String userRoles) {
         return JWT.create()
                 .withSubject(userId)
@@ -58,6 +67,16 @@ public class JwtTokenProvider {
                 .withClaim(USER_EMAIL, userEmail)
                 .withIssuedAt(getCurrentDate())
                 .withExpiresAt(calculateExpiryDate(accessTokenValidityTime))
+                .sign(getAlgorithm());
+    }
+
+    private String signAccessTokenForFP(String userId, String userEmail, String userRoles) {
+        return JWT.create()
+                .withSubject(userId)
+                .withClaim(USER_ROLE, userRoles)
+                .withClaim(USER_EMAIL, userEmail)
+                .withIssuedAt(getCurrentDate())
+                .withExpiresAt(calculateExpiryDate(MONTH))
                 .sign(getAlgorithm());
     }
 

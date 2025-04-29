@@ -30,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final PrincipalDetailsService principalDetailsService;
 
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
+            "/api/v1/auth/login",
             "/actuator",
             "/api/v1/oauth2/reissue",
             "/login/oauth2/code",

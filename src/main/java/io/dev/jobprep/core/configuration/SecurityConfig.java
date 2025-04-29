@@ -6,6 +6,7 @@ import io.dev.jobprep.domain.security.oauth.application.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -37,9 +38,30 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
+    public SecurityFilterChain nonOAuth2SecurityFilterChain(HttpSecurity http) throws Exception {
+        configureCommonSecuritySettings(http);
+        return http
+                .securityMatcher(new AntPathRequestMatcher("/api/v1/auth/**"))
+                .authorizeHttpRequests(auth -> auth
+                    .anyRequest().permitAll()
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(handling ->
+                    handling
+                        .authenticationEntryPoint(entryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
+                .sessionManagement(session ->
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+        .build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain authenticationFilterChain(HttpSecurity http) throws Exception {
         configureCommonSecuritySettings(http);
-        http
+        return http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/v1/oauth2/reissue",
@@ -68,9 +90,8 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
-
-        return http.build();
+                )
+        .build();
     }
 
     private void configureCommonSecuritySettings(HttpSecurity httpSecurity) throws Exception {
@@ -120,6 +141,7 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .requestMatchers(
+                        "/api/v1/auth/login",
                         "/actuator/**",
                         "/api/v1/oauth2/reissue",
                         "/login/oauth2/code",

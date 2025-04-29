@@ -11,6 +11,7 @@ import io.dev.jobprep.domain.security.oauth.application.dto.OAuthUserInfo;
 import io.dev.jobprep.domain.security.oauth.domain.PrincipalDetails;
 import io.dev.jobprep.domain.security.jwt.application.dto.JwtToken;
 import io.dev.jobprep.domain.security.oauth.presentation.dto.res.TokenResponse;
+import io.dev.jobprep.domain.users.domain.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,11 @@ public class AuthIntegrationManager {
         return TokenResponse.of(token);
     }
 
+    public TokenResponse issueTokenViaNonOAuth(User developer) {
+        AuthenticationToken token = issueForFP(String.valueOf(developer.getId()));
+        return TokenResponse.of(token);
+    }
+
     public TokenResponse reissueToken(final HttpServletResponse response, String refreshToken, String csrfToken) {
         AuthenticationToken token = reissue(refreshToken, csrfToken);
         bakeCookie(token.getJwtToken(), response);
@@ -62,6 +68,12 @@ public class AuthIntegrationManager {
         CsrfToken csrfToken = csrfTokenProvider.sign(userId);
         tokenCacheAggregator.cache(userId, jwtToken, csrfToken);
         return AuthenticationToken.of(jwtToken, csrfToken);
+    }
+
+    private AuthenticationToken issueForFP(String userId) {
+        PrincipalDetails principalDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(userId);
+        JwtToken jwtToken = jwtTokenProvider.signForFP(userId, principalDetails.getEmail(), principalDetails.getUserRoles());
+        return AuthenticationToken.of(jwtToken, null);
     }
 
     private AuthenticationToken reissue(String refreshToken, String csrfToken) {
